@@ -16,3 +16,17 @@ app.secret_key = config.secret_key
 login_manager = LoginManager( app )
 
 login_manager.login_view = '/login'
+
+class User:
+    is_authenticated = True
+    is_active = True
+    is_anoonymous = False
+
+    def __init__(self, result):
+        self.name = result['Username']
+        self.email = result['Email']
+        self.address = result['Address']
+        self.id = result['ID']
+    
+    def get_id(self):
+        return str(self.id)
