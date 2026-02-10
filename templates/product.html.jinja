@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <title>EZ-BAM</title>
+</head>
+
+<body class="bg-gradient-to-b from-gray-700 to-gray-500 px-6 py-6 text-gray-200 min-h-screen font-sans">
+
+    {% include 'components/navbar.html.jinja' %}
+
+    <div class="max-w-10xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+
+        
+
+        <div class="flex flex-col items-center">
+            <img src="{{ product['Image'] }}"
+             class="w-96 rounded-xl shadow-xl" />
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700">
+            <p class="text-gray-300 mb-6 leading-relaxed">
+                {{ product['Description'] }}
+            </p>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700">
+
+            <h1 class="text-3xl font-bold mb-4 text-white">
+                {{ product['Name'] }}
+            </h1>
+            
+            <p class="text-3xl from-blue-700 to-gray-500 text-gray-200 font-sans">
+                ${{ product['Price'] }}
+            </p>
+
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            
+            
+
+        <form method="post" action="/product/{{ product['ID']}}/add_to_cart">
+            <label>Qty:</label>
+            <input type="number"  name="qty:" value="1" min="1" max="10">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg w-full text-lg">
+                Add to Cart
+            </button>
+
+        </form>
+
+        </div>
+    </div>
+    
+
+</body>
+<form method="post" action="/product/{{ product['ID']}}/Review"></form>
+<div class="max-w-6xl mx-auto mt-20 bg-gray-800 rounded-xl shadow-xl p-8 border border-gray-700">
+
+  <h2 class="text-2xl font-bold mb-6 text-white">
+    Customer Reviews
+  </h2>
+
+  {% if reviews and reviews|length > 0 %}
+
+    <div class="space-y-6">
+
+      {% for review in reviews %}
+      <div class="border-b border-gray-700 pb-4">
+        <div class="flex justify-between items-center mb-2">
+          <p class="font-semibold text-gray-200">
+          User: {{review['Username']}}
+          <br>
+            Comment:{{review['Comment']}}
+            <br>
+            Rating:{{review['Rating']}}★
+            
+          </p>
+          <p class="text-sm text-gray-400">
+            {{ review.TimeStamp.strftime('%B %d, %Y, %I:%M %p') }}
+          </p>
+        </div>
+
+      
+        
+
+        <p class="text-gray-300">{{ review.comment }}</p>
+      </div>
+      {% endfor %}
+
+    </div>
+
+  {% else %}
+    <p class="text-gray-400">
+      No reviews yet. Be the first to review this product!
+    </p>
+  {% endif %}
+
+  
+  {% if current_user.is_authenticated %}
+  <div class="mt-10 border-t border-gray-700 pt-6">
+  
+    <h3 class="text-xl font-semibold mb-4">Leave a Review</h3>
+
+    <form method="post" action="/product/{{ product['ID'] }}/review" class="space-y-4">
+
+      <div>
+        <label class="block mb-1">Rating</label>
+        <select name="rating"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                required>
+          <option value="">Select rating</option>
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★☆ (4)</option>
+          <option value="3">★★★☆☆ (3)</option>
+          <option value="2">★★☆☆☆ (2)</option>
+          <option value="1">★☆☆☆☆ (1)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block mb-1">Comment</label>
+        <textarea name="comment"
+                  rows="4"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                  required></textarea>
+      </div>
+
+      <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow">
+        Submit Review
+      </button>
+
+    </form>
+  </div>
+  {% else %}
+    <p class="mt-6 text-gray-400">
+      <a href="/login" class="underline hover:text-white">Log in</a> to leave a review.
+    </p>
+  {% endif %}
+
+</div>
+
+</html>
