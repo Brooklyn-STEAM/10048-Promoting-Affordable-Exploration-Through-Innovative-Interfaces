@@ -30,3 +30,48 @@ class User:
     
     def get_id(self):
         return str(self.id)
+    
+@login_manager.user_loader
+def load_user(user_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute(" SELECT * FROM `User` WHERE `ID` = %s ", ( user_id ))
+
+    result = cursor.fetchone()
+
+    connection.close()
+
+    if result is None:
+        return None
+    
+    return User(result)
+
+@app.errorhandler(404)
+def page_not_found(e):
+        return render_template("404.html.jinja"), 404
+
+
+
+def connect_db():
+    conn = pymysql.connect(
+        host="db.steamcenter.tech",
+        user="djean2",
+        password=config.password,
+        database="hidden_gems",
+        autocommit=True,
+        cursorclass=pymysql.cursors.DictCursor
+    )
+    
+    return conn 
+
+
+
+@app.route("/")
+def index():
+    return render_template("homepage.html.jinja")
+
+
+@app.route("/browse")
+def browse():
+    return render_template("browse.html.jinja")
