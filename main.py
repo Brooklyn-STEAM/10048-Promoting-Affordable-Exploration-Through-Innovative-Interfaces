@@ -17,7 +17,7 @@ login_manager = LoginManager( app )
 
 login_manager.login_view = '/login'
 
-class User:
+class User: 
     is_authenticated = True
     is_active = True
     is_anoonymous = False
