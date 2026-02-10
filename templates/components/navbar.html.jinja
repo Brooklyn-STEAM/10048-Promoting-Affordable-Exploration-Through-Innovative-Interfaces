@@ -1,0 +1,94 @@
+ 
+<nav class="w-full flex justify-center mt-6">
+    <div class="flex items-center gap-4 px-6 py-3 rounded-3xl border border-gray-400/40 
+                bg-gradient-to-b from-gray-900 to-gray-800 shadow-xl">
+        <a href="/" class="text-white mx-2 hover:underline px-6 py-3 bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">Home</a>
+        <a href="/browse" class="text-white mx-2 hover:underline bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">Shop</a>
+        <a href="/about" class="text-white mx-2 hover:underline bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">About</a>
+        <a href="/contact" class="text-white mx-2 hover:underline bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">Contact</a>
+        
+        <a href="/" class="flex items-center gap-3"> 
+        
+        
+
+        </a>
+
+       
+
+
+    <img src="/static/products/logo_ez.png" alt="EZ-BAM Logo" class="h-15 w-auto">
+    
+  </a>
+
+        
+        
+    <nav class="flex justify-between bg-gray-900/50 backdrop-blur-md px-5 py-3 rounded-3xl border border-gray-400/40 shadow-xl">
+    {{current_user.username}}
+        <div class="hidden xl:flex items-center space-x-5 items-center">
+          <a class="hover:text-gray-200" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </a>
+          <div class="relative group">
+  
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M3 3h2l.4 2M7 13h10l4-8H5.4
+           M7 13L5.4 5M7 13l-2.293 2.293
+           c-.63.63-.184 1.707.707 1.707H17
+           m0 0a2 2 0 100 4
+           m-8 0a2 2 0 11-4 0" />
+    </svg>
+  </a>
+
+  
+  <div
+    class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg
+           opacity-0 invisible group-hover:opacity-100 group-hover:visible
+           transition-all duration-200 z-50">
+
+    <a href="/cart"
+       class="block px-4 py-2 hover:bg-gray-700 text-white rounded-t-lg">
+      Cart
+    </a>
+
+    <a href="/order"class="block px-4 py-2 hover:bg-gray-700 text-white rounded-b-lg">
+      Order
+    </a>
+  </div>
+</div>
+
+          
+          <div class="relative group">
+          
+            <a class="flex items-center hover:text-gray-200" href="#">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              </a>
+            <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+            {%if not current_user.is_authenticated%}
+              <a href="/login" class="block px-4 py-2 hover:bg-gray-700 text-white rounded-t-lg">Login</a>
+
+              <a href="/signup" class="block px-4 py-2 hover:bg-gray-700 text-white rounded-b-lg">Sign Up</a>
+              {%else%}
+              <div>
+                  Hi,{{current_user.name}}
+              </div>
+              <a href="/logout" class ="block px 4 py-2 hover:bg-gray-700 text-white rounded-b-lg">Logout</a>
+            {%endif%}
+            </div>
+          </div>   
+        </div>
+      </div>
+      
+      
+    </nav>
+    
+  </section>
+</div>
+

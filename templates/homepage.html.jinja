@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <title>EZ-BAM</title>
+  </head>
+
+  <body class="bg-gradient-to-b from-gray-700 to-gray-500 shadow-md px-6 py-3 text-gray-400 min-h-screen font-sans">
+    
+    {% include 'components/navbar.html.jinja' %}
+
+    
+    <section class="flex flex-col items-center mt-12">
+    <h1 class="text-5xl font-bold text-white mb-6 rounded-lg hover:scale-105 hover:bg-gray-700 transition-all duration-200">Welcome to EZ-BAM</h1>
+      <img 
+        src="/static/inf.gif" 
+        class="w-150 h-auto rounded-xl shadow-xl"
+        alt="EZ-BAM"
+        class="w-80 h-auto rounded-xl shadow-xl"
+      >
+    </section>
+
+  </body>
+</html>
