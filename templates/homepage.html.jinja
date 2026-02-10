@@ -5,23 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <title>EZ-BAM</title>
+    <title>Hidden Gems: Budget adventures</title>
+   <script>
+  // Start fade-out at 14.5 seconds
+  setTimeout(() => {
+    document.body.classList.add('fade-out');
+  }, 14500);
+
+  // Redirect at 15 seconds
+  setTimeout(() => {
+    window.location.href = "/browse";
+  }, 15000);
+</script>
+
+<style>
+  .fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+  }
+</style>
+
+
   </head>
 
   <body class="bg-gradient-to-b from-gray-700 to-gray-500 shadow-md px-6 py-3 text-gray-400 min-h-screen font-sans">
     
-    {% include 'components/navbar.html.jinja' %}
+    
 
     
     <section class="flex flex-col items-center mt-12">
-    <h1 class="text-5xl font-bold text-white mb-6 rounded-lg hover:scale-105 hover:bg-gray-700 transition-all duration-200">Welcome to EZ-BAM</h1>
+    <h1 class="text-5xl font-bold text-white mb-6 rounded-lg hover:scale-105 hover:bg-gray-700 transition-all duration-200">loading you next adventure.....</h1>
       <img 
-        src="/static/inf.gif" 
-        class="w-150 h-auto rounded-xl shadow-xl"
-        alt="EZ-BAM"
+        src="/static/borough_load.gif" 
+        class="w-175 h-auto rounded-xl shadow-xl"
+        alt="hidden Gems: Budget adventures"
         class="w-80 h-auto rounded-xl shadow-xl"
       >
     </section>
+
+<body class="bg-gradient-to-b from-gray-700 to-gray-500 shadow-md px-6 py-3 text-gray-400 min-h-screen font-sans">
+  
+
+  <script>
+    setTimeout(function() {
+      window.location.href = "/browse";
+    }, 17000);
+  </script>
+</body>
 
   </body>
 </html>
