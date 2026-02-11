@@ -75,3 +75,5 @@ def index():
 @app.route("/browse")
 def browse():
     return render_template("browse.html.jinja")
+
+
