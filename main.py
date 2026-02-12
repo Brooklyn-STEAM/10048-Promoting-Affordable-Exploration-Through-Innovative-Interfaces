@@ -72,9 +72,23 @@ def index():
     return render_template("homepage.html.jinja")
 
 
-@app.route("/browse")
+@app.route("/browse", methods=["GET", "POST"])
 def browse():
-    return render_template("browse.html.jinja")
+    FRUITS = [
+        "strawberry", "raspberry", "blueberry",
+        "cherry", "blackberry", "peach", "apple"
+    ]
+
+    selected = "strawberry"
+
+    if request.method == "POST":
+        selected = request.form.get("fruit", "strawberry")
+
+    return render_template(
+        "browse.html.jinja",
+        fruits=FRUITS,
+        selected=selected
+    )
 
 
     
