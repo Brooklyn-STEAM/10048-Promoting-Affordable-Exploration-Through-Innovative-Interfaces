@@ -5,23 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <title>EZ-BAM</title>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
   </head>
 
-  <body class="bg-gradient-to-b from-gray-700 to-gray-500 shadow-md px-6 py-3 text-gray-400 min-h-screen font-sans">
+<body class="bg-green-900 min-h-screen flex items-center justify-center">
 
-  
+<div class="bg-green-800 p-10 rounded-3xl shadow-xl text-white w-[420px]">
 
-      
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold">PIEMAKER</h1>
+            <p class="text-sm opacity-70 capitalize">{{ selected }} tart</p>
+            <p class="text-xs opacity-50">350 g</p>
+        </div>
+
+        <div class="text-right">
+            <p class="text-3xl font-bold">$999</p>
+            <button class="mt-2 bg-white text-green-900 px-3 py-1 rounded-full">
+                🛒
+            </button>
+        </div>
     </div>
-    </section>
-    
-    
-    
 
-   
+    <!-- Tart Image -->
+    <div class="flex justify-center mb-6">
+        <img src="/static/images/{{ selected }}.png"
+             class="w-64 h-64 object-cover rounded-full shadow-lg border-4 border-white">
+    </div>
 
-      
-    </main>
-  </body>
+    <!-- Sliding Fruit Selector -->
+    <form method="POST"
+          class="w-full overflow-x-auto whitespace-nowrap py-4 flex gap-3 no-scrollbar">
+
+        {% for fruit in fruits %}
+        <button name="fruit" value="{{ fruit }}"
+            class="px-4 py-2 rounded-full border shrink-0
+                   {% if fruit == selected %}
+                       bg-white text-green-900 border-white
+                   {% else %}
+                       border-white/40 text-white/70 hover:bg-white/20
+                   {% endif %}">
+            {{ fruit.capitalize() }}
+        </button>
+        {% endfor %}
+
+    </form>
+
+</div>
+
+</body>
 </html>
