@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piemaker - Strawberry Tart</title>
+    <title>Borough Selector</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -41,7 +41,7 @@
     <header class="flex justify-between items-center p-8 z-50">
         <div class="flex items-center gap-6">
             <i class="fa-solid fa-bars text-xl cursor-pointer"></i>
-            <span class="font-bold tracking-widest text-sm">BROUGH SELCTOR</span>
+            <span class="font-bold tracking-widest text-sm">BOROUGH SELECTOR</span>
         </div>
 
         <div class="flex items-center gap-8">
@@ -67,28 +67,29 @@
                 </button>
             </div>
 
-            <!-- Middle -->
             <!-- Right -->
             <div class="flex flex-col items-end gap-6">
                 <div class="flex items-center gap-6">
-                    <button class="w-14 h-14 bg-[#f05c2c] rounded-full flex items-center justify-center shadow-lg shadow-orange-900/40 hover:scale-110 transition">
                         <i class="fa-solid fa-cart-shopping"></i>
                     </button>
                 </div>
             </div>
         </div>
 
-<!-- Positioning container (keeps everything aligned) -->
-<div class="relative w-full flex justify-center">
+        <div class="relative w-full flex justify-center mt-24">
 
-    <!-- Tart Image (stays exactly where it was) -->
-    <div class="absolute bottom-[-20%] w-[600px] z-10 pointer-events-none">
+  <!-- Centering container -->
+<div class="relative w-full flex justify-center items-center mt-20">
+
+    <!-- Tart Image (centered) -->
+    <div class="absolute top-1/2 -translate-y-1/2 w-[500px] z-10 pointer-events-none">
         <img src="/static/images/{{ selected }}.png"
              class="w-full drop-shadow-2xl rounded-full">
     </div>
 
-    <!-- FORM ONLY WRAPS THE ARC -->
-    <form method="POST" class="absolute bottom-[-150px] w-[1000px] h-[1000px] rounded-full border border-white/10 pointer-events-none z-20">
+    <!-- Arc Form (centered around tart) -->
+    <form method="POST"
+          class="absolute top-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full border border-white/10 pointer-events-none z-20">
 
         <div class="circular-text pointer-events-none">
 
