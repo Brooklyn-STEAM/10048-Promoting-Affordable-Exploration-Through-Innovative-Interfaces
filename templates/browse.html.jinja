@@ -3,113 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piemaker - Strawberry Tart</title>
+    <title>Borough Selector</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
-        body { font-family: 'Montserrat', sans-serif; }
-
-        /* Arc text container */
-        .circular-text {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transform: translateY(18%);
-            pointer-events: none;
-        }
-
-        /* Each arc label */
-        .arc-item {
-            position: absolute;
-            left: 50%;
-            transform-origin: bottom center;
-            height: 500px;
-            text-transform: uppercase;
-            font-size: 0.7rem;
-            letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.4);
-            white-space: nowrap;
-        }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
 <body class="bg-[#042823] text-white min-h-screen overflow-hidden flex flex-col">
 
     <!-- Header -->
-    <header class="flex justify-between items-center p-8 z-50">
-        <div class="flex items-center gap-6">
-            <i class="fa-solid fa-bars text-xl cursor-pointer"></i>
-            <span class="font-bold tracking-widest text-sm">BROUGH SELCTOR</span>
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold">PIEMAKER</h1>
+            <p class="text-sm opacity-70 capitalize">{{ selected }} tart</p>
+            <p class="text-xs opacity-50">350 g</p>
         </div>
 
-        <div class="flex items-center gap-8">
-            <i class="fa-regular fa-heart text-lg cursor-pointer"></i>
-
-            <div class="relative">
-                <i class="fa-solid fa-cart-shopping text-lg cursor-pointer"></i>
-                <span class="absolute -top-2 -right-2 bg-orange-500 text-[10px] rounded-full w-4 h-4 flex items-center justify-center">1</span>
-            </div>
+        <div class="text-right">
+            <p class="text-3xl font-bold">$999</p>
+            <button class="mt-2 bg-white text-green-900 px-3 py-1 rounded-full">
+                🛒
+            </button>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Content -->
-    <main class="flex-grow relative flex flex-col items-center">
-
-        <!-- Top Controls -->
-        <div class="w-full max-w-6xl px-8 flex justify-between items-start mt-10">
-
-            <!-- Left -->
-            <div>
-                <button>
-                    <h1 class="text-3xl font-light mb-1">Adventure</h1>
-                </button>
-            </div>
-
-            <!-- Middle -->
-            <!-- Right -->
-            <div class="flex flex-col items-end gap-6">
-                <div class="flex items-center gap-6">
-                    <button class="w-14 h-14 bg-[#f05c2c] rounded-full flex items-center justify-center shadow-lg shadow-orange-900/40 hover:scale-110 transition">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-<!-- Positioning container (keeps everything aligned) -->
-<div class="relative w-full flex justify-center">
-
-    <!-- Tart Image (stays exactly where it was) -->
-    <div class="absolute bottom-[-20%] w-[600px] z-10 pointer-events-none">
+    <!-- Tart Image -->
+    <div class="flex justify-center mb-6">
         <img src="/static/images/{{ selected }}.png"
              class="w-full drop-shadow-2xl rounded-full">
     </div>
 
-    <!-- FORM ONLY WRAPS THE ARC -->
-    <form method="POST" class="absolute bottom-[-150px] w-[1000px] h-[1000px] rounded-full border border-white/10 pointer-events-none z-20">
+    <!-- Sliding Fruit Selector -->
+    <form method="POST"
+          class="w-full overflow-x-auto whitespace-nowrap py-4 flex gap-3 no-scrollbar">
 
-        <div class="circular-text pointer-events-none">
-
-            {% set total = fruits|length %}
-            {% for fruit in fruits %}
-                {% set angle = -45 + (loop.index0 * (90 / (total - 1))) %}
-
-                <button 
-                    type="submit"
-                    name="fruit"
-                    value="{{ fruit }}"
-                    class="arc-item {% if fruit == selected %}text-white font-bold{% endif %}"
-                    style="transform: rotate({{ angle }}deg); pointer-events:auto;"
-                >
-                    {{ fruit }}
-
-                    {% if fruit == selected %}
-                        <div class="w-1.5 h-1.5 bg-white rounded-full mx-auto mt-2"></div>
-                    {% endif %}
-                </button>
-            {% endfor %}
+        {% for fruit in fruits %}
+        <button name="fruit" value="{{ fruit }}"
+            class="px-4 py-2 rounded-full border shrink-0
+                   {% if fruit == selected %}
+                       bg-white text-green-900 border-white
+                   {% else %}
+                       border-white/40 text-white/70 hover:bg-white/20
+                   {% endif %}">
+            {{ fruit.capitalize() }}
+        </button>
+        {% endfor %}
 
         </div>
 
