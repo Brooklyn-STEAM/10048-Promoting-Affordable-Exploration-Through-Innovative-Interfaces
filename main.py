@@ -75,11 +75,11 @@ def index():
 @app.route("/browse", methods=["GET", "POST"])
 def browse():
     FRUITS = [
-        "strawberry", "raspberry", "blueberry",
-        "cherry", "blackberry", "peach", "apple"
+        "Bronx", "Mahattan", "Brooklyn",
+        "Queens", "StatenIsland",
     ]
 
-    selected = "strawberry"
+    selected = FRUITS[0]
 
     if request.method == "POST":
         selected = request.form.get("fruit", "strawberry")
