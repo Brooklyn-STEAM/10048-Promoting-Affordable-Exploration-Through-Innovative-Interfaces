@@ -1,94 +1,152 @@
- 
-<nav class="w-full flex justify-center mt-6">
-    <div class="flex items-center gap-4 px-6 py-3 rounded-3xl border border-gray-400/40 
-                bg-gradient-to-b from-gray-900 to-gray-800 shadow-xl">
-        <a href="/" class="text-white mx-2 hover:underline px-6 py-3 bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">Home</a>
-        <a href="/browse" class="text-white mx-2 hover:underline bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">Shop</a>
-        <a href="/about" class="text-white mx-2 hover:underline bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">About</a>
-        <a href="/contact" class="text-white mx-2 hover:underline bg-gradient-to-b from-gray-700 to-gray-900 shadow-md px-6 py-3 rounded-xl text-white font-semibold">Contact</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Sidebar Navbar</title>
+    <style>
+        :root {
+            --sidebar-width: 260px; --sidebar-width-collapsed: 90px;
+            --header-height-mobile: 60px; --color-primary: #0d6efd; --color-sidebar-bg: #fff;
+            --color-sidebar-text: #344767; --color-sidebar-link-active-bg: rgba(0, 0, 0, 0.06);
+            --color-page-bg: #f8f9fa; --color-text-primary: #333; --color-border: #e9ecef;
+            --font-family-sans-serif: "Poppins", system-ui, -apple-system, sans-serif;
+            --transition-speed: 0.3s;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
         
-        <a href="/" class="flex items-center gap-3"> 
-        
-        
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body { font-family: var(--font-family-sans-serif); background-color: var(--color-page-bg); color: var(--color-text-primary); }
 
-        </a>
+        .app-layout { display: flex; min-height: 100vh; }
 
+        
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+            background-color: var(--color-sidebar-bg); border-right: 1px solid var(--color-border);
+            display: flex; flex-direction: column; z-index: 1000;
+            transform: translateX(-100%); transition: transform var(--transition-speed) ease;
+        }
+        .sidebar.is-open { transform: translateX(0); }
+        .sidebar__header { padding: 1.5rem; flex-shrink: 0; border-bottom: 1px solid var(--color-border); }
+        .sidebar__brand { font-size: 1.5rem; font-weight: 600; text-decoration: none; color: var(--color-text-primary); display: flex; align-items: center; gap: 0.75rem; }
+        .sidebar__menu { list-style: none; margin: 0; padding: 1rem; flex-grow: 1; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem;
+            border-radius: 8px; margin-bottom: 0.5rem; color: var(--color-sidebar-text); text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-link__icon { width: 24px; height: 24px; flex-shrink: 0; }
+        .sidebar-link__text { white-space: nowrap; transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease; }
+        .sidebar-link:hover { background-color: var(--color-sidebar-link-active-bg); }
+        .sidebar-link.is-active { background-color: var(--color-primary); color: #fff; }
+
+        .sidebar__footer { padding: 1.5rem; flex-shrink: 0; border-top: 1px solid var(--color-border); }
+        #sidebar-collapse-btn { display: none; } /* Hidden on mobile */
+        
        
-
-
-    <img src="/static/products/logo_ez.png" alt="EZ-BAM Logo" class="h-15 w-auto">
-    
-  </a>
-
+        .mobile-header { display: flex; align-items: center; justify-content: space-between; height: var(--header-height-mobile); padding: 0 1rem; background: #fff; border-bottom: 1px solid var(--color-border); }
+        .page-content-wrapper { width: 100%; }
+        .main-content { padding: 1.5rem; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 999; }
         
         
-    <nav class="flex justify-between bg-gray-900/50 backdrop-blur-md px-5 py-3 rounded-3xl border border-gray-400/40 shadow-xl">
-    {{current_user.username}}
-        <div class="hidden xl:flex items-center space-x-5 items-center">
-          <a class="hover:text-gray-200" href="#">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </a>
-          <div class="relative group">
-  
-  
-  
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-         viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M3 3h2l.4 2M7 13h10l4-8H5.4
-           M7 13L5.4 5M7 13l-2.293 2.293
-           c-.63.63-.184 1.707.707 1.707H17
-           m0 0a2 2 0 100 4
-           m-8 0a2 2 0 11-4 0" />
-    </svg>
-  </a>
+        @media (min-width: 992px) {
+            .mobile-header, .sidebar-overlay { display: none; }
+            .sidebar { position: sticky; transform: translateX(0); transition: width var(--transition-speed) ease; }
+            .page-content-wrapper { flex-grow: 1; margin-left: var(--sidebar-width); transition: margin-left var(--transition-speed) ease; }
+            
+            #sidebar-collapse-btn { display: flex; }
 
-  
-  <div
-    class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg
-           opacity-0 invisible group-hover:opacity-100 group-hover:visible
-           transition-all duration-200 z-50">
+           
+            .sidebar.is-collapsed { width: var(--sidebar-width-collapsed); }
+            .sidebar.is-collapsed .sidebar-link { justify-content: center; }
+            .sidebar.is-collapsed .sidebar-brand { justify-content: center; }
 
-    <a href="/cart"
-       class="block px-4 py-2 hover:bg-gray-700 text-white rounded-t-lg">
-      Cart
-    </a>
+            
+            .sidebar.is-collapsed .sidebar-link__text,
+            .sidebar.is-collapsed .sidebar__brand span {
+                opacity: 0; width: 0; padding: 0; margin: 0; overflow: hidden;
+            }
+            .sidebar.is-collapsed + .page-content-wrapper { margin-left: var(--sidebar-width-collapsed); }
 
-    <a href="/order"class="block px-4 py-2 hover:bg-gray-700 text-white rounded-b-lg">
-      Order
-    </a>
-  </div>
-</div>
-
-          
-          <div class="relative group">
-          
-            <a class="flex items-center hover:text-gray-200" href="#">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              </a>
-            <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-            {%if not current_user.is_authenticated%}
-              <a href="/login" class="block px-4 py-2 hover:bg-gray-700 text-white rounded-t-lg">Login</a>
-
-              <a href="/signup" class="block px-4 py-2 hover:bg-gray-700 text-white rounded-b-lg">Sign Up</a>
-              {%else%}
-              <div>
-                  Hi,{{current_user.name}}
-              </div>
-              <a href="/logout" class ="block px 4 py-2 hover:bg-gray-700 text-white rounded-b-lg">Logout</a>
-            {%endif%}
+            
+            .icon-expand { display: none; }
+            .sidebar.is-collapsed .icon-collapse { display: none; }
+            .sidebar.is-collapsed .icon-expand { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <nav class="sidebar" id="app-sidebar">
+            <div class="sidebar__header">
+                <a href="#" class="sidebar__brand">
+                    <svg viewBox="0 0 24 24" width="32" height="32"><path fill="currentColor" d="M12,2L3,7.5V16.5L12,22L21,16.5V7.5L12,2Z" /></svg>
+                    <span>AppPanel</span>
+                </a>
             </div>
-          </div>   
+            <ul class="sidebar__menu">
+                <li><a href="#" class="sidebar-link is-active"><svg class="sidebar-link__icon" viewBox="0 0 24 24"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" /></svg><span class="sidebar-link__text">Dashboard</span></a></li>
+                <li><a href="#" class="sidebar-link"><svg class="sidebar-link__icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,16A2,2 0 0,0 14,14A2,2 0 0,0 12,12A2,2 0 0,0 10,14A2,2 0 0,0 12,16M12,8A2,2 0 0,0 14,6A2,2 0 0,0 12,4A2,2 0 0,0 10,6A2,2 0 0,0 12,8Z" /></svg><span class="sidebar-link__text">Reports</span></a></li>
+                <li><a href="#" class="sidebar-link"><svg class="sidebar-link__icon" viewBox="0 0 24 24"><path fill="currentColor" d="M16,11.75V10.25L12,11L8,10.25V11.75L12,12.5L16,11.75M12,2L1,9L12,16L23,9L12,2M6,10.05V13L12,14.6L18,13V10.05L12,11.6L6,10.05Z" /></svg><span class="sidebar-link__text">Users</span></a></li>
+            </ul>
+            <div class="sidebar__footer">
+                <a href="#" class="sidebar-link" id="sidebar-collapse-btn">
+                    
+                    <svg class="sidebar-link__icon icon-collapse" viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+                    
+                    <svg class="sidebar-link__icon icon-expand" viewBox="0 0 24 24"><path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" /></svg>
+                    <span class="sidebar-link__text">Collapse</span>
+                </a>
+            </div>
+        </nav>
+        <div class="page-content-wrapper">
+            <header class="mobile-header">
+                <button id="mobile-menu-open-btn" aria-label="Open menu" aria-controls="app-sidebar" aria-expanded="false">&#x2630;</button>
+                <a href="#" class="sidebar__brand"><span>App</span>Panel</a>
+            </header>
+            <main class="main-content">
+                <h1>Dashboard</h1>
+                <p>Content goes here. This version has corrected alignment and mobile behavior.</p>
+            </main>
         </div>
-      </div>
-      
-      
-    </nav>
-    
-  </section>
-</div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('app-sidebar');
+        const collapseBtn = document.getElementById('sidebar-collapse-btn');
+        const mobileOpenBtn = document.getElementById('mobile-menu-open-btn');
+        const isCollapsedKey = 'sidebarIsCollapsed';
 
+        if (collapseBtn && sidebar) {
+            if (localStorage.getItem(isCollapsedKey) === 'true') sidebar.classList.add('is-collapsed');
+            collapseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                sidebar.classList.toggle('is-collapsed');
+                localStorage.setItem(isCollapsedKey, sidebar.classList.contains('is-collapsed'));
+            });
+        }
+        
+        if (mobileOpenBtn && sidebar) {
+            mobileOpenBtn.addEventListener('click', () => {
+                sidebar.classList.add('is-open');
+                mobileOpenBtn.setAttribute('aria-expanded', 'true');
+                const overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+                overlay.addEventListener('click', closeMobileMenu);
+            });
+        }
+        
+        function closeMobileMenu() {
+            sidebar.classList.remove('is-open');
+            mobileOpenBtn.setAttribute('aria-expanded', 'false');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (overlay) overlay.remove();
+        }
+    });
+    </script>
+</body>
+</html>
