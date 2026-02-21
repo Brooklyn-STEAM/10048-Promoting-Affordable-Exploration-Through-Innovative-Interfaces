@@ -67,28 +67,33 @@ def connect_db():
 
 
 
-@app.route("/")
-def index():
-    return render_template("homepage.html.jinja")
+FRUITS = [
+    {"name": "strawberry", "emoji": "🍓", "color": "#c0392b", "accent": "#e74c3c"},
+    {"name": "lemon",      "emoji": "🍋", "color": "#d4ac0d", "accent": "#f1c40f"},
+    {"name": "blueberry",  "emoji": "🫐", "color": "#1a237e", "accent": "#3949ab"},
+    {"name": "raspberry",  "emoji": "🫐", "color": "#880e4f", "accent": "#ad1457"},
+    {"name": "blackberry", "emoji": "🍇", "color": "#4a148c", "accent": "#6a1b9a"},
+    {"name": "peach",      "emoji": "🍑", "color": "#bf360c", "accent": "#e64a19"},
+]
 
+SIZES = ["S", "M", "L"]
+PRICES = {"S": "7.99", "M": "9.99", "L": "12.99"}
 
 @app.route("/browse", methods=["GET", "POST"])
 def browse():
-    FRUITS = [
-        "Bronx", "Mahattan", "Brooklyn",
-        "Queens", "StatenIsland",
-    ]
-
-    selected = FRUITS[0]
-
-    if request.method == "POST":
-        selected = request.form.get("fruit", "strawberry")
+    selected_fruit = request.form.get("fruit", "strawberry")
+    selected_size  = request.form.get("size", "M")
+    fruit_obj = next((f for f in FRUITS if f["name"] == selected_fruit), FRUITS[0])
+    price = PRICES.get(selected_size, "9.99")
 
     return render_template(
         "browse.html.jinja",
         fruits=FRUITS,
-        selected=selected
+        selected=fruit_obj,
+        sizes=SIZES,
+        selected_size=selected_size,
+        price=price,
     )
 
-
-    
+if __name__ == "__main__":
+    app.run(debug=True)

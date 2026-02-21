@@ -1,60 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borough Selector</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PIEMAKER</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --accent: {{ selected.accent }};
+      --fruit-color: {{ selected.color }};
+    }
 
-    <style>
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Archivo', sans-serif;
+      background-color: #0d2e28;
+      color: #e8ded0;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Subtle grain overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.3;
+    }
+
+    h1 {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      font-size: 0.75rem;
+    }
+
+    .tart-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    /* Radial fruit selector */
+    .radial-container {
+      position: absolute;
+      bottom: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+    }
+
+    .arc-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(232, 222, 208, 0.1);
+    }
+    .arc-ring:nth-child(1) { inset: 10%; }
+    .arc-ring:nth-child(2) { inset: 22%; }
+    .arc-ring:nth-child(3) { inset: 34%; }
+
+    .tart-img-wrap {
+      position: absolute;
+      inset: 30%;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      transition: transform 0.6s cubic-bezier(.23,1,.32,1);
+    }
+
+    .tart-img-wrap:hover { transform: scale(1.03); }
+
+    .tart-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Fruit labels around the arc */
+    .fruit-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform-origin: 0 0;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(232,222,208,0.45);
+      transition: color 0.3s;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .fruit-label.active {
+      color: #e8ded0;
+    }
+
+    .fruit-label .dot {
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(232,222,208,0.3);
+      margin-right: 6px;
+      vertical-align: middle;
+      transition: background 0.3s;
+    }
+    .fruit-label.active .dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* Size selector */
+    .size-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(232,222,208,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: rgba(232,222,208,0.6);
+    }
+
+    .size-btn.active, .size-btn:hover {
+      border-color: #e8ded0;
+      color: #e8ded0;
+      background: rgba(232,222,208,0.08);
+    }
+
+    .size-btn.active {
+      background: rgba(232,222,208,0.15);
+    }
+
+    /* Add to cart button */
+    .cart-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      color: white;
+      font-size: 1rem;
+    }
+    .cart-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .add-topping {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(232,222,208,0.4);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .add-topping:hover { color: rgba(232,222,208,0.8); }
+
+    .save-btn {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(232,222,208,0.4);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .save-btn:hover { color: rgba(232,222,208,0.8); }
+
+    .nav-link {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(232,222,208,0.35);
+    }
+
+    /* Page-in animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.5s ease both; }
+    .fade-up-1 { animation-delay: 0.05s; }
+    .fade-up-2 { animation-delay: 0.1s; }
+    .fade-up-3 { animation-delay: 0.15s; }
+
+    @keyframes spinIn {
+      from { opacity: 0; transform: translateX(-50%) rotate(-8deg) scale(0.94); }
+      to   { opacity: 1; transform: translateX(-50%) rotate(0deg) scale(1); }
+    }
+    .spin-in { animation: spinIn 0.6s cubic-bezier(.23,1,.32,1) both; }
+  </style>
 </head>
 
-<body class="bg-[#042823] text-white min-h-screen overflow-hidden flex flex-col">
+<body>
 
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-bold">PIEMAKER</h1>
-            <p class="text-sm opacity-70 capitalize">{{ selected }} tart</p>
-            <p class="text-xs opacity-50">350 g</p>
-        </div>
+<!-- ── TOP NAV ── -->
+<div class="absolute top-0 left-0 right-0 flex items-center justify-between px-8 py-6 z-10">
+  <div class="flex items-center gap-4">
+    <button class="flex flex-col gap-1 opacity-60 hover:opacity-100 transition-opacity">
+      <span class="block w-5 h-px bg-current"></span>
+      <span class="block w-3 h-px bg-current"></span>
+    </button>
+    <h1 class="fade-up">PIEMAKER</h1>
+  </div>
 
-        <div class="text-right">
-            <p class="text-3xl font-bold">$999</p>
-            <button class="mt-2 bg-white text-green-900 px-3 py-1 rounded-full">
-                🛒
-            </button>
-        </div>
+  <div class="flex items-center gap-5 text-sm opacity-50">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+  </div>
+</div>
+
+<!-- ── LEFT PANEL ── -->
+<div class="absolute left-8 top-1/2 -translate-y-1/2 z-10 max-w-[200px]">
+
+  <p class="text-xs tracking-widest uppercase opacity-40 mb-2 fade-up fade-up-1">Select size</p>
+
+  <form method="POST" id="main-form">
+    <input type="hidden" name="fruit" value="{{ selected.name }}">
+
+    <!-- Size buttons -->
+    <div class="flex gap-2 mb-8 fade-up fade-up-2">
+      {% for size in sizes %}
+      <button type="submit" name="size" value="{{ size }}"
+        class="size-btn {% if size == selected_size %}active{% endif %}">
+        {{ size }}
+      </button>
+      {% endfor %}
     </div>
+  </form>
 
-    <!-- Tart Image -->
-    <div class="flex justify-center mb-6">
-        <img src="/static/images/{{ selected }}.png"
-             class="w-full drop-shadow-2xl rounded-full">
-    </div>
+  <div class="fade-up fade-up-3">
+    <p class="tart-name capitalize mb-1">{{ selected.name }}<br>tart</p>
+    <p class="text-xs opacity-40 mb-5">350 g</p>
+    <button class="add-topping">+ Add topping</button>
+  </div>
+</div>
 
-    <!-- Sliding Fruit Selector -->
-    <form method="POST"
-          class="w-full overflow-x-auto whitespace-nowrap py-4 flex gap-3 no-scrollbar">
+<!-- ── RIGHT PANEL ── -->
+<div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 text-right">
+  <p class="text-xs tracking-widest uppercase opacity-40 mb-1 fade-up fade-up-1">Select size</p>
 
-        {% for fruit in fruits %}
-        <button name="fruit" value="{{ fruit }}"
-            class="px-4 py-2 rounded-full border shrink-0
-                   {% if fruit == selected %}
-                       bg-white text-green-900 border-white
-                   {% else %}
-                       border-white/40 text-white/70 hover:bg-white/20
-                   {% endif %}">
-            {{ fruit.capitalize() }}
-        </button>
-        {% endfor %}
+  <!-- Price -->
+  <p class="fade-up fade-up-2" style="font-family:'Cormorant Garamond',serif; font-size:2.8rem; font-weight:300; line-height:1;">
+    $&nbsp;{{ price }}
+  </p>
 
-        </div>
-
+  <div class="flex items-center justify-end gap-3 mt-4 mb-6 fade-up fade-up-3">
+    <button class="save-btn">Save to favorites ♡</button>
+    <form method="POST">
+      <input type="hidden" name="fruit" value="{{ selected.name }}">
+      <input type="hidden" name="size" value="{{ selected_size }}">
+      <button type="submit" class="cart-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+      </button>
     </form>
+  </div>
+</div>
+
+<!-- ── RADIAL TART + FRUIT SELECTOR ── -->
+<div class="radial-container spin-in">
+
+  <!-- Decorative rings -->
+  <div class="arc-ring"></div>
+  <div class="arc-ring"></div>
+  <div class="arc-ring"></div>
+
+  <!-- Tart image placeholder (use real images at /static/images/<fruit>.png) -->
+  <div class="tart-img-wrap">
+    <!-- Fallback colored circle if image missing -->
+    <div style="width:100%;height:100%;background:radial-gradient(circle at 40% 35%, {{ selected.accent }}, {{ selected.color }}, #1a0a05);"></div>
+  </div>
+
+  <!-- Fruit labels — positioned by JS below -->
+  {% for fruit in fruits %}
+  <form method="POST" class="fruit-form" data-index="{{ loop.index0 }}" data-total="{{ fruits|length }}"
+        style="position:absolute; top:50%; left:50%; transform-origin:0 0;">
+    <input type="hidden" name="size" value="{{ selected_size }}">
+    <button type="submit" name="fruit" value="{{ fruit.name }}"
+      class="fruit-label {% if fruit.name == selected.name %}active{% endif %}">
+      <span class="dot"></span>{{ fruit.name }}
+    </button>
+  </form>
+  {% endfor %}
 
 </div>
+
+<!-- ── BOTTOM NAV ── -->
+<div class="absolute bottom-6 left-8 right-8 flex justify-between z-10">
+  <div class="flex gap-6">
+    <a href="#" class="nav-link">Delivery</a>
+    <a href="#" class="nav-link">Contact us</a>
+  </div>
+  <a href="#" class="nav-link">Privacy</a>
+</div>
+
+<script>
+  // Position fruit labels radially around the top arc
+  document.querySelectorAll('.fruit-form').forEach(form => {
+    const idx   = parseInt(form.dataset.index);
+    const total = parseInt(form.dataset.total);
+    const radius = 290;
+    // Spread from -155deg to -25deg (top arc)
+    const angleDeg = -155 + (idx / (total - 1)) * 130;
+    const angleRad = angleDeg * Math.PI / 180;
+    const x = 350 + radius * Math.cos(angleRad);
+    const y = 350 + radius * Math.sin(angleRad);
+    form.style.top  = y + 'px';
+    form.style.left = x + 'px';
+    form.style.transform = 'translate(-50%, -50%)';
+  });
+</script>
+</body>
+</html>
