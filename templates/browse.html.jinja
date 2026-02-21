@@ -204,31 +204,25 @@
   </style>
 </head>
 
-<body>
+{% include 'components/navbar.html.jinja' %}
 
-<!-- ── TOP NAV ── -->
-<div class="absolute top-0 left-0 right-0 flex items-center justify-between px-8 py-6 z-10">
-  <div class="flex items-center gap-4">
-    <button class="flex flex-col gap-1 opacity-60 hover:opacity-100 transition-opacity">
-      <span class="block w-5 h-px bg-current"></span>
-      <span class="block w-3 h-px bg-current"></span>
-    </button>
-    <h1 class="fade-up">PIEMAKER</h1>
-  </div>
+<body class="bg-[#042823] text-white min-h-screen overflow-hidden flex flex-col">
 
-  <div class="flex items-center gap-5 text-sm opacity-50">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-  </div>
-</div>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold">PIEMAKER</h1>
+            <p class="text-sm opacity-70 capitalize">{{ selected }} tart</p>
+            <p class="text-xs opacity-50">350 g</p>
+        </div>
 
-<!-- ── LEFT PANEL ── -->
-<div class="absolute left-8 top-1/2 -translate-y-1/2 z-10 max-w-[200px]">
-
-  <p class="text-xs tracking-widest uppercase opacity-40 mb-2 fade-up fade-up-1">Select size</p>
-
-  <form method="POST" id="main-form">
-    <input type="hidden" name="fruit" value="{{ selected.name }}">
+        <div class="text-right">
+            <p class="text-3xl font-bold">$999</p>
+            <button class="mt-2 bg-white text-green-900 px-3 py-1 rounded-full">
+                🛒
+            </button>
+        </div>
+    </div>
 
     <!-- Size buttons -->
     <div class="flex gap-2 mb-8 fade-up fade-up-2">
