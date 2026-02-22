@@ -95,5 +95,10 @@ def browse():
         price=price,
     )
 
+
+@app.route("/brooklyn")
+def brooklyn():
+    return render_template("brooklyn.html.jinja")
+    
 if __name__ == "__main__":
     app.run(debug=True)
