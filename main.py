@@ -91,4 +91,7 @@ def browse():
     )
 
 
+@app.route("/brooklyn")
+def brooklyn():
+    return render_template("brooklyn.html.jinja")
     

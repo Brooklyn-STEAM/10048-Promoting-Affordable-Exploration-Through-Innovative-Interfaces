@@ -1,0 +1,35 @@
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chat / New Post Mockup — Tailwind</title>
+  <!-- Tailwind CDN for quick prototyping -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+   
+    .soft-shadow { box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+  </style>
+</head>
+
+{% include 'components/navbar.html.jinja' %}
+
+<body class="min-h-screen bg-[#efe6d8] flex items-start ">
+  <div class="w-full max-w-[1100px] grid grid-cols-1 md:grid-cols-[320px_1fr] gap-6">
+    <!-- LEFT COLUMN -->
+    <aside class="flex flex-col gap-4 items-start ml-5">
+      <!-- Seal -->
+      <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-[#e6d9c6] bg-gradient-to-b from-white to-[#f3efe8] shadow-lg">
+  <img src="{{ url_for('static', filename='images/staten_logo.png') }}"
+       alt="Staten Logo"
+       class="w-full h-full object-cover object-center block" />
+</div>
+
+
+    
+    </aside>
+
+   
+  </div>
+</body>
+</html>
+
