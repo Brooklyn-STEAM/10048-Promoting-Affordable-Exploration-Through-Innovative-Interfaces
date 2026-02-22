@@ -96,9 +96,9 @@ def browse():
     )
 
 
-@app.route("/brooklyn")
-def brooklyn():
-    return render_template("brooklyn.html.jinja")
+@app.route("/staten_is")
+def staten_is():
+    return render_template("staten_is.html.jinja")
     
 @app.route('/sign_up', methods=["POST" , "GET"])
 def register():
