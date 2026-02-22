@@ -165,8 +165,6 @@
   </style>
 </head>
 
-
-
 <body>
 
 <!-- TOP NAV -->
@@ -231,47 +229,6 @@
   document.body.style.backgroundColor = 'transparent';
   requestAnimationFrame(() => {
     document.body.style.backgroundColor = '{{ selected.color }}';
-  });
-</script>
-</body>
-</html>
-
-<script>
-  document.querySelectorAll('.borough-form').forEach(form => {
-    const idx   = parseInt(form.dataset.index);
-    const total = parseInt(form.dataset.total);
-    const radius = 290;
-    const angleDeg = -155 + (idx / (total - 1)) * 130;
-    const angleRad = angleDeg * Math.PI / 180;
-    const x = 350 + radius * Math.cos(angleRad);
-    const y = 350 + radius * Math.sin(angleRad);
-    form.style.top  = y + 'px';
-    form.style.left = x + 'px';
-    form.style.transform = 'translate(-50%, -50%)';
-  });
-
-  document.body.style.backgroundColor = 'transparent';
-  requestAnimationFrame(() => {
-    document.body.style.backgroundColor = '{{ selected.color }}';
-  });
-</script>
-</body>
-</html>
-
-<script>
-  // Position fruit labels radially around the top arc
-  document.querySelectorAll('.fruit-form').forEach(form => {
-    const idx   = parseInt(form.dataset.index);
-    const total = parseInt(form.dataset.total);
-    const radius = 290;
-    // Spread from -155deg to -25deg (top arc)
-    const angleDeg = -155 + (idx / (total - 1)) * 130;
-    const angleRad = angleDeg * Math.PI / 180;
-    const x = 350 + radius * Math.cos(angleRad);
-    const y = 350 + radius * Math.sin(angleRad);
-    form.style.top  = y + 'px';
-    form.style.left = x + 'px';
-    form.style.transform = 'translate(-50%, -50%)';
   });
 </script>
 </body>
