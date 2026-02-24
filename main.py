@@ -72,7 +72,7 @@ BOROUGHS = [
     {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
     {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
     {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
-    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
+    {"name": "staten-island", "color": "#3a3328", "accent": "#7a6a50"},
 ]
 
 @app.route("/browse", methods=["GET", "POST"])
@@ -88,14 +88,26 @@ def browse():
 
 @app.route("/borough/<name>")
 def borough_page(name):
-    name = name.replace("-", " ")
-    borough = next((b for b in BOROUGHS if b["name"] == name), None)
-    if not borough:
-        return "Borough not found", 404
-    return render_template("borough.html.jinja", borough=borough)
+    # Normalize
+    name = name.lower()
+
+    # Redirect each borough to its own page
+    if name == "manhattan":
+        return redirect("/manhattan")
+    if name == "brooklyn":
+        return redirect("/brooklyn")
+    if name == "queens":
+        return redirect("/queens")
+    if name == "bronx":
+        return redirect("/bronx")
+    if name == "staten-island":
+        return redirect("/staten-island")
+
+    return "Borough not found", 404
 
 
-@app.route("/staten_is")
+
+@app.route("/staten-island")
 def staten_is():
     return render_template("staten_is.html.jinja")
     

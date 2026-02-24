@@ -231,5 +231,38 @@
     document.body.style.backgroundColor = '{{ selected.color }}';
   });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const exploreBtn = document.querySelector(".visit-btn");
+  const overlay = document.getElementById("page-transition");
+
+  if (exploreBtn) {
+    exploreBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      overlay.style.opacity = "1";
+
+      setTimeout(() => {
+        window.location.href = exploreBtn.href;
+      }, 600);
+    });
+  }
+});
+</script>
+
 </body>
+<div id="page-transition"></div>
+
+<style>
+#page-transition {
+  position: fixed;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 9999;
+}
+</style>
+
 </html>
