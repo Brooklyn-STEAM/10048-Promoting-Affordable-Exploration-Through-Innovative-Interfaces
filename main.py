@@ -65,32 +65,111 @@ def connect_db():
     
     return conn 
 
-BOROUGHS = [
-    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
-    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
-    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
-    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
-    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
+
+
+FRUITS = [
+    {"name": "strawberry", "emoji": "🍓", "color": "#c0392b", "accent": "#e74c3c"},
+    {"name": "lemon",      "emoji": "🍋", "color": "#d4ac0d", "accent": "#f1c40f"},
+    {"name": "blueberry",  "emoji": "🫐", "color": "#1a237e", "accent": "#3949ab"},
+    {"name": "raspberry",  "emoji": "🫐", "color": "#880e4f", "accent": "#ad1457"},
+    {"name": "blackberry", "emoji": "🍇", "color": "#4a148c", "accent": "#6a1b9a"},
+    {"name": "peach",      "emoji": "🍑", "color": "#bf360c", "accent": "#e64a19"},
 ]
+
+SIZES = ["S", "M", "L"]
+PRICES = {"S": "7.99", "M": "9.99", "L": "12.99"}
 
 @app.route("/browse", methods=["GET", "POST"])
 def browse():
-    selected_borough = request.form.get("borough", "manhattan")
-    borough_obj = next((b for b in BOROUGHS if b["name"] == selected_borough), BOROUGHS[0])
+    selected_fruit = request.form.get("fruit", "strawberry")
+    selected_size  = request.form.get("size", "M")
+    fruit_obj = next((f for f in FRUITS if f["name"] == selected_fruit), FRUITS[0])
+    price = PRICES.get(selected_size, "9.99")
 
     return render_template(
         "browse.html.jinja",
-        boroughs=BOROUGHS,
-        selected=borough_obj,
+        fruits=FRUITS,
+        selected=fruit_obj,
+        sizes=SIZES,
+        selected_size=selected_size,
+        price=price,
     )
 
-@app.route("/borough/<name>")
-def borough_page(name):
-    name = name.replace("-", " ")
-    borough = next((b for b in BOROUGHS if b["name"] == name), None)
-    if not borough:
-        return "Borough not found", 404
-    return render_template("borough.html.jinja", borough=borough)
 
+@app.route("/staten_is")
+def staten_is():
+    return render_template("staten_is.html.jinja")
+    
+@app.route('/sign_up', methods=["POST" , "GET"])
+def register():
+    if request.method == "POST" :
+        name = request.form["name"]
+
+        email = request.form["email"]
+        address = request.form["address"]
+
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+
+        if password!= confirm_password:
+            flash("Passwords do not match")
+        elif len(password) < 8:
+            flash("Password is too short")
+        else:
+            connection = connect_db()
+
+            cursor = connection.cursor()
+
+            try:
+                cursor.execute("""
+                INSERT INTO `User` (`Name`, `Password`, `Email`, `Address`)
+                VALUES(%s, %s, %s, %s)
+                """, (name ,password, email, address )) 
+                connection.close()   
+            except pymysql.err.IntegrityError:
+                flash("User with that email already exists.")
+                connection.close()
+            else:
+                return redirect('/login')
+
+    return render_template("sign_up.html.jinja")
+
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+        connection = connect_db()
+
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM `User` WHERE `Email` = %s " , (email) )
+        result = cursor.fetchone()
+        connection.close()
+
+
+        if result is None:
+            flash("No user found.")
+        elif password != result["Password"]:
+            flash("Incorrect password")
+        else:
+            login_user(User(result))
+
+            return redirect('/browse')
+        
+
+
+    return render_template("login.html.jinja")
+
+@app.route("/logout", methods=["POST", "GET"])
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.")
+    return redirect("/login")
 if __name__ == "__main__":
     app.run(debug=True)
+
+@app.route("/")
+def index():
+    return render_template("homepage.html.jinja")
