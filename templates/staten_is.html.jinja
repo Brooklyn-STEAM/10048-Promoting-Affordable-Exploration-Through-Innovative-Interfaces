@@ -1,12 +1,11 @@
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Chat / New Post Mockup — Tailwind</title>
-  <!-- Tailwind CDN for quick prototyping -->
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-   
     .soft-shadow { box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
   </style>
 </head>
@@ -14,12 +13,13 @@
 {% include 'components/navbar.html.jinja' %}
 
 <body class="min-h-screen bg-[#efe6d8] flex center pt-10">
-  <div class="w-full max-w-[1100px] grid grid-cols-1 md:grid-cols-[320px_1fr] gap-8">
 
-    <!-- LEFT SIDEBAR -->
+  <div class="max-w-[1100px] grid grid-cols-1 md:grid-cols-[320px_1fr] gap-8">
+
+    <!-- SIDEBAR -->
     <aside class="flex flex-col gap-6 ml-5">
 
-      <!-- Seal -->
+      <!-- Logo -->
       <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-[#e6d9c6] shadow-lg">
         <img 
           src="{{ url_for('static', filename='images/staten_logo.png') }}"
@@ -35,7 +35,7 @@
           <li class="hover:text-blue-600 cursor-pointer">Parks & Nature</li>
           <li class="hover:text-blue-600 cursor-pointer">Food Spots</li>
           <li class="hover:text-blue-600 cursor-pointer">Historic Sites</li>
-          <li class="hover:text-blue-600 cursor-pointer">Hidden Gems</li>
+          <li class="hover:text-blue-600 cursor-pointer">Indoor Gems</li>
           <li class="hover:text-blue-600 cursor-pointer">Waterfront</li>
         </ul>
       </div>
@@ -50,21 +50,42 @@
           </label>
           <label class="flex items-center gap-2">
             <input type="checkbox" class="accent-blue-600" />
-            Family-friendly
+            Family friendly
           </label>
           <label class="flex items-center gap-2">
             <input type="checkbox" class="accent-blue-600" />
-            Open late
+            Open now
           </label>
         </div>
       </div>
+
+      <!-- Button-56 -->
+      <button
+        id="open-popup"
+        class="group relative inline-flex items-center justify-center 
+               px-6 py-3 text-[16px] font-medium 
+               bg-[#787569] text-[#111] border-2 border-[#111] 
+               rounded-lg select-none cursor-pointer
+               transition-all duration-200
+               active:bg-[#ffdeda]"
+      >
+        <span class="relative z-10">Add Someone's Next Adventure</span>
+
+        <span
+          class="absolute inset-0 rounded-lg bg-[#111] 
+                 translate-x-2 translate-y-2 
+                 transition-transform duration-200 
+                 group-hover:translate-x-0 group-hover:translate-y-0
+                 -z-10"
+        ></span>
+      </button>
 
     </aside>
 
     <!-- MAIN CONTENT -->
     <main class="flex flex-col gap-8">
 
-      <!-- FEATURED LOCATION -->
+      <!-- FEATURED -->
       <section class="bg-white soft-shadow rounded-xl overflow-hidden">
         <img 
           src="{{ url_for('static', filename='images/featured.jpg') }}"
@@ -78,71 +99,265 @@
         </div>
       </section>
 
+      <!-- SECTION HEADER -->
+      <div class="relative inline-block group mb-2">
+        <h2 class="relative z-10 text-xl font-semibold px-4 py-2 
+                   bg-[#efe6d8] border-2 border-[#111] rounded-lg">
+          Discover New Places
+        </h2>
+
+        <span
+          class="absolute inset-0 bg-[#111] rounded-lg 
+                 translate-x-2 translate-y-2 
+                 transition-transform duration-200 
+                 group-hover:translate-x-0 group-hover:translate-y-0 -z-10">
+        </span>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="relative group mb-6 w-full max-w-md">
+        <input 
+          type="text"
+          placeholder="Search Staten Island spots..."
+          class="relative z-10 w-full bg-white border-2 border-[#111] rounded-lg px-4 py-2"
+        />
+
+        <span
+          class="absolute inset-0 bg-[#111] rounded-lg 
+                 translate-x-2 translate-y-2 
+                 transition-transform duration-200 
+                 group-hover:translate-x-0 group-hover:translate-y-0 -z-10">
+        </span>
+      </div>
+
+      <!-- CATEGORY PILLS -->
+      <div class="flex gap-3 flex-wrap mb-6">
+
+        <button class="group relative px-4 py-2 text-sm font-medium 
+                       bg-[#efe6d8] border-2 border-[#111] rounded-lg">
+          <span class="relative z-10">All</span>
+          <span class="absolute inset-0 bg-[#111] rounded-lg 
+                       translate-x-1 translate-y-1 
+                       transition-transform duration-200 
+                       group-hover:translate-x-0 group-hover:translate-y-0 -z-10"></span>
+        </button>
+
+        <button class="group relative px-4 py-2 text-sm font-medium 
+                       bg-[#efe6d8] border-2 border-[#111] rounded-lg">
+          <span class="relative z-10">Free</span>
+          <span class="absolute inset-0 bg-[#111] rounded-lg 
+                       translate-x-1 translate-y-1 
+                       transition-transform duration-200 
+                       group-hover:translate-x-0 group-hover:translate-y-0 -z-10"></span>
+        </button>
+
+        <button class="group relative px-4 py-2 text-sm font-medium 
+                       bg-[#efe6d8] border-2 border-[#111] rounded-lg">
+          <span class="relative z-10">Parks</span>
+          <span class="absolute inset-0 bg-[#111] rounded-lg 
+                       translate-x-1 translate-y-1 
+                       transition-transform duration-200 
+                       group-hover:translate-x-0 group-hover:translate-y-0 -z-10"></span>
+        </button>
+
+        <button class="group relative px-4 py-2 text-sm font-medium 
+                       bg-[#efe6d8] border-2 border-[#111] rounded-lg">
+          <span class="relative z-10">Food</span>
+          <span class="absolute inset-0 bg-[#111] rounded-lg 
+                       translate-x-1 translate-y-1 
+                       transition-transform duration-200 
+                       group-hover:translate-x-0 group-hover:translate-y-0 -z-10"></span>
+        </button>
+
+      </div>
+
       <!-- DISCOVER GRID -->
       <section>
-        <h2 class="text-xl font-semibold mb-4">Discover New Places</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-          <!-- Card -->
-          <div class="bg-white rounded-xl soft-shadow overflow-hidden">
-            <img src="{{ url_for('static', filename='images/place1.jpg') }}" class="h-40 w-full object-cover" />
-            <div class="p-4">
-              <h3 class="font-semibold">Silver Lake Park</h3>
-              <p class="text-sm text-gray-600">Great for walking trails and quiet afternoons.</p>
+          <!-- Card 1 -->
+          <div class="relative group">
+            <div class="relative z-10 bg-white border-2 border-[#111] rounded-xl overflow-hidden">
+              <img src="{{ url_for('static', filename='images/place1.jpg') }}" class="h-40 w-full object-cover" />
+              <div class="p-4">
+                <h3 class="font-semibold">Silver Lake Park</h3>
+                <p class="text-sm text-gray-600">Great for walking trails and quiet afternoons.</p>
+              </div>
             </div>
+
+            <span
+              class="absolute inset-0 bg-[#111] rounded-xl 
+                     translate-x-2 translate-y-2 
+                     transition-transform duration-200 
+                     group-hover:translate-x-0 group-hover:translate-y-0 -z-10">
+            </span>
           </div>
 
-          <!-- Card -->
-          <div class="bg-white rounded-xl soft-shadow overflow-hidden">
-            <img src="{{ url_for('static', filename='images/place2.jpg') }}" class="h-40 w-full object-cover" />
-            <div class="p-4">
-              <h3 class="font-semibold">Historic Richmond Town</h3>
-              <p class="text-sm text-gray-600">Step back in time with preserved colonial buildings.</p>
+          <!-- Card 2 -->
+          <div class="relative group">
+            <div class="relative z-10 bg-white border-2 border-[#111] rounded-xl overflow-hidden">
+              <img src="{{ url_for('static', filename='images/place2.jpg') }}" class="h-40 w-full object-cover" />
+              <div class="p-4">
+                <h3 class="font-semibold">Historic Richmond Town</h3>
+                <p class="text-sm text-gray-600">Step back in time with preserved colonial buildings.</p>
+              </div>
             </div>
+
+            <span
+              class="absolute inset-0 bg-[#111] rounded-xl 
+                     translate-x-2 translate-y-2 
+                     transition-transform duration-200 
+                     group-hover:translate-x-0 group-hover:translate-y-0 -z-10">
+            </span>
           </div>
 
-          <!-- Card -->
-          <div class="bg-white rounded-xl soft-shadow overflow-hidden">
-            <img src="{{ url_for('static', filename='images/place3.jpg') }}" class="h-40 w-full object-cover" />
-            <div class="p-4">
-              <h3 class="font-semibold">Staten Island Ferry</h3>
-              <p class="text-sm text-gray-600">Free ride with skyline views.</p>
+          <!-- Card 3 (FIXED) -->
+          <div class="relative group">
+            <div class="relative z-10 bg-white border-2 border-[#111] rounded-xl overflow-hidden">
+              <img src="{{ url_for('static', filename='images/place3.jpg') }}" class="h-40 w-full object-cover" />
+              <div class="p-4">
+                <h3 class="font-semibold">Staten Island Ferry</h3>
+                <p class="text-sm text-gray-600">Get free rides with amazing views to Staten Island.</p>
+              </div>
             </div>
+
+            <span
+              class="absolute inset-0 bg-[#111] rounded-xl 
+                     translate-x-2 translate-y-2 
+                     transition-transform duration-200 
+                     group-hover:translate-x-0 group-hover:translate-y-0 -z-10">
+            </span>
           </div>
 
         </div>
       </section>
 
-      <!-- USER POSTS FEED -->
+      <!-- POSTS HEADER -->
+      <div class="relative inline-block group mb-2">
+        <h2 class="relative z-10 text-xl font-semibold px-4 py-2 
+                   bg-[#efe6d8] border-2 border-[#111] rounded-lg">
+          Recent Explorer Posts
+        </h2>
+
+        <span
+          class="absolute inset-0 bg-[#111] rounded-lg 
+                 translate-x-2 translate-y-2 
+                 transition-transform duration-200 
+                 group-hover:translate-x-0 group-hover:translate-y-0 -z-10">
+        </span>
+      </div>
+
+      <!-- POSTS -->
       <section>
-        <h2 class="text-xl font-semibold mb-4">Recent Explorer Posts</h2>
-
         <div class="bg-white soft-shadow rounded-xl p-5 space-y-6">
-
-          <!-- Post -->
           <div>
             <h3 class="font-semibold">"Found this hidden mural in Tompkinsville!"</h3>
             <p class="text-sm text-gray-700">— @islandwalker</p>
           </div>
 
-          <!-- Post -->
           <div>
             <h3 class="font-semibold">"Best sunset spot: South Beach boardwalk."</h3>
             <p class="text-sm text-gray-700">— @sunsetchaser</p>
           </div>
 
-          <!-- Post -->
           <div>
             <h3 class="font-semibold">"Tried a new café near St. George — amazing pastries."</h3>
             <p class="text-sm text-gray-700">— @foodfinder</p>
           </div>
-
         </div>
       </section>
 
     </main>
 
   </div>
-</body>
-</html>
 
+  <!-- POPUP (ALWAYS ON TOP) -->
+<div id="popup"
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm 
+            flex items-center justify-center 
+            opacity-0 pointer-events-none 
+            transition-opacity duration-300
+            z-[9999]">
+
+  <div class="relative group w-96 scale-95 transition-transform duration-300 z-[10000]" 
+       id="popup-content">
+
+    <div class="relative z-10 bg-white text-black p-6 rounded-xl border-2 border-[#111]">
+      <h2 class="text-xl font-semibold mb-4">Add an Adventure</h2>
+
+      <form class="space-y-4">
+
+        <div>
+          <label class="block mb-1 text-sm font-medium">Business Name</label>
+          <input type="text" class="w-full border px-3 py-2 rounded" />
+        </div>
+
+        <div>
+          <label class="block mb-1 text-sm font-medium">Location</label>
+          <textarea class="w-full border px-3 py-2 rounded"></textarea>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-sm font-medium">Description</label>
+          <textarea class="w-full border px-3 py-2 rounded"></textarea>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-sm font-medium">Place Image</label>
+          <input type="file" accept="image/*" class="w-full border px-3 py-2 rounded bg-white" />
+          <p class="text-xs text-gray-600 mt-1">Upload a photo of the location</p>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-sm font-medium">Business Logo <span class="text-gray-500">(optional)</span></label>
+          <input type="file" accept="image/*" class="w-full border px-3 py-2 rounded bg-white" />
+          <p class="text-xs text-gray-600 mt-1">Upload a logo if the business has one</p>
+        </div>
+
+        <button type="submit" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-900 transition">
+          Submit
+        </button>
+
+      </form>
+
+      <button id="close-popup" class="mt-4 text-sm underline">Close</button>
+    </div>
+
+    <span
+      class="absolute inset-0 bg-[#111] rounded-xl 
+             translate-x-2 translate-y-2 
+             transition-transform duration-200 
+             group-hover:translate-x-0 group-hover:translate-y-0 -z-10">
+    </span>
+
+  </div>
+</div>
+
+
+</body>
+
+<script>
+const openBtn = document.getElementById("open-popup");
+const closeBtn = document.getElementById("close-popup");
+const popup = document.getElementById("popup");
+const popupContent = document.getElementById("popup-content");
+
+openBtn.addEventListener("click", () => {
+  popup.classList.remove("opacity-0", "pointer-events-none");
+  popupContent.classList.remove("scale-95");
+});
+
+closeBtn.addEventListener("click", () => {
+  popup.classList.add("opacity-0", "pointer-events-none");
+  popupContent.classList.add("scale-95");
+});
+
+popup.addEventListener("click", (e) => {
+  if (e.target === popup) {
+    popup.classList.add("opacity-0", "pointer-events-none");
+    popupContent.classList.add("scale-95");
+  }
+});
+</script>
+
+</html>
