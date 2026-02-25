@@ -88,10 +88,10 @@ def browse():
 
 @app.route("/borough/<name>")
 def borough_page(name):
-    # Normalize
+    
     name = name.lower()
 
-    # Redirect each borough to its own page
+    
     if name == "manhattan":
         return redirect("/manhattan")
     if name == "brooklyn":
