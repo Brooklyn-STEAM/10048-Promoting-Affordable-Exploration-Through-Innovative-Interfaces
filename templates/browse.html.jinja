@@ -1,264 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Borough Selector</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Borough Selector</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --accent: {{ selected.accent }};
-            --borough-color: {{ selected.color }};
-        }
+  <style>
+    :root {
+      --accent: {{ selected.accent }};
+      --borough-color: {{ selected.color }};
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: 'Archivo', sans-serif;
-            background-color: {{ selected.color }};
-            color: #e8ded0;
-            min-height: 100vh;
-            overflow: hidden;
-            position: relative;
-            transition: background-color 0.6s ease;
-        }
+    body {
+      font-family: 'Archivo', sans-serif;
+      background-color: {{ selected.color }};
+      color: #e8ded0;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      transition: background-color 0.6s ease;
+    }
 
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 100;
-            opacity: 0.3;
-        }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.3;
+    }
 
-        h1 {
-            font-family: 'Archivo', sans-serif;
-            font-weight: 500;
-            letter-spacing: 0.3em;
-            font-size: 0.75rem;
-        }
+    h1 {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      font-size: 0.75rem;
+    }
 
-        .radial-container {
-            position: absolute;
-            bottom: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 700px;
-            height: 700px;
-        }
+    .radial-container {
+      position: absolute;
+      bottom: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+    }
 
-        .arc-ring {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            border: 1px solid rgba(232, 222, 208, 0.1);
-        }
-        .arc-ring:nth-child(1) { inset: 10%; }
-        .arc-ring:nth-child(2) { inset: 22%; }
-        .arc-ring:nth-child(3) { inset: 34%; }
+    .arc-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(232, 222, 208, 0.1);
+    }
+    .arc-ring:nth-child(1) { inset: 10%; }
+    .arc-ring:nth-child(2) { inset: 22%; }
+    .arc-ring:nth-child(3) { inset: 34%; }
 
-        .borough-img-wrap {
-            position: absolute;
-            inset: 30%;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-            transition: transform 0.6s cubic-bezier(.23,1,.32,1);
-        }
-        .borough-img-wrap:hover { transform: scale(1.03); }
+    .borough-img-wrap {
+      position: absolute;
+      inset: 30%;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      transition: transform 0.6s cubic-bezier(.23,1,.32,1);
+    }
+    .borough-img-wrap:hover { transform: scale(1.03); }
 
-        .borough-label {
-            font-size: 0.6rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: rgba(232,222,208,0.45);
-            transition: color 0.3s;
-            white-space: nowrap;
-            cursor: pointer;
-            background: none;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .borough-label.active { color: #e8ded0; }
+    .borough-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(232,222,208,0.45);
+      transition: color 0.3s;
+      white-space: nowrap;
+      cursor: pointer;
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .borough-label.active { color: #e8ded0; }
 
-        .borough-label .dot {
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: rgba(232,222,208,0.3);
-            transition: background 0.3s;
-            flex-shrink: 0;
-        }
-        .borough-label.active .dot {
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-        }
+    .borough-label .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(232,222,208,0.3);
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .borough-label.active .dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
 
-        .borough-panel {
-            position: absolute;
-            left: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-        }
-        .borough-panel .name {
-            font-family: 'Cormorant Garamond', serif;
-            font-weight: 300;
-            font-size: 2.5rem;
-            line-height: 1.1;
-            text-transform: capitalize;
-            margin-bottom: 16px;
-        }
+    .borough-panel {
+      position: absolute;
+      left: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+    .borough-panel .name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 2.5rem;
+      line-height: 1.1;
+      text-transform: capitalize;
+      margin-bottom: 16px;
+    }
 
-        .visit-btn {
-            display: inline-block;
-            padding: 10px 24px;
-            border: 1px solid rgba(232,222,208,0.5);
-            border-radius: 999px;
-            font-size: 0.6rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: #e8ded0;
-            text-decoration: none;
-            transition: background 0.2s, color 0.2s;
-        }
-        .visit-btn:hover {
-            background: #e8ded0;
-            color: var(--borough-color);
-        }
+    .visit-btn {
+      display: inline-block;
+      padding: 10px 24px;
+      border: 1px solid rgba(232,222,208,0.5);
+      border-radius: 999px;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #e8ded0;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .visit-btn:hover {
+      background: #e8ded0;
+      color: var(--borough-color);
+    }
 
-        .nav-link {
-            font-size: 0.6rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: rgba(232,222,208,0.35);
-        }
+    .nav-link {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(232,222,208,0.35);
+    }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .fade-up { animation: fadeUp 0.5s ease both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.5s ease both; }
 
-        @keyframes fadeLeft {
-            from { opacity: 0; transform: translateY(-50%) translateX(-16px); }
-            to   { opacity: 1; transform: translateY(-50%) translateX(0); }
-        }
-        .fade-left { animation: fadeLeft 0.5s ease both; }
+    @keyframes fadeLeft {
+      from { opacity: 0; transform: translateY(-50%) translateX(-16px); }
+      to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+    }
+    .fade-left { animation: fadeLeft 0.5s ease both; }
 
-        @keyframes spinIn {
-            from { opacity: 0; transform: translateX(-50%) rotate(-8deg) scale(0.94); }
-            to   { opacity: 1; transform: translateX(-50%) rotate(0deg) scale(1); }
-        }
-        .spin-in { animation: spinIn 0.6s cubic-bezier(.23,1,.32,1) both; }
+    @keyframes spinIn {
+      from { opacity: 0; transform: translateX(-50%) rotate(-8deg) scale(0.94); }
+      to   { opacity: 1; transform: translateX(-50%) rotate(0deg) scale(1); }
+    }
+    .spin-in { animation: spinIn 0.6s cubic-bezier(.23,1,.32,1) both; }
 
-        .borough-form {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform-origin: 0 0;
-        }
-    </style>
+    .borough-form {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform-origin: 0 0;
+    }
+  </style>
 </head>
 
 <body>
 
+<!-- TOP NAV -->
 <div class="absolute top-0 left-0 right-0 flex items-center px-8 py-6 z-10">
-    <h1 class="fade-up">Borough Selector</h1>
+  <h1 class="fade-up">Borough Selector</h1>
 </div>
 
+<!-- LEFT PANEL -->
 <div class="borough-panel fade-left">
-    <p class="name">{{ selected.name }}</p>
-    <a href="/borough/{{ selected.name | replace(' ', '-') }}" class="visit-btn">
-        Explore {{ selected.name }} &rarr;
-    </a>
+  <p class="name">{{ selected.name }}</p>
+  <a href="/borough/{{ selected.name | replace(' ', '-') }}" class="visit-btn">
+    Explore {{ selected.name }} &rarr;
+  </a>
 </div>
 
+<!-- RADIAL MAP + BOROUGH SELECTOR -->
 <div class="radial-container spin-in">
-    <div class="arc-ring"></div>
-    <div class="arc-ring"></div>
-    <div class="arc-ring"></div>
+  <div class="arc-ring"></div>
+  <div class="arc-ring"></div>
+  <div class="arc-ring"></div>
 
-    <div class="borough-img-wrap">
-        <img src="{{ url_for('static', filename='images/' + selected.name + '.png') }}"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-                 style="width:100%; height:100%; object-fit:cover;">
-        <div style="display:none; width:100%; height:100%; background:radial-gradient(circle at 40% 35%, {{ selected.accent }}, {{ selected.color }}, #0a0a1a);"></div>
-    </div>
+  <div class="borough-img-wrap">
+    <img src="{{ url_for('static', filename='images/' + selected.name + '.png') }}"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+         style="width:100%; height:100%; object-fit:cover;">
+    <div style="display:none; width:100%; height:100%; background:radial-gradient(circle at 40% 35%, {{ selected.accent }}, {{ selected.color }}, #0a0a1a);"></div>
+  </div>
 
-    {% for borough in boroughs %}
-    <form method="POST" class="borough-form" data-index="{{ loop.index0 }}" data-total="{{ boroughs|length }}">
-        <button type="submit" name="borough" value="{{ borough.name }}"
-            class="borough-label {% if borough.name == selected.name %}active{% endif %}">
-            <span class="dot"></span>{{ borough.name }}
-        </button>
-    </form>
-    {% endfor %}
+  {% for borough in boroughs %}
+  <form method="POST" class="borough-form" data-index="{{ loop.index0 }}" data-total="{{ boroughs|length }}">
+    <button type="submit" name="borough" value="{{ borough.name }}"
+      class="borough-label {% if borough.name == selected.name %}active{% endif %}">
+      <span class="dot"></span>{{ borough.name }}
+    </button>
+  </form>
+  {% endfor %}
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="absolute bottom-6 left-8 right-8 flex justify-between z-10">
-    <div class="flex gap-6">
-        <a href="#" class="nav-link">About</a>
-        <a href="#" class="nav-link">Contact</a>
-    </div>
-    <a href="#" class="nav-link">Privacy</a>
+  <div class="flex gap-6">
+    <a href="#" class="nav-link">About</a>
+    <a href="#" class="nav-link">Contact</a>
+  </div>
+  <a href="#" class="nav-link">Privacy</a>
 </div>
 
 <script>
-    document.querySelectorAll('.borough-form').forEach(form => {
-        const idx   = parseInt(form.dataset.index);
-        const total = parseInt(form.dataset.total);
-        const radius = 290;
-        const angleDeg = -155 + (idx / (total - 1)) * 130;
-        const angleRad = angleDeg * Math.PI / 180;
-        const x = 350 + radius * Math.cos(angleRad);
-        const y = 350 + radius * Math.sin(angleRad);
-        form.style.top  = y + 'px';
-        form.style.left = x + 'px';
-        form.style.transform = 'translate(-50%, -50%)';
-    });
+  document.querySelectorAll('.borough-form').forEach(form => {
+    const idx   = parseInt(form.dataset.index);
+    const total = parseInt(form.dataset.total);
+    const radius = 290;
+    const angleDeg = -155 + (idx / (total - 1)) * 130;
+    const angleRad = angleDeg * Math.PI / 180;
+    const x = 350 + radius * Math.cos(angleRad);
+    const y = 350 + radius * Math.sin(angleRad);
+    form.style.top  = y + 'px';
+    form.style.left = x + 'px';
+    form.style.transform = 'translate(-50%, -50%)';
+  });
 
-    document.body.style.backgroundColor = 'transparent';
-    requestAnimationFrame(() => {
-        document.body.style.backgroundColor = '{{ selected.color }}';
-    });
+  document.body.style.backgroundColor = 'transparent';
+  requestAnimationFrame(() => {
+    document.body.style.backgroundColor = '{{ selected.color }}';
+  });
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const exploreBtn = document.querySelector(".visit-btn");
-    const overlay = document.getElementById("page-transition");
-
-    if (exploreBtn) {
-        exploreBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            overlay.style.opacity = "1";
-
-            setTimeout(() => {
-                window.location.href = exploreBtn.href;
-            }, 600);
-        });
-    }
-});
-</script>
-
 </body>
-<div id="page-transition"></div>
-
-<style>
-#page-transition {
-    position: fixed;
-    inset: 0;
-    background: var(--accent);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.6s ease;
-    z-index: 9999;
-}
-</style>
-
 </html>
