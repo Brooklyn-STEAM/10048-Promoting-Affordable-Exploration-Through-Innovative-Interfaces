@@ -111,40 +111,40 @@ def borough_page(name):
 def staten_is():
     return render_template("staten_is.html.jinja")
     
-@app.route('/sign_up', methods=["POST" , "GET"])
+@app.route('/signup', methods=["POST", "GET"])
 def register():
-    if request.method == "POST" :
-        name = request.form["name"]
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        address = request.form.get("address")
+        password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
 
-        email = request.form["email"]
-        address = request.form["address"]
-
-        password = request.form["password"]
-        confirm_password = request.form["confirm_password"]
-
-        if password!= confirm_password:
+        # --- Safe validation checks ---
+        if not password or not confirm_password:
+            flash("Please enter both password fields")
+        elif password != confirm_password:
             flash("Passwords do not match")
         elif len(password) < 8:
             flash("Password is too short")
         else:
             connection = connect_db()
-
             cursor = connection.cursor()
 
             try:
                 cursor.execute("""
-                INSERT INTO `User` (`Name`, `Password`, `Email`, `Address`)
-                VALUES(%s, %s, %s, %s)
-                """, (name ,password, email, address )) 
-                connection.close()   
+                INSERT INTO `User` (`Username`, `Password`, `Email`, `Address`)
+                VALUES (%s, %s, %s, %s)
+                """, (username, password, email, address))
+                connection.commit()   # Always commit after insert
+                connection.close()
             except pymysql.err.IntegrityError:
                 flash("User with that email already exists.")
                 connection.close()
             else:
                 return redirect('/login')
 
-    return render_template("sign_up.html.jinja")
-
+    return render_template("signup.html.jinja")
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
