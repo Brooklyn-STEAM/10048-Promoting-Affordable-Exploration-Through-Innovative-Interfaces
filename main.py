@@ -65,14 +65,12 @@ def connect_db():
     
     return conn 
 
-
-
 BOROUGHS = [
     {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
     {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
     {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
     {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
-    {"name": "staten-island", "color": "#3a3328", "accent": "#7a6a50"},
+    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
 ]
 
 @app.route("/browse", methods=["GET", "POST"])
@@ -88,99 +86,11 @@ def browse():
 
 @app.route("/borough/<name>")
 def borough_page(name):
-    
-    name = name.lower()
+    name = name.replace("-", " ")
+    borough = next((b for b in BOROUGHS if b["name"] == name), None)
+    if not borough:
+        return "Borough not found", 404
+    return render_template("borough.html.jinja", borough=borough)
 
-    
-    if name == "manhattan":
-        return redirect("/manhattan")
-    if name == "brooklyn":
-        return redirect("/brooklyn")
-    if name == "queens":
-        return redirect("/queens")
-    if name == "bronx":
-        return redirect("/bronx")
-    if name == "staten-island":
-        return redirect("/staten-island")
-
-    return "Borough not found", 404
-
-
-
-@app.route("/staten-island")
-def staten_is():
-    return render_template("staten_is.html.jinja")
-    
-@app.route('/signup', methods=["POST", "GET"])
-def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
-        address = request.form.get("address")
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
-
-        # --- Safe validation checks ---
-        if not password or not confirm_password:
-            flash("Please enter both password fields")
-        elif password != confirm_password:
-            flash("Passwords do not match")
-        elif len(password) < 8:
-            flash("Password is too short")
-        else:
-            connection = connect_db()
-            cursor = connection.cursor()
-
-            try:
-                cursor.execute("""
-                INSERT INTO `User` (`Username`, `Password`, `Email`, `Address`)
-                VALUES (%s, %s, %s, %s)
-                """, (username, password, email, address))
-                connection.commit()   # Always commit after insert
-                connection.close()
-            except pymysql.err.IntegrityError:
-                flash("User with that email already exists.")
-                connection.close()
-            else:
-                return redirect('/login')
-
-    return render_template("signup.html.jinja")
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
-        connection = connect_db()
-
-        cursor = connection.cursor()
-
-        cursor.execute("SELECT * FROM `User` WHERE `Email` = %s " , (email) )
-        result = cursor.fetchone()
-        connection.close()
-
-
-        if result is None:
-            flash("No user found.")
-        elif password != result["Password"]:
-            flash("Incorrect password")
-        else:
-            login_user(User(result))
-
-            return redirect('/browse')
-        
-
-
-    return render_template("login.html.jinja")
-
-@app.route("/logout", methods=["POST", "GET"])
-@login_required
-def logout():
-    logout_user()
-    flash("You have been logged out.")
-    return redirect("/login")
 if __name__ == "__main__":
     app.run(debug=True)
-
-@app.route("/")
-def index():
-    return render_template("homepage.html.jinja")
