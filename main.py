@@ -107,9 +107,10 @@ def borough_page(name):
 
 
 
-@app.route("/staten-island")
-def staten_is():
-    return render_template("staten_is.html.jinja")
+@app.route("/borough/<borough_id>", methods=["GET"])
+def borough_set(borough_id):
+    return render_template("borough.html.jinja", borough=borough_id)
+
     
 @app.route('/sign_up', methods=["POST" , "GET"])
 def register():
