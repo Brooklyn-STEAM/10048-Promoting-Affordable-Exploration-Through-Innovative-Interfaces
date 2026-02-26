@@ -7,38 +7,111 @@
     <title>EZ-BAM</title>
 </head>
 
-<body class="bg-gradient-to-b from-gray-700 to-gray-500 px-6 py-6 text-gray-200 min-h-screen font-sans">
-    {% include 'components/navbar.html.jinja' %}
-</body>
+<body class="min-h-screen bg-[#d6cbbf] flex items-center justify-center">
 
-{%for message in get_flashed_messages() %}
-    <li>{{ message }}</li>
+  <!-- Main Card -->
+  <div class="bg-[#ece4d8] w-full max-w-md rounded-2xl p-8 border-2 border-[#1f1f1f] shadow-[6px_6px_0px_#1f1f1f]">
 
-{%endfor%}
+    <!-- Logo / Title -->
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f]">
+        <span class="text-white text-2xl font-bold">S</span>
+      </div>
 
-<div class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-4">Sign Up</h2>
-    <form action="/signup" method="POST">
-        <div class="mb-4">
-            <label for="username" class="block text-sm font-medium">Username</label>
-            <input type="text" id="username" name="username" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
-        </div>
-        <div class="mb-4">
-            <label for="email" class="block text-sm font-medium">Email</label>
-            <input type="email" id="email" name="email" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
-        </div>
-        <div class="mb-4">
-            <label for="password" class="block text-sm font-medium">Password</label>
-            <input type="password" id="password" name="password" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
-        </div>
-         <div class="mb-4">
-            <label for="password" class="block text-sm font-medium">Confirm Password</label>
-            <input type="password" id="password" name="confirm_password" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
-        </div>
-        <div class="mb-4">
-            <label for="address" class="block text-sm font-medium">Address</label>
-            <input type="text" id="address" name="address" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
-        </div>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded">Sign Up</button>
+      <h2 class="text-3xl font-bold text-[#2b2b2b]">
+        Create Account
+      </h2>
+
+      <p class="text-[#4a4a4a] mt-2">
+        Join and start exploring!
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" class="space-y-5">
+
+      <!-- Name -->
+      <div>
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
+          Full Name
+        </label>
+        <input 
+          type="text" 
+          name="name"
+          placeholder="John Doe"
+          required
+          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
+        >
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
+          Email
+        </label>
+        <input 
+          type="email" 
+          name="email"
+          placeholder="you@example.com"
+          required
+          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
+        >
+      </div>
+
+   
+      <!-- Password -->
+      <div>
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
+          Password
+        </label>
+        <input 
+          type="password" 
+          name="password"
+          placeholder="••••••••"
+          required
+          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
+        >
+      </div>
+
+      <!-- Confirm Password -->
+      <div>
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
+          Confirm Password
+        </label>
+        <input 
+          type="password" 
+          name="confirm_password"
+          placeholder="••••••••"
+          required
+          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
+        >
+      </div>
+
+      <!-- Sign Up Button -->
+      <button 
+        type="submit"
+        class="w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
+      >
+        Sign Up
+      </button>
+
     </form>
-</div>
+
+    <!-- Divider -->
+    <div class="my-6 flex items-center">
+      <div class="flex-grow border-t-2 border-[#1f1f1f]"></div>
+      <span class="mx-3 text-[#4a4a4a] text-sm">or</span>
+      <div class="flex-grow border-t-2 border-[#1f1f1f]"></div>
+    </div>
+
+    <!-- Login Link -->
+    <p class="text-center text-[#2b2b2b] text-sm">
+      Already have an account?
+      <a href="/login" class="font-semibold underline hover:text-[#7a6a55]">
+        Login here
+      </a>
+    </p>
+
+  </div>
+
+</body>
