@@ -25,7 +25,6 @@ class User:
     def __init__(self, result):
         self.name = result['Username']
         self.email = result['Email']
-        self.address = result['Address']
         self.id = result['ID']
     
     def get_id(self):
@@ -65,12 +64,14 @@ def connect_db():
     
     return conn 
 
+
+
 BOROUGHS = [
     {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
     {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
     {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
     {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
-    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
+    {"name": "staten island", "color": "#4d473d", "accent": "#7a6a50"},
 ]
 
 @app.route("/browse", methods=["GET", "POST"])
@@ -86,86 +87,132 @@ def browse():
 
 @app.route("/borough/<name>")
 def borough_page(name):
-    name = name.replace("-", " ")
-    borough = next((b for b in BOROUGHS if b["name"] == name), None)
-    if not borough:
-        return "Borough not found", 404
-    return render_template("borough.html.jinja", borough=borough)
+    
+    name = name.lower()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    
+    if name == "manhattan":
+        return redirect("/manhattan")
+    if name == "brooklyn":
+        return redirect("/brooklyn")
+    if name == "queens":
+        return redirect("/queens")
+    if name == "bronx":
+        return redirect("/bronx")
+    if name == "staten-island":
+        return redirect("/staten-island")
+
+    return "Borough not found", 404
 
 
-@app.route('/signup', methods=["POST", "GET"])
-def register():
+
+@app.route("/staten-island")
+def staten_is():
+    return render_template("staten_is.html.jinja")
+    
+login_manager = LoginManager( app )
+
+login_manager.login_view = '/login'
+
+class User:
+    is_authenticated = True
+    is_active = True
+    is_anonymous = False
+
+    def __init__(self, result):
+        self.name = result['Username']
+        self.email = result['Email']
+        self.address = result['Address']
+        self.id = result['ID']
+    
+    def get_id(self):
+        return str(self.id)
+    
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute(" SELECT * FROM User WHERE ID = %s  ", ( user_id ) )
+
+    result = cursor.fetchone()
+
+    connection.close()
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
     if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
-        address = request.form.get("address")
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
-
-        # --- Safe validation checks ---
-        if not password or not confirm_password:
-            flash("Please enter both password fields")
-        elif password != confirm_password:
-            flash("Passwords do not match")
-        elif len(password) < 8:
-            flash("Password is too short")
-        else:
-            connection = connect_db()
-            cursor = connection.cursor()
-
-            try:
-                cursor.execute("""
-                INSERT INTO User (Username, Password, Email, Address)
-                VALUES (%s, %s, %s, %s)
-                """, (username, password, email, address))
-                connection.commit()   # Always commit after insert
-                connection.close()
-            except pymysql.err.IntegrityError:
-                flash("User with that email already exists.")
-                connection.close()
-            else:
-                return redirect('/login')
-
-    return render_template("signup.html.jinja")
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    if request.method == "POST":
+        name = request.form["Username"]
         email = request.form["email"]
         password = request.form["password"]
-        connection = connect_db()
+        confirm_password = request.form["confirm_password"]
+        address = request.form["address"]
 
+        if password != confirm_password:
+            flash("Passwords do not match")
+            return redirect("/signup")
+
+        if len(password) < 8:
+            flash("Password must be at least 8 characters")
+            return redirect("/signup")
+
+        connection = connect_db()
         cursor = connection.cursor()
 
-        cursor.execute("SELECT * FROM User WHERE Email = %s " , (email) )
+        try:
+            cursor.execute("""
+                INSERT INTO User (Username, Password, Email, Address)
+                VALUES (%s, %s, %s, %s)
+            """, (name, password, email, address))
+
+            connection.commit()   # ✅ REQUIRED
+        except pymysql.err.IntegrityError:
+            flash("User with that email already exists")
+            connection.close()
+            return redirect("/signup")
+
+        connection.close()
+
+        flash("Account created successfully! Please log in.")
+        return redirect("/login")
+
+    return render_template("signup.html.jinja")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        if not email or not password:
+            flash("Please enter both email and password")
+            return redirect("/login")
+
+        connection = connect_db()
+        # Use DictCursor so result["Password"] works
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+
+        cursor.execute(
+            "SELECT * FROM User WHERE Email = %s",
+            (email,)
+        )
         result = cursor.fetchone()
         connection.close()
 
-
         if result is None:
-            flash("No user found.")
-        elif password != result["Password"]:
+            flash("No user found with that email")
+            return redirect("/login")
+
+        if password != result["Password"]:
             flash("Incorrect password")
-        else:
-            login_user(User(result))
+            return redirect("/login")
 
-            return redirect('/browse')
-        
+        # Assuming you have a User class to handle login
+        login_user(User(result))
+        flash(f"Welcome back, {result['Username']}!")
+        return redirect("/browse")
 
-
+    # GET request renders login page
     return render_template("login.html.jinja")
-
-@app.route("/logout", methods=["POST", "GET"])
-@login_required
-def logout():
-    logout_user()
-    flash("You have been logged out.")
-    return redirect("/login")
-if __name__ == "__main__":
-    app.run(debug=True)
-
-@app.route("/")
-def index():
-    return render_template("homepage.html.jinja")
