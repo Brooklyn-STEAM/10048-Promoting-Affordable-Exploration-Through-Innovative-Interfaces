@@ -114,6 +114,44 @@
   </div>
   <a href="#" class="nav-link">Privacy</a>
 </div>
+<!-- Floating Account Button -->
+<div class="fixed bottom-6 left-6 z-50">
+  <div class="relative">
+    
+    <!-- Toggle Button -->
+    <button id="accountToggle"
+      class="w-12 h-12 rounded-full flex items-center justify-center text-xs tracking-widest uppercase transition"
+      style="background: var(--accent); color: #1a1a1a;">
+      •••
+    </button>
 
+    <!-- Dropdown Menu -->
+    <div id="accountMenu"
+      class="absolute bottom-16 left-0 w-40 rounded shadow-lg hidden"
+      style="background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);">
+      
+      <a href="/logout"
+        class="block px-4 py-3 text-xs uppercase tracking-widest hover:opacity-60 transition"
+        style="color: #e8ded0;">
+        Logout
+      </a>
+      
+    </div>
+  </div>
+</div>
 </body>
+<script>
+  const toggle = document.getElementById('accountToggle');
+  const menu = document.getElementById('accountMenu');
+
+  toggle.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.add('hidden');
+    }
+  });
+</script>
 </html>
