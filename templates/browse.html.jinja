@@ -167,12 +167,12 @@
 
 <body>
 
-<!-- TOP NAV -->
+
 <div class="absolute top-0 left-0 right-0 flex items-center px-8 py-6 z-10">
   <h1 class="fade-up">Borough Selector</h1>
 </div>
 
-<!-- LEFT PANEL -->
+
 <div class="borough-panel fade-left">
   <p class="name">{{ selected.name }}</p>
   <a href="/borough/{{ selected.name | replace(' ', '-') }}" class="visit-btn">
@@ -180,7 +180,7 @@
   </a>
 </div>
 
-<!-- RADIAL MAP + BOROUGH SELECTOR -->
+
 <div class="radial-container spin-in">
   <div class="arc-ring"></div>
   <div class="arc-ring"></div>
@@ -203,7 +203,7 @@
   {% endfor %}
 </div>
 
-<!-- BOTTOM NAV -->
+
 <div class="absolute bottom-6 left-8 right-8 flex justify-between z-10">
   <div class="flex gap-6">
     <a href="#" class="nav-link">About</a>
