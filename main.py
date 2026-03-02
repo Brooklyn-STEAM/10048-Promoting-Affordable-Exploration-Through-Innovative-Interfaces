@@ -201,3 +201,10 @@ def login():
 
     
     return render_template("login.html.jinja")
+
+@app.route("/logout", methods=["POST", "GET"])
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.")
+    return redirect("/login")
