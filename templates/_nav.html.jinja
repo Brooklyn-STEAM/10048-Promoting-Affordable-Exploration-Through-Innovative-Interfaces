@@ -1,0 +1,9 @@
+{% if current_user.is_authenticated %}
+<a href="/profile"
+   title="{{ current_user.name }}"
+   class="fixed top-5 right-6 z-50 w-10 h-10 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
+  <span class="text-white text-sm font-bold">
+    {{ current_user.name[0] | upper }}
+  </span>
+</a>
+{% endif %}
