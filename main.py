@@ -153,3 +153,11 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+@app.route("/logout", methods=["POST", "GET"])
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.")
+    return redirect("/login")
