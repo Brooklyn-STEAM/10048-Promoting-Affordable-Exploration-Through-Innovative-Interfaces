@@ -66,12 +66,13 @@ def connect_db():
     return conn 
 
 BOROUGHS = [
-    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
-    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
-    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
-    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
-    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
+    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4", "accent_dark": "#1f4a73"},
+    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e", "accent_dark": "#6f421e"},
+    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464", "accent_dark": "#1f6f44"},
+    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555", "accent_dark": "#2e2e2e"},
+    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50", "accent_dark": "#4f4433"},
 ]
+
 
 @app.route("/browse", methods=["GET", "POST"])
 def browse():

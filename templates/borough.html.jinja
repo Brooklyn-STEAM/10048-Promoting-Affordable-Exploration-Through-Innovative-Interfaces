@@ -93,7 +93,7 @@
 
 <!-- TOP NAV -->
 <div class="flex items-center justify-between fade-up">
-  <h1>Borough Selector</h1>
+  <h1>Hidden Gems</h1>
   <a href="/browse" class="back-link">← Back</a>
 </div>
 
@@ -101,19 +101,135 @@
 <div style="flex:1; display:flex; align-items:center;">
   <div class="fade-up delay-1">
     <p class="borough-title">{{ borough.name }}</p>
+    
     <div class="divider"></div>
+    
     <p style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; opacity:0.4;">New York City</p>
   </div>
+  <div class="ml-60">
+  <button 
+  id="open-popup"
+  class="group relative inline-flex items-center justify-center 
+         px-6 py-3 text-[16px] font-medium 
+         bg-[{{ borough.accent_dark }}] text-[#111] border-2 border-[#111]
+         rounded-lg cursor-pointer transition-all duration-200
+         active:bg-[{{ borough.accent }}]"
+>
+  <span class="relative z-10">Add Someone's Next Adventure</span>
+
+  <span
+    class="absolute inset-0 rounded-lg bg-[#111] 
+           translate-x-2 translate-y-2 
+           transition-transform duration-200 
+           group-hover:translate-x-0 group-hover:translate-y-0
+           -z-10"
+  ></span>
+</button>
+
+</div>
+<!-- POPUP -->
+<div id="popup"
+     class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center
+            opacity-0 pointer-events-none transition-opacity duration-300 z-[9999]">
+
+  <div id="popup-content"
+       class="relative group w-[420px] scale-95 transition-transform duration-300">
+
+    <!-- Main Card -->
+    <div class="relative z-10 bg-[#e8ded0] text-[#111] p-8 rounded-xl border-2 border-[#111]">
+
+      <h2 class="text-2xl font-serif mb-6 tracking-wide"
+          style="font-family: 'Cormorant Garamond', serif;">
+        Add an Adventure
+      </h2>
+
+      <form class="space-y-5">
+
+        <div>
+          <label class="block mb-1 text-xs tracking-wider uppercase opacity-70">Business Name</label>
+          <input type="text"
+                 class="w-full border border-[#111] px-3 py-2 rounded bg-transparent focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block mb-1 text-xs tracking-wider uppercase opacity-70">Location</label>
+          <textarea class="w-full border border-[#111] px-3 py-2 rounded bg-transparent focus:outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-xs tracking-wider uppercase opacity-70">Description</label>
+          <textarea class="w-full border border-[#111] px-3 py-2 rounded bg-transparent focus:outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-xs tracking-wider uppercase opacity-70">Place Image</label>
+          <input type="file"
+                 accept="image/*"
+                 class="w-full border border-[#111] px-3 py-2 rounded bg-[#e8ded0]" />
+        </div>
+
+        <div>
+          <label class="block mb-1 text-xs tracking-wider uppercase opacity-70">
+            Business Logo <span class="opacity-50">(optional)</span>
+          </label>
+          <input type="file"
+                 accept="image/*"
+                 class="w-full border border-[#111] px-3 py-2 rounded bg-[#e8ded0]" />
+        </div>
+
+        <button type="submit"
+                class="bg-[{{ borough.accent_dark }}] text-[#111] border-2 border-[#111]
+                       px-4 py-2 rounded-lg font-medium tracking-wide
+                       hover:bg-[{{ borough.accent }}] transition">
+          Submit
+        </button>
+
+      </form>
+
+      <button id="close-popup"
+              class="mt-6 text-sm underline opacity-70 hover:opacity-100 transition">
+        Close
+      </button>
+    </div>
+
+    <!-- Offset Shadow Block -->
+    <span class="absolute inset-0 bg-[#111] rounded-xl translate-x-3 translate-y-3 -z-10"></span>
+
+  </div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="flex justify-between fade-up delay-3">
-  <div class="flex gap-6">
-    <a href="#" class="nav-link">About</a>
-    <a href="#" class="nav-link">Contact</a>
-  </div>
-  <a href="#" class="nav-link">Privacy</a>
 </div>
+
+</div>
+
+
 
 </body>
+
+<script>
+const openBtn = document.getElementById("open-popup");
+const closeBtn = document.getElementById("close-popup");
+const popup = document.getElementById("popup");
+const popupContent = document.getElementById("popup-content");
+
+openBtn.addEventListener("click", () => {
+  popup.classList.remove("opacity-0", "pointer-events-none");
+  popupContent.classList.remove("scale-95");
+});
+
+closeBtn.addEventListener("click", () => {
+  popup.classList.add("opacity-0", "pointer-events-none");
+  popupContent.classList.add("scale-95");
+});
+
+popup.addEventListener("click", (e) => {
+  if (e.target === popup) {
+    popup.classList.add("opacity-0", "pointer-events-none");
+    popupContent.classList.add("scale-95");
+  }
+});
+</script>
+
+
+
 </html>
