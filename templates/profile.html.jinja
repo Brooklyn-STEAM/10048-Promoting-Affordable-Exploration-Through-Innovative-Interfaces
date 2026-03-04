@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Profile — {{ current_user.name }}</title>
+</head>
+<body class="min-h-screen bg-[#d6cbbf] flex items-center justify-center p-6">
+
+  <div class="bg-[#ece4d8] w-full max-w-md rounded-2xl p-8 border-2 border-[#1f1f1f] shadow-[6px_6px_0px_#1f1f1f]">
+
+    
+    <div class="flex flex-col items-center mb-8">
+      <div class="w-20 h-20 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] mb-4">
+        <span class="text-white text-3xl font-bold">
+          {{ current_user.name[0] | upper }}
+        </span>
+      </div>
+      <h2 class="text-2xl font-bold text-[#2b2b2b]">{{ current_user.name }}</h2>
+      <p class="text-[#4a4a4a] text-sm mt-1">{{ current_user.email }}</p>
+    </div>
+
+    
+    <div class="space-y-4 mb-8">
+
+      <div class="bg-[#f5efe6] rounded-xl border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] px-4 py-3">
+        <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Full Name</p>
+        <p class="text-[#2b2b2b] font-semibold">{{ current_user.name }}</p>
+      </div>
+
+      <div class="bg-[#f5efe6] rounded-xl border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] px-4 py-3">
+        <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Email</p>
+        <p class="text-[#2b2b2b] font-semibold">{{ current_user.email }}</p>
+      </div>
+
+      <div class="bg-[#f5efe6] rounded-xl border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] px-4 py-3">
+        <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Address</p>
+        <p class="text-[#2b2b2b] font-semibold">{{ current_user.address }}</p>
+      </div>
+
+    </div>
+
+    
+    <div class="space-y-3">
+      <a href="/browse"
+        class="block text-center w-full py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
+        Browse Boroughs
+      </a>
+      <a href="/logout"
+        class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
+        Log Out
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>
