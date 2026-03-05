@@ -58,6 +58,14 @@ BOROUGHS = [
     {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50", "accent_dark": "#4f4433"},
 ]
 
+BOROUGH_IDS = {
+    "manhattan": 1,
+    "brooklyn": 2,
+    "queens": 3,
+    "bronx": 4,
+    "staten island": 5,
+}
+
 
 @app.route("/browse", methods=["GET", "POST"])
 @login_required
@@ -73,7 +81,17 @@ def borough_page(name):
     borough = next((b for b in BOROUGHS if b["name"] == name), None)
     if not borough:
         abort(404)
-    return render_template("borough.html.jinja", borough=borough)
+
+    borough_id = BOROUGH_IDS.get(name.lower())
+
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Businesses WHERE Borough_id = %s", (borough_id,))
+    businesses = cursor.fetchall()
+    connection.close()
+
+    return render_template("borough.html.jinja", borough=borough, businesses=businesses)
+
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -153,3 +171,46 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+@app.route("/add-business/<borough>", methods=["POST"])
+@login_required
+def add_business(borough):
+    borough_id = BOROUGH_IDS.get(borough.lower())
+    if borough_id is None:
+        abort(400)
+
+    business_name = request.form.get("business_name")
+    address = request.form.get("location")
+    description = request.form.get("description")
+    prices = request.form.get("prices")  # NEW
+
+    place_image = request.files.get("place_image")
+
+    image_path = None
+    if place_image:
+        image_path = f"static/images/{place_image.filename}"
+        place_image.save(image_path)
+
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    sql = """
+        INSERT INTO Businesses 
+        (business_name, address, latitude, longitude, description, Prices, Image, Borough_id)
+        VALUES (%s, %s, NULL, NULL, %s, %s, %s, %s)
+    """
+
+    cursor.execute(sql, (
+        business_name,
+        address,
+        description,
+        prices,
+        image_path,
+        borough_id
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(f"/borough/{borough}")
