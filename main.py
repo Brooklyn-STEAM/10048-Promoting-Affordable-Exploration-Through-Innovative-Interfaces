@@ -3,13 +3,18 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import pymysql
 from dynaconf import Dynaconf
 
-app = Flask(__name__)
-config = Dynaconf(settings_file=["settings.toml"])
-app.secret_key = config.secret_key
+config = Dynaconf(settings_files=['settings.toml'])
 
-login_manager = LoginManager(app)
+
+login_manager = LoginManager()
 login_manager.login_view = '/login'
 
+app = Flask(__name__)
+app.secret_key = "super-secret-key-change-this"
+
+login_manager = LoginManager()
+login_manager.login_view = "/login"
+login_manager.init_app(app)
 
 class User(UserMixin):
     def __init__(self, result):
@@ -153,3 +158,4 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
