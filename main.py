@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, render_template, request, redirect, flash, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 import pymysql
+import json
+from datetime import datetime
 from dynaconf import Dynaconf
 
 app = Flask(__name__)
@@ -13,10 +15,11 @@ login_manager.login_view = '/login'
 
 class User(UserMixin):
     def __init__(self, result):
-        self.name     = result['Username']
-        self.email    = result['Email']
-        self.address  = result['Address']
-        self.id       = result['ID']
+        self.name            = result['Username']
+        self.email           = result['Email']
+        self.address         = result['Address']
+        self.id              = result['ID']
+        self.profile_picture = result.get('ProfilePicture')
 
     def get_id(self):
         return str(self.id)
@@ -51,20 +54,12 @@ def page_not_found(e):
 
 
 BOROUGHS = [
-    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4", "accent_dark": "#1f4a73"},
-    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e", "accent_dark": "#6f421e"},
-    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464", "accent_dark": "#1f6f44"},
-    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555", "accent_dark": "#2e2e2e"},
-    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50", "accent_dark": "#4f4433"},
+    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
+    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
+    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
+    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
+    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
 ]
-
-BOROUGH_IDS = {
-    "manhattan": 1,
-    "brooklyn": 2,
-    "queens": 3,
-    "bronx": 4,
-    "staten island": 5,
-}
 
 
 @app.route("/browse", methods=["GET", "POST"])
@@ -74,24 +69,64 @@ def browse():
     borough_obj = next((b for b in BOROUGHS if b["name"] == selected_borough), BOROUGHS[0])
     return render_template("browse.html.jinja", boroughs=BOROUGHS, selected=borough_obj)
 
-@app.route("/borough/<name>")
+@app.route("/borough/<path:n>")
 @login_required
-def borough_page(name):
-    name = name.replace("-", " ")
+def borough_page(n):
+    name = n.replace("-", " ")
     borough = next((b for b in BOROUGHS if b["name"] == name), None)
     if not borough:
         abort(404)
 
-    borough_id = BOROUGH_IDS.get(name.lower())
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT l.*, u.Username FROM `Location` l
+        JOIN `User` u ON l.UserID = u.ID
+        WHERE l.Borough = %s
+        ORDER BY l.DatePosted DESC
+    """, (name,))
+    locations = cursor.fetchall()
+    connection.close()
+
+    locations_json = json.dumps([{
+        'Name': l['Name'],
+        'Borough': l['Borough'],
+        'Description': l.get('Description', ''),
+        'DatePosted': l['DatePosted'].strftime('%b %d, %Y') if isinstance(l['DatePosted'], datetime) else str(l['DatePosted']),
+    } for l in locations])
+
+    return render_template("borough.html.jinja",
+        borough=borough,
+        locations=locations,
+        locations_json=locations_json,
+    )
+
+@app.route("/borough/<path:n>/add", methods=["POST"])
+@login_required
+def add_location(n):
+    name = n.replace("-", " ")
+    borough = next((b for b in BOROUGHS if b["name"] == name), None)
+    if not borough:
+        abort(404)
+
+    loc_name    = request.form.get("name", "").strip()
+    address     = request.form.get("address", "").strip()
+    description = request.form.get("description", "").strip()
+
+    if not loc_name or not address:
+        flash("Please fill in the name and address")
+        return redirect(f"/borough/{n}")
 
     connection = connect_db()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM Businesses WHERE Borough_id = %s", (borough_id,))
-    businesses = cursor.fetchall()
+    cursor.execute("""
+        INSERT INTO `Location` (UserID, Name, Address, Description, Borough)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (current_user.id, loc_name, address, description, name))
     connection.close()
 
-    return render_template("borough.html.jinja", borough=borough, businesses=businesses)
-
+    flash(f'"{loc_name}" added!')
+    return redirect(f"/borough/{n}")
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -163,6 +198,47 @@ def login():
 def profile():
     return render_template("profile.html.jinja")
 
+@app.route("/profile/update-username", methods=["POST"])
+@login_required
+def update_username():
+    username = request.form.get("username", "").strip()
+    if not username:
+        flash("Username cannot be empty")
+        return redirect("/profile")
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute("UPDATE `User` SET `Username` = %s WHERE `ID` = %s", (username, current_user.id))
+    connection.close()
+    current_user.name = username
+    flash("Username updated!")
+    return redirect("/profile")
+
+@app.route("/profile/update-password", methods=["POST"])
+@login_required
+def update_password():
+    password = request.form.get("password", "")
+    if len(password) < 8:
+        flash("Password must be at least 8 characters")
+        return redirect("/profile")
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute("UPDATE `User` SET `Password` = %s WHERE `ID` = %s", (password, current_user.id))
+    connection.close()
+    flash("Password updated!")
+    return redirect("/profile")
+
+@app.route("/profile/update-picture", methods=["POST"])
+@login_required
+def update_picture():
+    picture_url = request.form.get("picture_url", "").strip()
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute("UPDATE `User` SET `ProfilePicture` = %s WHERE `ID` = %s", (picture_url or None, current_user.id))
+    connection.close()
+    current_user.profile_picture = picture_url or None
+    flash("Profile picture updated!")
+    return redirect("/profile")
+
 @app.route("/logout")
 @login_required
 def logout():
@@ -171,46 +247,3 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-@app.route("/add-business/<borough>", methods=["POST"])
-@login_required
-def add_business(borough):
-    borough_id = BOROUGH_IDS.get(borough.lower())
-    if borough_id is None:
-        abort(400)
-
-    business_name = request.form.get("business_name")
-    address = request.form.get("location")
-    description = request.form.get("description")
-    prices = request.form.get("prices")  # NEW
-
-    place_image = request.files.get("place_image")
-
-    image_path = None
-    if place_image:
-        image_path = f"static/images/{place_image.filename}"
-        place_image.save(image_path)
-
-    connection = connect_db()
-    cursor = connection.cursor()
-
-    sql = """
-        INSERT INTO Businesses 
-        (business_name, address, latitude, longitude, description, Prices, Image, Borough_id)
-        VALUES (%s, %s, NULL, NULL, %s, %s, %s, %s)
-    """
-
-    cursor.execute(sql, (
-        business_name,
-        address,
-        description,
-        prices,
-        image_path,
-        borough_id
-    ))
-
-    connection.commit()
-    connection.close()
-
-    return redirect(f"/borough/{borough}")
