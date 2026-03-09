@@ -8,51 +8,90 @@
 </head>
 <body class="min-h-screen bg-[#d6cbbf] flex items-center justify-center p-6">
 
-  <div class="bg-[#ece4d8] w-full max-w-md rounded-2xl p-8 border-2 border-[#1f1f1f] shadow-[6px_6px_0px_#1f1f1f]">
+{% include '_nav.html.jinja' %}
 
-    
-    <div class="flex flex-col items-center mb-8">
+<div class="bg-[#ece4d8] w-full max-w-md rounded-2xl p-8 border-2 border-[#1f1f1f] shadow-[6px_6px_0px_#1f1f1f]">
+
+  <div class="flex flex-col items-center mb-8">
+    {% if current_user.profile_picture %}
+      <img src="{{ current_user.profile_picture }}"
+           class="w-20 h-20 rounded-full object-cover border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] mb-4"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="w-20 h-20 rounded-full bg-[#5c6b5c] items-center justify-center border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] mb-4" style="display:none;">
+        <span class="text-white text-3xl font-bold">{{ current_user.name[0] | upper }}</span>
+      </div>
+    {% else %}
       <div class="w-20 h-20 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] mb-4">
-        <span class="text-white text-3xl font-bold">
-          {{ current_user.name[0] | upper }}
-        </span>
+        <span class="text-white text-3xl font-bold">{{ current_user.name[0] | upper }}</span>
       </div>
-      <h2 class="text-2xl font-bold text-[#2b2b2b]">{{ current_user.name }}</h2>
-      <p class="text-[#4a4a4a] text-sm mt-1">{{ current_user.email }}</p>
-    </div>
-
-    
-    <div class="space-y-4 mb-8">
-
-      <div class="bg-[#f5efe6] rounded-xl border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] px-4 py-3">
-        <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Full Name</p>
-        <p class="text-[#2b2b2b] font-semibold">{{ current_user.name }}</p>
-      </div>
-
-      <div class="bg-[#f5efe6] rounded-xl border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] px-4 py-3">
-        <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Email</p>
-        <p class="text-[#2b2b2b] font-semibold">{{ current_user.email }}</p>
-      </div>
-
-      <div class="bg-[#f5efe6] rounded-xl border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] px-4 py-3">
-        <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Address</p>
-        <p class="text-[#2b2b2b] font-semibold">{{ current_user.address }}</p>
-      </div>
-
-    </div>
-
-    
-    <div class="space-y-3">
-      <a href="/browse"
-        class="block text-center w-full py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
-        Browse Boroughs
-      </a>
-      <a href="/logout"
-        class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
-        Log Out
-      </a>
-    </div>
-
+    {% endif %}
+    <h2 class="text-2xl font-bold text-[#2b2b2b]">{{ current_user.name }}</h2>
+    <p class="text-[#4a4a4a] text-sm mt-1">{{ current_user.email }}</p>
   </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="mb-4 px-4 py-3 rounded-xl bg-[#5c6b5c] text-white text-sm border-2 border-[#1f1f1f]">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+
+  <form method="POST" action="/profile/update-username" class="mb-6">
+    <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Username</p>
+    <div class="flex gap-2">
+      <input type="text" name="username" value="{{ current_user.name }}" required
+        class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f] text-[#2b2b2b]">
+      <button type="submit"
+        class="px-4 py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+        Save
+      </button>
+    </div>
+  </form>
+
+ 
+  <form method="POST" action="/profile/update-password" class="mb-6">
+    <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">New Password</p>
+    <div class="flex gap-2">
+      <input type="password" name="password" placeholder="••••••••" required minlength="8"
+        class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f] text-[#2b2b2b]">
+      <button type="submit"
+        class="px-4 py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+        Save
+      </button>
+    </div>
+  </form>
+
+  <form method="POST" action="/profile/update-picture" class="mb-8">
+    <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Profile Picture URL</p>
+    <div class="flex gap-2">
+      <input type="url" name="picture_url" placeholder="https://example.com/photo.jpg"
+             value="{{ current_user.profile_picture or '' }}"
+        class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f] text-[#2b2b2b]">
+      <button type="submit"
+        class="px-4 py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+        Save
+      </button>
+    </div>
+  </form>
+
+
+  <div class="border-t-2 border-[#1f1f1f] mb-6"></div>
+
+  <div class="space-y-3">
+    <a href="/browse"
+      class="block text-center w-full py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
+      Browse Boroughs
+    </a>
+    <a href="/logout"
+      class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
+      Log Out
+    </a>
+  </div>
+
+</div>
 </body>
 </html>
