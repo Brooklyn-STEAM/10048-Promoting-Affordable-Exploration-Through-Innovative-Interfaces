@@ -1,22 +1,24 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <title>Sign Up</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<title>Sign Up</title>
 </head>
 
 <body class="min-h-screen bg-[#d6cbbf] flex items-center justify-center">
 
-  
-  <div class="bg-[#ece4d8] w-full max-w-md rounded-2xl p-8 border-2 border-[#1f1f1f] shadow-[6px_6px_0px_#1f1f1f]">
 
-    
+<!-- OUTER BOX -->
+<div class="w-[680px] bg-[#ece4d8] border-2 border-[#1f1f1f] shadow-[8px_8px_0px_#1f1f1f] rounded-2xl p-12 w-full">
+
+  <div class="w-full max-w-lg mx-auto">
+
+    <!-- HEADER -->
     <div class="text-center mb-8">
-      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f]">
-        <span class="text-white text-2xl font-bold"></span>
-      </div>
+
+      
 
       <h2 class="text-3xl font-bold text-[#2b2b2b]">
         Create Account
@@ -25,100 +27,57 @@
       <p class="text-[#4a4a4a] mt-2">
         Join and start exploring!
       </p>
+
     </div>
-    
-    
+
+    <!-- FORM -->
     <form method="POST" action="/signup" class="space-y-5">
 
-      
       <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
-          Full Name
-        </label>
-        <input 
-          type="text" 
-          name="name"
-          placeholder="John Doe"
-          required
-          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
-        >
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Full Name</label>
+        <input type="text" name="name" placeholder="John Doe" required
+        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
       </div>
 
-      
       <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
-          Email
-        </label>
-        <input 
-          type="email" 
-          name="email"
-          placeholder="you@example.com"
-          required
-          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
-        >
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required
+        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
       </div>
 
-      
       <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
-          Address
-        </label>
-        <input 
-          type="text" 
-          name="address"
-          placeholder="123 example street"
-          required
-          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
-        >
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Address</label>
+        <input type="text" name="address" placeholder="123 example street" required
+        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
       </div>
 
-      
       <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
-          Password
-        </label>
-        <input 
-          type="password" 
-          name="password"
-          placeholder="••••••••"
-          required
-          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
-        >
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Password</label>
+        <input type="password" name="password" placeholder="••••••••" required
+        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
       </div>
 
-      
       <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">
-          Confirm Password
-        </label>
-        <input 
-          type="password" 
-          name="confirm_password"
-          placeholder="••••••••"
-          required
-          class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f]"
-        >
+        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Confirm Password</label>
+        <input type="password" name="confirm_password" placeholder="••••••••" required
+        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
       </div>
 
-      
-      <button 
-        type="submit"
-        class="w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-      >
-        Sign Up
+      <button type="submit"
+      class="w-full py-3 rounded-xl bg-[#3c3c3c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
+      Sign Up
       </button>
 
     </form>
-    
 
-    
+    <!-- DIVIDER -->
     <div class="my-6 flex items-center">
       <div class="flex-grow border-t-2 border-[#1f1f1f]"></div>
       <span class="mx-3 text-[#4a4a4a] text-sm">or</span>
       <div class="flex-grow border-t-2 border-[#1f1f1f]"></div>
     </div>
 
-    <!-- Login Link -->
+    <!-- LOGIN LINK -->
     <p class="text-center text-[#2b2b2b] text-sm">
       Already have an account?
       <a href="/login" class="font-semibold underline hover:text-[#7a6a55]">
@@ -127,6 +86,8 @@
     </p>
 
   </div>
+  
+</div>
 
 </body>
 </html>
