@@ -1,489 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{{ borough.name | capitalize }} — Hidden Gems</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    :root {
-      --accent: {{ borough.accent }};
-      --borough-color: {{ borough.color }};
-    }
+<title>{{ borough.name | capitalize }} — Hidden Gems</title>
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<script src="https://cdn.tailwindcss.com"></script>
 
-    body {
-      font-family: 'Archivo', sans-serif;
-      background-color: {{ borough.color }};
-      color: #e8ded0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
 
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 200;
-      opacity: 0.3;
-    }
+<style>
 
-    h1 {
-      font-family: 'Archivo', sans-serif;
-      font-weight: 500;
-      letter-spacing: 0.3em;
-      font-size: 0.75rem;
-    }
+:root{
+  --accent: {{ borough.accent }};
+  --borough-color: {{ borough.color }};
+}
 
-    .borough-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(3rem, 8vw, 6rem);
-      line-height: 1;
-      text-transform: capitalize;
-      letter-spacing: -0.02em;
-    }
+*{box-sizing:border-box;margin:0;padding:0;}
 
-    .back-link {
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(232,222,208,0.4);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .back-link:hover { color: #e8ded0; }
+body{
+  font-family:'Archivo',sans-serif;
+  background-color:var(--borough-color);
+  color:#e8ded0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
 
-    .nav-link {
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(232,222,208,0.35);
-      text-decoration: none;
-    }
+h1{
+  font-weight:500;
+  letter-spacing:0.3em;
+  font-size:0.75rem;
+}
 
-    .divider {
-      width: 40px;
-      height: 1px;
-      background: var(--accent);
-      margin: 1.2rem 0;
-      opacity: 0.6;
-    }
+.borough-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(3rem,8vw,6rem);
+  line-height:1;
+}
 
-    /* ── CAROUSEL ── */
-    .carousel-wrap {
-      width: 100%;
-      overflow: hidden;
-      position: relative;
-    }
+.back-link{
+  font-size:0.6rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:rgba(232,222,208,0.4);
+  text-decoration:none;
+}
 
-    .carousel-track {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      padding: 20px 0;
-    }
+.back-link:hover{color:#e8ded0;}
 
-    .card {
-      border-radius: 16px;
-      flex-shrink: 0;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(.23,1,.32,1);
-      border: 1px solid rgba(232,222,208,0.15);
-      position: relative;
-      background: rgba(0,0,0,0.2);
-    }
+.divider{
+  width:40px;
+  height:1px;
+  background:var(--accent);
+  margin:1.2rem 0;
+  opacity:0.6;
+}
 
-    .card.side {
-      width: 100px;
-      height: 120px;
-      opacity: 0.45;
-      transform: scale(0.88);
-    }
+.carousel-wrap{
+  width:100%;
+  overflow:hidden;
+}
 
-    .card.center {
-      width: 240px;
-      height: 180px;
-      opacity: 1;
-      transform: scale(1);
-      border-color: rgba(232,222,208,0.3);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-    }
+.carousel-track{
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  padding:20px 0;
+}
 
-    .card iframe {
-      width: 100%; height: 100%; border: none;
-      pointer-events: none;
-    }
+.card{
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:all .35s cubic-bezier(.23,1,.32,1);
+  border:1px solid rgba(232,222,208,.15);
+  position:relative;
+}
 
-    .card .card-overlay {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.75));
-      padding: 10px 12px;
-    }
-    .card.side .card-overlay { display: none; }
+.card.side{
+  width:110px;
+  height:120px;
+  opacity:.45;
+  transform:scale(.88);
+}
 
-    .card-name {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .card-meta {
-      font-size: 0.58rem;
-      color: rgba(255,255,255,0.6);
-      margin-top: 2px;
-    }
+.card.center{
+  width:240px;
+  height:180px;
+  opacity:1;
+  transform:scale(1);
+  border-color:rgba(232,222,208,.3);
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
 
-    .empty-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: rgba(232,222,208,0.3);
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      gap: 6px;
-      width: 240px;
-      height: 180px;
-    }
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
 
-    
-    .detail-panel {
-      max-width: 280px;
-      margin: 0 auto;
-      padding: 14px 18px;
-      background: rgba(0,0,0,0.2);
-      border-radius: 12px;
-      border: 1px solid rgba(232,222,208,0.1);
-      display: none;
-    }
-    .detail-panel.open { display: block; }
-    .detail-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-weight: 300;
-      margin-bottom: 4px;
-    }
-    .detail-meta {
-      font-size: 0.55rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      opacity: 0.45;
-      margin-bottom: 6px;
-    }
-    .detail-desc {
-      font-size: 0.72rem;
-      opacity: 0.7;
-      line-height: 1.5;
-    }
+.card-overlay{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:10px 12px;
+  background:linear-gradient(transparent,rgba(0,0,0,.75));
+}
 
-    
-    .new-post-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 24px;
-      border-radius: 999px;
-      border: 1px solid rgba(232,222,208,0.4);
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #e8ded0;
-      cursor: pointer;
-      background: transparent;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .new-post-btn:hover {
-      background: rgba(232,222,208,0.08);
-      border-color: rgba(232,222,208,0.7);
-    }
-    .new-post-btn .dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
-    }
+.card.side .card-overlay{display:none;}
 
-   
-    .modal-backdrop {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(6px);
-      z-index: 300;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .modal-backdrop.open { display: flex; }
+.card-name{
+  font-size:.78rem;
+  font-weight:600;
+  color:#fff;
+}
 
-    .modal {
-      background: #ece4d8;
-      border-radius: 20px;
-      border: 2px solid #1f1f1f;
-      box-shadow: 6px 6px 0px #1f1f1f;
-      padding: 28px;
-      width: 100%;
-      max-width: 400px;
-      color: #2b2b2b;
-    }
+.card-meta{
+  font-size:.58rem;
+  color:rgba(255,255,255,.6);
+}
 
-    .modal h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
-      font-weight: 300;
-      margin-bottom: 20px;
-    }
+.detail-panel{
+  max-width:280px;
+  margin:0 auto;
+  padding:14px 18px;
+  background:rgba(0,0,0,.2);
+  border-radius:12px;
+  border:1px solid rgba(232,222,208,.1);
+  display:none;
+}
 
-    .modal label {
-      display: block;
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #4a4a4a;
-      margin-bottom: 6px;
-    }
+.detail-panel.open{display:block;}
 
-    .modal input, .modal textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: 2px solid #1f1f1f;
-      background: #f5efe6;
-      font-size: 0.85rem;
-      outline: none;
-      box-shadow: 3px 3px 0px #1f1f1f;
-      color: #2b2b2b;
-      font-family: inherit;
-      margin-bottom: 14px;
-    }
-    .modal textarea { resize: none; height: 75px; }
+.detail-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.2rem;
+}
 
-    #map-preview {
-      width: 100%;
-      height: 140px;
-      border-radius: 12px;
-      border: 2px solid #1f1f1f;
-      overflow: hidden;
-      display: none;
-      margin-bottom: 14px;
-    }
-    #map-preview iframe { width: 100%; height: 100%; border: none; }
+.detail-meta{
+  font-size:.55rem;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  opacity:.45;
+  margin-bottom:6px;
+}
 
-    .modal-submit {
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      background: #2b2b2b;
-      color: white;
-      font-weight: 600;
-      border: 2px solid #1f1f1f;
-      box-shadow: 4px 4px 0px #1f1f1f;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-size: 0.85rem;
-      font-family: inherit;
-    }
-    .modal-submit:hover { transform: translate(2px,2px); box-shadow: none; }
+.detail-desc{
+  font-size:.72rem;
+  opacity:.7;
+}
 
-    .modal-cancel {
-      width: 100%;
-      padding: 10px;
-      border-radius: 12px;
-      background: transparent;
-      color: #4a4a4a;
-      border: 2px solid transparent;
-      cursor: pointer;
-      font-size: 0.8rem;
-      margin-top: 8px;
-      font-family: inherit;
-      transition: color 0.15s;
-    }
-    .modal-cancel:hover { color: #2b2b2b; }
+.new-post-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 24px;
+  border-radius:999px;
+  border:1px solid rgba(232,222,208,.4);
+  font-size:.6rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-up  { animation: fadeUp 0.5s ease both; }
-    .delay-1  { animation-delay: 0.1s; }
-    .delay-2  { animation-delay: 0.2s; }
-    .delay-3  { animation-delay: 0.3s; }
-  </style>
+.new-post-btn:hover{
+  background:rgba(232,222,208,.08);
+}
+
+.new-post-btn .dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+}
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(6px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-backdrop.open{display:flex;}
+
+.modal{
+  background:#ece4d8;
+  border-radius:20px;
+  border:2px solid #1f1f1f;
+  padding:28px;
+  width:100%;
+  max-width:400px;
+  color:#2b2b2b;
+}
+
+.modal input,
+.modal textarea{
+  width:100%;
+  padding:10px 14px;
+  border-radius:12px;
+  border:2px solid #1f1f1f;
+  background:#f5efe6;
+  margin-bottom:14px;
+}
+
+.modal-submit{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  background:#2b2b2b;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+
+</style>
 </head>
 
-<body class="p-8" style="height:100vh;">
+<body class="p-8">
 
 {% include '_nav.html.jinja' %}
 
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50">
-      {% for message in messages %}
-        <div class="px-5 py-3 rounded-xl text-sm border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f]"
-             style="background:var(--accent); color:#fff;">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
-
-<div class="flex items-center justify-between fade-up">
-  <a href="/browse"><h1>Hidden Gems</h1></a>
-  <a href="/browse" class="back-link">← Back</a>
+<!-- Header -->
+<div class="flex items-center justify-between">
+<a href="/browse"><h1>Hidden Gems</h1></a>
+<a href="/browse" class="back-link">← Back</a>
 </div>
 
+<!-- Borough title -->
+<div class="mt-10">
+<p class="borough-title">{{ borough.name }}</p>
+<div class="divider"></div>
+<p class="text-xs opacity-40 tracking-widest uppercase">New York City</p>
+</div>
 
-<div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:16px;">
+<!-- Carousel -->
+<div class="carousel-wrap mt-8">
+<div class="carousel-track">
 
- 
-  <div class="fade-up delay-1">
-    <p class="borough-title">{{ borough.name }}</p>
-    <div class="divider"></div>
-    <p style="font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; opacity:0.35;">New York City</p>
-  </div>
+{% for loc in locations %}
 
-  <!-- CAROUSEL -->
-  <div class="carousel-wrap fade-up delay-2">
-    <div class="carousel-track" id="carousel-track">
-      {% if locations %}
-        {% for loc in locations %}
-        <div class="card {% if loop.index0 == 0 %}center{% else %}side{% endif %}"
-             data-index="{{ loop.index0 }}"
-             onclick="selectCard({{ loop.index0 }})">
-          <iframe src="https://maps.google.com/maps?q={{ loc.Address | urlencode }}+New+York&output=embed&z=15"
-                  loading="lazy"></iframe>
-          <div class="card-overlay">
-            <p class="card-name">{{ loc.Name }}</p>
-            <p class="card-meta">{{ loc.DatePosted.strftime('%b %d') if loc.DatePosted else '' }}</p>
-          </div>
-        </div>
-        {% endfor %}
-      {% else %}
-        <div class="empty-card">
-          <span style="font-size:1.8rem; opacity:0.3;">📍</span>
-          <span>No locations yet — add one!</span>
-        </div>
-      {% endif %}
-    </div>
-  </div>
+<div
+class="card {% if loop.index0 == 0 %}center{% else %}side{% endif %}"
+data-index="{{ loop.index0 }}"
+onclick="selectCard({{ loop.index0 }})">
 
- 
-  <div class="detail-panel" id="detail-panel">
-    <p class="detail-name" id="detail-name"></p>
-    <p class="detail-meta" id="detail-meta"></p>
-    <p class="detail-desc" id="detail-desc"></p>
-  </div>
+{% if loc.Image %}
+<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+{% else %}
+<div class="flex items-center justify-center h-full text-xs text-white/60">
+No Image
+</div>
+{% endif %}
 
-  
-  <div class="fade-up delay-3 flex justify-center">
-    <button class="new-post-btn" onclick="openModal()">
-      <span class="dot"></span>
-      Add a location
-    </button>
-  </div>
+<div class="card-overlay">
+<p class="card-name">{{ loc.Name }}</p>
+<p class="card-meta">
+{{ loc.DatePosted.strftime('%b %d') if loc.DatePosted else '' }}
+</p>
+</div>
 
 </div>
 
+{% endfor %}
 
-<div class="flex justify-between fade-up delay-3">
-  <div class="flex gap-6">
-    <a href="#" class="nav-link">About</a>
-    <a href="#" class="nav-link">Contact</a>
-  </div>
-  <a href="#" class="nav-link">Privacy</a>
+</div>
 </div>
 
+<!-- Detail Panel -->
+<div class="detail-panel mt-4" id="detail-panel">
+<p class="detail-name" id="detail-name"></p>
+<p class="detail-meta" id="detail-meta"></p>
+<p class="detail-desc" id="detail-desc"></p>
+</div>
 
-<div class="modal-backdrop" id="modal" onclick="closeOnBackdrop(event)">
-  <div class="modal">
-    <h2>Add a location</h2>
+<!-- Add button -->
+<div class="flex justify-center mt-6">
+<button class="new-post-btn" onclick="openModal()">
+<span class="dot"></span>
+Add a location
+</button>
+</div>
 
-    <form method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add">
+<!-- Modal -->
+<div class="modal-backdrop" id="modal" onclick="closeBackdrop(event)">
+<div class="modal">
 
-      <label>Location name</label>
-      <input type="text" name="name" placeholder="e.g. Domino Park" required>
+<h2>Add a location</h2>
 
-      <label>Address</label>
-      <input type="text" name="address" id="address-input"
-             placeholder="e.g. 15 River St, Brooklyn"
-             oninput="previewMap(this.value)" required>
+<form method="POST"
+action="/borough/{{ borough.name | replace(' ', '-') }}/add"
+enctype="multipart/form-data">
 
-      <div id="map-preview">
-        <iframe id="map-iframe" src="" loading="lazy"></iframe>
-      </div>
+<input type="text" name="name" placeholder="Location name" required>
 
-      <label>Description</label>
-      <textarea name="description" placeholder="What makes this place special?"></textarea>
+<input type="text" name="address" placeholder="Address" required>
 
-      <button type="submit" class="modal-submit">Post location</button>
-      <button type="button" class="modal-cancel" onclick="closeModal()">Cancel</button>
+<textarea name="description" placeholder="Description"></textarea>
 
-    </form>
-  </div>
+<input type="file" name="image" accept="image/*" required>
+
+<button type="submit" class="modal-submit">Post location</button>
+
+</form>
+
+</div>
 </div>
 
 <script>
-  const locations = {{ locations_json | safe }};
 
-  function selectCard(index) {
-    document.querySelectorAll('.card').forEach((card, i) => {
-      card.classList.remove('center', 'side');
-      card.classList.add(i === index ? 'center' : 'side');
-    });
-    if (locations.length > 0) {
-      const loc = locations[index];
-      document.getElementById('detail-name').textContent = loc.Name;
-      document.getElementById('detail-meta').textContent =
-        loc.Borough.charAt(0).toUpperCase() + loc.Borough.slice(1) + ' · ' + loc.DatePosted;
-      document.getElementById('detail-desc').textContent = loc.Description || '';
-      document.getElementById('detail-panel').classList.add('open');
-    }
-  }
+const locations = {{ locations_json | safe }};
 
-  if (locations.length > 0) selectCard(0);
+function selectCard(index){
 
-  let mapTimer;
-  function previewMap(address) {
-    clearTimeout(mapTimer);
-    if (address.length < 5) {
-      document.getElementById('map-preview').style.display = 'none';
-      return;
-    }
-    mapTimer = setTimeout(() => {
-      const query = encodeURIComponent(address + ' New York');
-      document.getElementById('map-iframe').src =
-        `https://maps.google.com/maps?q=${query}&output=embed&z=15`;
-      document.getElementById('map-preview').style.display = 'block';
-    }, 800);
-  }
+document.querySelectorAll('.card').forEach((card,i)=>{
+card.classList.remove('center','side');
+card.classList.add(i===index ? 'center':'side');
+});
 
-  function openModal() {
-    document.getElementById('modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeModal() {
-    document.getElementById('modal').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  function closeOnBackdrop(e) {
-    if (e.target === document.getElementById('modal')) closeModal();
-  }
+const loc = locations[index];
+
+document.getElementById('detail-name').textContent = loc.Name;
+document.getElementById('detail-meta').textContent =
+loc.Borough + " · " + loc.DatePosted;
+document.getElementById('detail-desc').textContent =
+loc.Description || "";
+
+document.getElementById('detail-panel').classList.add('open');
+
+}
+
+if(locations.length) selectCard(0);
+
+function openModal(){
+document.getElementById('modal').classList.add('open');
+document.body.style.overflow='hidden';
+}
+
+function closeBackdrop(e){
+if(e.target.id === "modal"){
+document.getElementById('modal').classList.remove('open');
+document.body.style.overflow='';
+}
+}
+
 </script>
 
 </body>
