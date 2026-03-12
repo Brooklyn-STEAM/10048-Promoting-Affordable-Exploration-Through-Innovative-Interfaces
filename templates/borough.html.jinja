@@ -230,14 +230,14 @@ h1{
 {% include '_nav.html.jinja' %}
 
 <!-- Header -->
-<div class="flex items-center justify-between">
+<div class="flex items-center text-lg">
 <a href="/browse"><h1>Hidden Gems</h1></a>
-<a href="/browse" class="back-link">← Back</a>
+<a href="/browse" class="back-link text-lg">← Back</a>
 </div>
 
 <!-- Borough title -->
 <div class="mt-10">
-<p class="borough-title">{{ borough.name }}</p>
+<p class="borough-title">{{ borough.name|capitalize }}</p>
 <div class="divider"></div>
 <p class="text-xs opacity-40 tracking-widest uppercase">New York City</p>
 </div>
