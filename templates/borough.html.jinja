@@ -245,36 +245,40 @@ h1{
 
 <!-- Carousel -->
 <div class="carousel-wrap mt-8">
-<div class="carousel-track">
+  <div class="carousel-track">
 
-{% for loc in locations %}
+    {% for loc in locations %}
 
-<div
-class="card {% if loop.index0 == 0 %}center{% else %}side{% endif %}"
-data-index="{{ loop.index0 }}"
-onclick="selectCard({{ loop.index0 }})">
+    <div
+      class="card {% if loop.index0 == 0 %}center{% else %}side{% endif %}"
+      data-index="{{ loop.index0 }}"
+      onclick="selectCard({{ loop.index0 }})">
 
-{% if loc.Image %}
-<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+      {% if loc.Image %}
+<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}"
+     alt="{{ loc.Name }}"
+     class="w-full h-full object-cover">
 {% else %}
-<div class="flex items-center justify-center h-full text-xs text-white/60">
-No Image
+<div class="flex items-center justify-center h-full text-xs text-white/60 bg-black/20">
+  No Image
 </div>
 {% endif %}
 
 <div class="card-overlay">
-<p class="card-name">{{ loc.Name }}</p>
-<p class="card-meta">
-{{ loc.DatePosted.strftime('%b %d') if loc.DatePosted else '' }}
-</p>
+  <p class="card-name">{{ loc.Name }}</p>
+  <p class="card-meta">
+    {{ loc.DatePosted.strftime('%b %d') if loc.DatePosted else '' }}
+  </p>
 </div>
 
+
+    </div>
+
+    {% endfor %}
+
+  </div>
 </div>
 
-{% endfor %}
-
-</div>
-</div>
 
 <!-- Detail Panel -->
 <div class="detail-panel mt-4" id="detail-panel">
