@@ -1,93 +1,107 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<title>Sign Up</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Sign Up</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Archivo:wght@300;400;500&display=swap');
+    body { font-family: 'Archivo', sans-serif; }
+    .serif { font-family: 'Cormorant Garamond', serif; }
+    input:focus { border-color: #7a6a55 !important; box-shadow: 3px 3px 0px #7a6a55 !important; }
+  </style>
 </head>
 
-<body class="min-h-screen bg-[#d6cbbf] flex items-center justify-center">
+<body class="w-screen h-screen flex overflow-hidden bg-[#d6cbbf]">
 
+ 
+  <div class="w-1/2 h-full bg-[#3a3328] flex flex-col items-center justify-center relative overflow-hidden">
+    
+    <div class="absolute w-[500px] h-[500px] rounded-full border border-white/5"></div>
+    <div class="absolute w-[350px] h-[350px] rounded-full border border-white/5"></div>
+    <div class="absolute w-[200px] h-[200px] rounded-full border border-white/5"></div>
+    
+    <p class="serif text-[#e8ded0] text-5xl font-light z-10 tracking-tight">Hidden Gems</p>
+    <p class="text-[#e8ded0]/40 text-xs tracking-[0.3em] uppercase mt-3 z-10">New York City</p>
+  </div>
 
-<!-- OUTER BOX -->
-<div class="w-[680px] bg-[#ece4d8] border-2 border-[#1f1f1f] shadow-[8px_8px_0px_#1f1f1f] rounded-2xl p-12 w-full">
-
-  <div class="w-full max-w-lg mx-auto">
-
-    <!-- HEADER -->
-    <div class="text-center mb-8">
+  
+  <div class="w-1/2 h-full bg-[#ece4d8] flex items-center justify-center p-12 overflow-y-auto">
+    <div class="w-full max-w-sm">
 
       
+      <div class="mb-8">
+        <p class="text-xs tracking-[0.25em] uppercase text-[#7a6a55] mb-2">Get started</p>
+        <h2 class="serif text-4xl font-light text-[#2b2b2b]">Create Account</h2>
+        <p class="text-[#4a4a4a] text-sm mt-2">Join and start exploring NYC's hidden gems.</p>
+      </div>
 
-      <h2 class="text-3xl font-bold text-[#2b2b2b]">
-        Create Account
-      </h2>
+      
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="mb-4 px-4 py-3 rounded-xl bg-[#5c6b5c] text-white text-sm">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
-      <p class="text-[#4a4a4a] mt-2">
-        Join and start exploring!
+      
+      <form method="POST" action="/signup" class="space-y-4">
+
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Full Name</label>
+            <input type="text" name="name" placeholder="John Doe" required
+              class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Email</label>
+          <input type="email" name="email" placeholder="you@example.com" required
+            class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none transition-all">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Address</label>
+          <input type="text" name="address" placeholder="123 Example Street" required
+            class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none transition-all">
+        </div>
+
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Password</label>
+            <input type="password" name="password" placeholder="••••••••" required
+              class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none transition-all">
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-1">Confirm</label>
+            <input type="password" name="confirm_password" placeholder="••••••••" required
+              class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none transition-all">
+          </div>
+        </div>
+
+        <button type="submit"
+          class="w-full py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 mt-2">
+          Create Account →
+        </button>
+
+      </form>
+
+      <div class="my-6 flex items-center">
+        <div class="flex-grow border-t border-[#1f1f1f]/20"></div>
+        <span class="mx-3 text-[#4a4a4a] text-xs tracking-widest uppercase">or</span>
+        <div class="flex-grow border-t border-[#1f1f1f]/20"></div>
+      </div>
+
+      <p class="text-center text-[#2b2b2b] text-sm">
+        Already have an account?
+        <a href="/login" class="font-semibold underline hover:text-[#7a6a55] transition-colors">Login here</a>
       </p>
 
     </div>
-
-    <!-- FORM -->
-    <form method="POST" action="/signup" class="space-y-5">
-
-      <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Full Name</label>
-        <input type="text" name="name" placeholder="John Doe" required
-        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Email</label>
-        <input type="email" name="email" placeholder="you@example.com" required
-        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Address</label>
-        <input type="text" name="address" placeholder="123 example street" required
-        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Password</label>
-        <input type="password" name="password" placeholder="••••••••" required
-        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-[#2b2b2b] mb-1">Confirm Password</label>
-        <input type="password" name="confirm_password" placeholder="••••••••" required
-        class="w-full px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none">
-      </div>
-
-      <button type="submit"
-      class="w-full py-3 rounded-xl bg-[#3c3c3c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
-      Sign Up
-      </button>
-
-    </form>
-
-    <!-- DIVIDER -->
-    <div class="my-6 flex items-center">
-      <div class="flex-grow border-t-2 border-[#1f1f1f]"></div>
-      <span class="mx-3 text-[#4a4a4a] text-sm">or</span>
-      <div class="flex-grow border-t-2 border-[#1f1f1f]"></div>
-    </div>
-
-    <!-- LOGIN LINK -->
-    <p class="text-center text-[#2b2b2b] text-sm">
-      Already have an account?
-      <a href="/login" class="font-semibold underline hover:text-[#7a6a55]">
-        Login here
-      </a>
-    </p>
-
   </div>
-  
-</div>
 
 </body>
 </html>
