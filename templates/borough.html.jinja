@@ -1,362 +1,606 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ borough.name | capitalize }} — Hidden Gems</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
 
-<title>{{ borough.name | capitalize }} — Hidden Gems</title>
+  <style>
+    :root {
+      --accent: {{ borough.accent }};
+      --borough-color: {{ borough.color }};
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-<script src="https://cdn.tailwindcss.com"></script>
+    body {
+      font-family: 'Archivo', sans-serif;
+      background-color: var(--borough-color);
+      color: #e8ded0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
+    .serif { font-family: 'Cormorant Garamond', serif; }
 
-<style>
+    
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.2); border-radius: 2px; }
 
-:root{
-  --accent: {{ borough.accent }};
-  --borough-color: {{ borough.color }};
-}
+    
+    .featured-card {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(232,222,208,0.12);
+    }
+    .featured-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.5);
+      border-color: rgba(232,222,208,0.3);
+    }
+    .featured-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block;
+    }
+    .featured-card .overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 55%);
+    }
+    .featured-card .info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 16px 18px;
+    }
+    .featured-card .badge {
+      display: inline-block;
+      font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 999px;
+      background: var(--accent); color: #fff;
+      margin-bottom: 6px; opacity: 0.9;
+    }
+    .featured-card .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem; font-weight: 300; line-height: 1.2;
+      color: #fff;
+    }
+    .featured-card .card-sub {
+      font-size: 0.6rem; letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.5); margin-top: 4px;
+    }
+    .featured-card .no-img {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; font-size: 0.7rem; opacity: 0.2;
+    }
 
-*{box-sizing:border-box;margin:0;padding:0;}
+    
+    .gem-card {
+      border-radius: 14px; overflow: hidden;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(232,222,208,0.1);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .gem-card:hover {
+      border-color: rgba(232,222,208,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+    .gem-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
+    .gem-card .gem-info { padding: 12px 14px; }
+    .gem-card .gem-title { font-size: 0.85rem; font-weight: 500; }
+    .gem-card .gem-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 3px; letter-spacing: 0.08em; }
+    .gem-card .no-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0.2; }
 
-body{
-  font-family:'Archivo',sans-serif;
-  background-color:var(--borough-color);
-  color:#e8ded0;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-}
+    
+    .add-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 22px; border-radius: 999px;
+      border: 1px solid rgba(232,222,208,0.35);
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer; background: transparent; color: #e8ded0;
+      transition: background 0.2s;
+    }
+    .add-btn:hover { background: rgba(232,222,208,0.08); }
+    .add-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
-h1{
-  font-weight:500;
-  letter-spacing:0.3em;
-  font-size:0.75rem;
-}
+    .section-label {
+      font-size: 0.55rem; letter-spacing: 0.3em;
+      text-transform: uppercase; opacity: 0.4;
+    }
 
-.borough-title{
-  font-family:'Cormorant Garamond',serif;
-  font-weight:300;
-  font-size:clamp(3rem,8vw,6rem);
-  line-height:1;
-}
+    
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #ece4d8; border-radius: 20px;
+      border: 2px solid #1f1f1f; box-shadow: 6px 6px 0 #1f1f1f;
+      padding: 28px; width: 100%; max-width: 400px; color: #2b2b2b;
+    }
+    .modal label {
+      display: block; font-size: 0.6rem; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase; color: #4a4a4a; margin-bottom: 5px;
+    }
+    .modal input, .modal textarea {
+      width: 100%; padding: 10px 14px; border-radius: 12px;
+      border: 2px solid #1f1f1f; background: #f5efe6;
+      font-size: 0.85rem; outline: none; box-shadow: 3px 3px 0 #1f1f1f;
+      color: #2b2b2b; font-family: inherit; margin-bottom: 14px;
+    }
+    .modal textarea { resize: none; height: 75px; }
+    .modal input[type="file"] { box-shadow: none; padding: 8px; }
+    .modal-submit {
+      width: 100%; padding: 12px; border-radius: 12px;
+      background: #2b2b2b; color: white; font-weight: 600;
+      border: 2px solid #1f1f1f; box-shadow: 4px 4px 0 #1f1f1f;
+      cursor: pointer; font-family: inherit; font-size: 0.85rem; transition: all 0.15s;
+    }
+    .modal-submit:hover { transform: translate(2px,2px); box-shadow: none; }
+    .modal-cancel {
+      width: 100%; padding: 9px; margin-top: 6px;
+      background: transparent; border: none;
+      color: #4a4a4a; cursor: pointer; font-size: 0.78rem; font-family: inherit;
+    }
+    .modal-cancel:hover { color: #2b2b2b; }
 
-.back-link{
-  font-size:0.6rem;
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-  color:rgba(232,222,208,0.4);
-  text-decoration:none;
-}
-
-.back-link:hover{color:#e8ded0;}
-
-.divider{
-  width:40px;
-  height:1px;
-  background:var(--accent);
-  margin:1.2rem 0;
-  opacity:0.6;
-}
-
-.carousel-wrap{
-  width:100%;
-  overflow:hidden;
-}
-
-.carousel-track{
-  display:flex;
-  justify-content:center;
-  gap:16px;
-  padding:20px 0;
-}
-
-.card{
-  border-radius:16px;
-  overflow:hidden;
-  cursor:pointer;
-  transition:all .35s cubic-bezier(.23,1,.32,1);
-  border:1px solid rgba(232,222,208,.15);
-  position:relative;
-}
-
-.card.side{
-  width:110px;
-  height:120px;
-  opacity:.45;
-  transform:scale(.88);
-}
-
-.card.center{
-  width:240px;
-  height:180px;
-  opacity:1;
-  transform:scale(1);
-  border-color:rgba(232,222,208,.3);
-  box-shadow:0 20px 50px rgba(0,0,0,.4);
-}
-
-.card img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.card-overlay{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  padding:10px 12px;
-  background:linear-gradient(transparent,rgba(0,0,0,.75));
-}
-
-.card.side .card-overlay{display:none;}
-
-.card-name{
-  font-size:.78rem;
-  font-weight:600;
-  color:#fff;
-}
-
-.card-meta{
-  font-size:.58rem;
-  color:rgba(255,255,255,.6);
-}
-
-.detail-panel{
-  max-width:280px;
-  margin:0 auto;
-  padding:14px 18px;
-  background:rgba(0,0,0,.2);
-  border-radius:12px;
-  border:1px solid rgba(232,222,208,.1);
-  display:none;
-}
-
-.detail-panel.open{display:block;}
-
-.detail-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.2rem;
-}
-
-.detail-meta{
-  font-size:.55rem;
-  letter-spacing:.15em;
-  text-transform:uppercase;
-  opacity:.45;
-  margin-bottom:6px;
-}
-
-.detail-desc{
-  font-size:.72rem;
-  opacity:.7;
-}
-
-.new-post-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 24px;
-  border-radius:999px;
-  border:1px solid rgba(232,222,208,.4);
-  font-size:.6rem;
-  letter-spacing:.2em;
-  text-transform:uppercase;
-  cursor:pointer;
-}
-
-.new-post-btn:hover{
-  background:rgba(232,222,208,.08);
-}
-
-.new-post-btn .dot{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:var(--accent);
-}
-
-.modal-backdrop{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  backdrop-filter:blur(6px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-
-.modal-backdrop.open{display:flex;}
-
-.modal{
-  background:#ece4d8;
-  border-radius:20px;
-  border:2px solid #1f1f1f;
-  padding:28px;
-  width:100%;
-  max-width:400px;
-  color:#2b2b2b;
-}
-
-.modal input,
-.modal textarea{
-  width:100%;
-  padding:10px 14px;
-  border-radius:12px;
-  border:2px solid #1f1f1f;
-  background:#f5efe6;
-  margin-bottom:14px;
-}
-
-.modal-submit{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  background:#2b2b2b;
-  color:white;
-  font-weight:600;
-  cursor:pointer;
-}
-
-</style>
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.5s ease both; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.12s; }
+    .d3 { animation-delay: 0.2s; }
+    .d4 { animation-delay: 0.28s; }
+  </style>
 </head>
 
-<body class="p-8">
+<body>
 
 {% include '_nav.html.jinja' %}
 
-<!-- Header -->
-<div class="flex items-center text-lg">
-<a href="/browse"><h1>Hidden Gems</h1></a>
-<a href="/browse" class="back-link text-lg">← Back</a>
-</div>
 
-<!-- Borough title -->
-<div class="mt-10">
-<p class="borough-title">{{ borough.name|capitalize }}</p>
-<div class="divider"></div>
-<p class="text-xs opacity-40 tracking-widest uppercase">New York City</p>
-</div>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
+      {% for message in messages %}
+        <div class="px-5 py-3 rounded-xl text-white text-sm border border-white/20 shadow-lg"
+             style="background:var(--accent);">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
-
-<!-- Carousel -->
-<div class="carousel-wrap mt-8">
-  <div class="carousel-track">
-
-    {% for loc in locations %}
-
-    <div
-      class="card {% if loop.index0 == 0 %}center{% else %}side{% endif %}"
-      data-index="{{ loop.index0 }}"
-      onclick="selectCard({{ loop.index0 }})">
-
-      {% if loc.Image %}
-<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}"
-     alt="{{ loc.Name }}"
-     class="w-full h-full object-cover">
-{% else %}
-<div class="flex items-center justify-center h-full text-xs text-white/60 bg-black/20">
-  No Image
-</div>
-{% endif %}
-
-<div class="card-overlay">
-  <p class="card-name">{{ loc.Name }}</p>
-  <p class="card-meta">
-    {{ loc.DatePosted.strftime('%b %d') if loc.DatePosted else '' }}
-  </p>
-</div>
+<div class="max-w-5xl mx-auto px-8 py-10">
 
 
+  <div class="flex items-end justify-between mb-10 fade-up">
+    <div>
+      <a href="/browse" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
+      <h1 class="serif text-6xl font-light mt-2 leading-none">{{ borough.name | capitalize }}</h1>
+      <div class="w-10 h-px mt-4 opacity-50" style="background:var(--accent);"></div>
+      <p class="text-xs opacity-30 tracking-widest uppercase mt-3">New York City</p>
+    </div>
+    <button class="add-btn" onclick="openModal()">
+      <span class="dot"></span>
+      Add a location
+    </button>
+  </div>
+
+
+ 
+  {% if locations %}
+  <div class="fade-up d1">
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+      <p class="section-label">Featured</p>
+      <!-- Slideshow arrows -->
+      <div style="display:flex; gap:8px;">
+        <button onclick="featStep(-1)" id="feat-prev" style="
+          width:32px; height:32px; border-radius:50%;
+          background:rgba(232,222,208,0.08); border:1px solid rgba(232,222,208,0.2);
+          color:#e8ded0; font-size:1rem; cursor:pointer; transition:background 0.2s;
+          display:flex; align-items:center; justify-content:center;
+        ">‹</button>
+        <button onclick="featStep(1)" id="feat-next" style="
+          width:32px; height:32px; border-radius:50%;
+          background:rgba(232,222,208,0.08); border:1px solid rgba(232,222,208,0.2);
+          color:#e8ded0; font-size:1rem; cursor:pointer; transition:background 0.2s;
+          display:flex; align-items:center; justify-content:center;
+        ">›</button>
+      </div>
     </div>
 
-    {% endfor %}
+    <!-- Slide container — shows 3 at a time -->
+    <div style="overflow:hidden; border-radius:18px;">
+      <div id="feat-track" style="
+        display:flex; gap:16px;
+        transition: transform 0.45s cubic-bezier(0.23,1,0.32,1);
+      ">
+        {% for loc in locations %}
+        <div class="featured-card" style="
+          min-width: calc((100% - 32px) / 3);
+          height: 340px; flex-shrink:0;
+        " onclick="openDetail({{ loop.index0 }})">
+          {% if loc.Image %}
+            <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+          {% else %}
+            <div class="no-img">No image</div>
+          {% endif %}
+          <div class="overlay"></div>
+          <div class="info">
+            <span class="badge">
+              {% if loop.index0 == 0 %}Featured
+              {% elif loop.index0 == 1 %}Hidden gem
+              {% else %}Local pick{% endif %}
+            </span>
+            <p class="card-title">{{ loc.Name }}</p>
+            <p class="card-sub">{{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
 
+    <!-- Dot indicators -->
+    <div id="feat-dots" style="display:flex; gap:6px; margin-top:14px; justify-content:center;"></div>
+
+  </div>
+
+
+  {% if locations | length > 3 %}
+  <div class="mt-12 fade-up d2">
+    <p class="section-label mb-4">All Locations</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      {% for loc in locations[3:] %}
+      <div class="gem-card" onclick="openDetail({{ loop.index0 + 3 }})">
+        {% if loc.Image %}
+          <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+        {% else %}
+          <div class="no-img"></div>
+        {% endif %}
+        <div class="gem-info" style="display:flex; align-items:flex-start; justify-content:space-between;">
+          <div>
+            <p class="gem-title">{{ loc.Name }}</p>
+            <p class="gem-meta">{{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}</p>
+          </div>
+          <button
+            class="like-btn"
+            data-id="{{ loc.ID }}"
+            data-borough="{{ borough.name | replace(' ', '-') }}"
+            data-liked="{{ 'true' if loc.ID in liked_ids else 'false' }}"
+            onclick="event.stopPropagation(); toggleLike(this)"
+            style="
+              background:none; border:none; cursor:pointer;
+              display:flex; align-items:center; gap:4px;
+              color:{{ 'var(--accent)' if loc.ID in liked_ids else 'rgba(232,222,208,0.3)' }};
+              font-size:0.7rem; padding:2px 0; flex-shrink:0;
+            ">
+            <span class="like-heart">{{ '♥' if loc.ID in liked_ids else '♡' }}</span>
+            <span class="like-count">{{ loc.LikeCount or 0 }}</span>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+
+  <div class="fade-up d1 flex flex-col items-center justify-center py-32 opacity-30">
+    <p class="serif text-3xl font-light mb-2">No gems yet</p>
+    <p class="text-xs tracking-widest uppercase">Be the first to add a location</p>
+  </div>
+  {% endif %}
+
+</div>
+
+
+
+<div id="lightbox" style="
+  display:none; position:fixed; inset:0; z-index:400;
+  background:rgba(0,0,0,0.92); backdrop-filter:blur(12px);
+  align-items:center; justify-content:center; flex-direction:column;
+">
+  <!-- Close -->
+  <button onclick="closeLightbox()" style="
+    position:absolute; top:24px; right:28px;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+    color:#e8ded0; font-size:1.1rem; width:38px; height:38px;
+    border-radius:50%; cursor:pointer; line-height:1;
+  ">✕</button>
+
+  <!-- Counter -->
+  <p id="lb-counter" style="
+    position:absolute; top:28px; left:50%; transform:translateX(-50%);
+    font-size:0.55rem; letter-spacing:0.3em; text-transform:uppercase;
+    color:rgba(232,222,208,0.35);
+  "></p>
+
+  <!-- Main content row -->
+  <div style="display:flex; align-items:center; gap:24px; width:100%; max-width:860px; padding:0 20px;">
+
+    <!-- Prev arrow -->
+    <button id="lb-prev" onclick="lbStep(-1)" style="
+      flex-shrink:0; width:44px; height:44px; border-radius:50%;
+      background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
+      color:#e8ded0; font-size:1.3rem; cursor:pointer;
+    ">‹</button>
+
+    <!-- Card -->
+    <div style="flex:1; border-radius:20px; overflow:hidden; background:rgba(0,0,0,0.3); border:1px solid rgba(232,222,208,0.15);">
+      <div id="lb-map-area" style="height:360px; background:#0d0d0d; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;">
+        <!-- Map grid background -->
+        <div style="position:absolute;inset:0;opacity:0.07;background-image:linear-gradient(rgba(232,222,208,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(232,222,208,0.5) 1px,transparent 1px);background-size:40px 40px;"></div>
+        <!-- Pin icon -->
+        <div style="font-size:2.5rem; z-index:1;">📍</div>
+        <p id="lb-addr-text" style="font-size:0.8rem; color:rgba(232,222,208,0.6); z-index:1; text-align:center; max-width:260px; line-height:1.5;"></p>
+        <a id="lb-map-link" href="#" target="_blank" style="
+          z-index:1; display:inline-flex; align-items:center; gap:6px;
+          padding:8px 20px; border-radius:999px;
+          background:rgba(232,222,208,0.08); border:1px solid rgba(232,222,208,0.25);
+          color:#e8ded0; font-size:0.6rem; letter-spacing:0.2em;
+          text-transform:uppercase; text-decoration:none;
+          transition:background 0.2s;
+        ">Open in Google Maps ↗</a>
+        <div id="lb-no-addr" style="display:none; font-size:0.75rem; color:rgba(232,222,208,0.2); z-index:1;">No address provided</div>
+      </div>
+      <div style="padding:22px 26px;">
+        <p id="lb-badge" style="
+          display:inline-block; font-size:0.5rem; letter-spacing:0.2em;
+          text-transform:uppercase; padding:3px 10px; border-radius:999px;
+          background:var(--accent); color:#fff; margin-bottom:10px; opacity:0.9;
+        "></p>
+        <h2 id="lb-title" style="
+          font-family:'Cormorant Garamond',serif; font-weight:300;
+          font-size:2rem; color:#e8ded0; line-height:1.1; margin-bottom:6px;
+        "></h2>
+        <p id="lb-meta" style="font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(232,222,208,0.35); margin-bottom:12px;"></p>
+        <p id="lb-desc" style="font-size:0.85rem; color:rgba(232,222,208,0.65); line-height:1.7; margin-bottom:16px;"></p>
+        <button id="lb-like-btn" onclick="toggleLikeById()" style="
+          background:rgba(232,222,208,0.06); border:1px solid rgba(232,222,208,0.2);
+          border-radius:999px; padding:7px 18px; cursor:pointer;
+          display:flex; align-items:center; gap:6px;
+          color:#e8ded0; font-size:0.75rem; font-family:inherit;
+          transition: background 0.2s;
+        ">
+          <span id="lb-heart">♡</span>
+          <span id="lb-like-count">0</span>
+          <span style="font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; opacity:0.5;">likes</span>
+        </button>
+      </div>
+    </div>
+
+    
+    <button id="lb-next" onclick="lbStep(1)" style="
+      flex-shrink:0; width:44px; height:44px; border-radius:50%;
+      background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
+      color:#e8ded0; font-size:1.3rem; cursor:pointer;
+    ">›</button>
+
+  </div>
+
+  
+  <div id="lb-dots" style="display:flex; gap:8px; margin-top:28px;"></div>
+</div>
+
+
+
+<div class="modal-backdrop" id="add-modal" onclick="closeAddBackdrop(event)">
+  <div class="modal">
+    <h2 class="serif text-2xl font-light mb-5">Add a location</h2>
+    <form method="POST"
+          action="/borough/{{ borough.name | replace(' ', '-') }}/add"
+          enctype="multipart/form-data">
+      <label>Location name</label>
+      <input type="text" name="name" placeholder="e.g. Domino Park" required>
+      <label>Address</label>
+      <input type="text" name="address" placeholder="e.g. 15 River St, Brooklyn" required>
+      <label>Description</label>
+      <textarea name="description" placeholder="What makes this place special?"></textarea>
+      <label>Photo</label>
+      <input type="file" name="image" accept="image/*">
+      <button type="submit" class="modal-submit">Post location</button>
+      <button type="button" class="modal-cancel" onclick="closeAddModal()">Cancel</button>
+    </form>
   </div>
 </div>
 
 
-<!-- Detail Panel -->
-<div class="detail-panel mt-4" id="detail-panel">
-<p class="detail-name" id="detail-name"></p>
-<p class="detail-meta" id="detail-meta"></p>
-<p class="detail-desc" id="detail-desc"></p>
-</div>
-
-<!-- Add button -->
-<div class="flex justify-center mt-6">
-<button class="new-post-btn" onclick="openModal()">
-<span class="dot"></span>
-Add a location
-</button>
-</div>
-
-<!-- Modal -->
-<div class="modal-backdrop" id="modal" onclick="closeBackdrop(event)">
-<div class="modal">
-
-<h2>Add a location</h2>
-
-<form method="POST"
-action="/borough/{{ borough.name | replace(' ', '-') }}/add"
-enctype="multipart/form-data">
-
-<input type="text" name="name" placeholder="Location name" required>
-
-<input type="text" name="address" placeholder="Address" required>
-
-<textarea name="description" placeholder="Description"></textarea>
-
-<input type="file" name="image" accept="image/*" required>
-
-<button type="submit" class="modal-submit">Post location</button>
-
-</form>
-
-</div>
-</div>
-
 <script>
+  const locations = {{ locations_json | safe }};
 
-const locations = {{ locations_json | safe }};
 
-function selectCard(index){
+  async function toggleLike(btn) {
+    const id      = btn.dataset.id;
+    const borough = btn.dataset.borough;
+    const res     = await fetch(`/borough/${borough}/like/${id}`, { method: 'POST' });
+    const data    = await res.json();
+    btn.dataset.liked = data.liked ? 'true' : 'false';
+    btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡';
+    btn.querySelector('.like-count').textContent = data.count;
+    btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)';
+    // sync lightbox if open
+    if (document.getElementById('lightbox').style.display === 'flex') {
+      const loc = locations[lbIndex];
+      if (loc && String(loc.ID) === String(id)) {
+        loc.LikeCount = data.count;
+        loc.Liked = data.liked;
+        document.getElementById('lb-like-count').textContent = data.count;
+        document.getElementById('lb-heart').textContent = data.liked ? '♥' : '♡';
+        document.getElementById('lb-like-btn').style.color = data.liked ? 'var(--accent)' : '#e8ded0';
+      }
+    }
+  }
 
-document.querySelectorAll('.card').forEach((card,i)=>{
-card.classList.remove('center','side');
-card.classList.add(i===index ? 'center':'side');
-});
+  async function toggleLikeById() {
+    const loc     = locations[lbIndex];
+    if (!loc) return;
+    const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
+    const res  = await fetch(`/borough/${boroughSlug}/like/${loc.ID}`, { method: 'POST' });
+    const data = await res.json();
+    loc.Liked = data.liked;
+    loc.LikeCount = data.count;
+    document.getElementById('lb-like-count').textContent = data.count;
+    document.getElementById('lb-heart').textContent = data.liked ? '♥' : '♡';
+    document.getElementById('lb-like-btn').style.color = data.liked ? 'var(--accent)' : '#e8ded0';
+   
+    const btn = document.querySelector(`.like-btn[data-id="${loc.ID}"]`);
+    if (btn) {
+      btn.dataset.liked = data.liked ? 'true' : 'false';
+      btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡';
+      btn.querySelector('.like-count').textContent = data.count;
+      btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)';
+    }
+  }
 
-const loc = locations[index];
+  let featIndex = 0;
+  const featTotal = locations.length;
+  const VISIBLE = 3;
 
-document.getElementById('detail-name').textContent = loc.Name;
-document.getElementById('detail-meta').textContent =
-loc.Borough + " · " + loc.DatePosted;
-document.getElementById('detail-desc').textContent =
-loc.Description || "";
+  function buildFeatDots() {
+    const dotsEl = document.getElementById('feat-dots');
+    if (!dotsEl) return;
+    dotsEl.innerHTML = '';
+    const pages = Math.max(1, featTotal - VISIBLE + 1);
+    for (let i = 0; i < pages; i++) {
+      const d = document.createElement('div');
+      d.style.cssText = `width:5px;height:5px;border-radius:50%;cursor:pointer;
+        background:${i === featIndex ? 'var(--accent)' : 'rgba(232,222,208,0.2)'};
+        transition:background 0.2s;`;
+      d.onclick = () => { featIndex = i; updateFeatSlide(); };
+      dotsEl.appendChild(d);
+    }
+  }
 
-document.getElementById('detail-panel').classList.add('open');
+  function updateFeatSlide() {
+    const track = document.getElementById('feat-track');
+    if (!track) return;
+    const cardWidth = track.children[0]
+      ? track.children[0].offsetWidth + 16 : 0;
+    track.style.transform = `translateX(-${featIndex * cardWidth}px)`;
 
-}
+    
+    const maxIndex = Math.max(0, featTotal - VISIBLE);
+    document.getElementById('feat-prev').style.opacity = featIndex > 0 ? '1' : '0.25';
+    document.getElementById('feat-next').style.opacity = featIndex < maxIndex ? '1' : '0.25';
+    buildFeatDots();
+  }
 
-if(locations.length) selectCard(0);
+  function featStep(dir) {
+    const maxIndex = Math.max(0, featTotal - VISIBLE);
+    featIndex = Math.max(0, Math.min(featIndex + dir, maxIndex));
+    updateFeatSlide();
+  }
 
-function openModal(){
-document.getElementById('modal').classList.add('open');
-document.body.style.overflow='hidden';
-}
+ 
+  window.addEventListener('load', () => { buildFeatDots(); updateFeatSlide(); });
 
-function closeBackdrop(e){
-if(e.target.id === "modal"){
-document.getElementById('modal').classList.remove('open');
-document.body.style.overflow='';
-}
-}
+  
+  let lbIndex = 0;
+  const lbTotal = locations.length;
 
+  function openDetail(index) {
+    lbIndex = index;
+    renderLightbox();
+    const lb = document.getElementById('lightbox');
+    lb.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', lbKeyHandler);
+  }
+
+  function renderLightbox() {
+    const loc = locations[lbIndex];
+    if (!loc) return;
+
+   
+    document.getElementById('lb-counter').textContent = (lbIndex + 1) + ' / ' + lbTotal;
+
+    
+    const badges = ['Featured', 'Hidden gem', 'Local pick'];
+    document.getElementById('lb-badge').textContent = badges[lbIndex] || 'Gem';
+
+   
+    const noAddr   = document.getElementById('lb-no-addr');
+    const addrText = document.getElementById('lb-addr-text');
+    const mapLink  = document.getElementById('lb-map-link');
+    if (loc.Address) {
+      const q = encodeURIComponent(loc.Address + ', New York City');
+      addrText.textContent = loc.Address;
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+      addrText.style.display = 'block';
+      mapLink.style.display  = 'inline-flex';
+      noAddr.style.display   = 'none';
+    } else {
+      addrText.style.display = 'none';
+      mapLink.style.display  = 'none';
+      noAddr.style.display   = 'block';
+    }
+
+    
+    document.getElementById('lb-title').textContent = loc.Name;
+    document.getElementById('lb-meta').textContent  = loc.Borough + ' · ' + loc.DatePosted;
+    document.getElementById('lb-desc').textContent  = loc.Description || 'No description provided.';
+    document.getElementById('lb-like-count').textContent = loc.LikeCount || 0;
+    document.getElementById('lb-heart').textContent = loc.Liked ? '♥' : '♡';
+    document.getElementById('lb-like-btn').style.color = loc.Liked ? 'var(--accent)' : '#e8ded0';
+
+    document.getElementById('lb-prev').style.visibility = lbIndex > 0 ? 'visible' : 'hidden';
+    document.getElementById('lb-next').style.visibility = lbIndex < lbTotal - 1 ? 'visible' : 'hidden';
+
+    
+    const dotsEl = document.getElementById('lb-dots');
+    dotsEl.innerHTML = '';
+    locations.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.style.cssText = `width:6px; height:6px; border-radius:50%; cursor:pointer;
+        background: ${i === lbIndex ? 'var(--accent)' : 'rgba(232,222,208,0.25)'};
+        transition: background 0.2s;`;
+      d.onclick = () => { lbIndex = i; renderLightbox(); };
+      dotsEl.appendChild(d);
+    });
+  }
+
+  function lbStep(dir) {
+    const next = lbIndex + dir;
+    if (next >= 0 && next < lbTotal) { lbIndex = next; renderLightbox(); }
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', lbKeyHandler);
+  }
+
+  function lbKeyHandler(e) {
+    if (e.key === 'ArrowRight') lbStep(1);
+    if (e.key === 'ArrowLeft')  lbStep(-1);
+    if (e.key === 'Escape')     closeLightbox();
+  }
+
+  document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+  });
+
+  
+  function openModal() {
+    document.getElementById('add-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeAddModal() {
+    document.getElementById('add-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeAddBackdrop(e) { if (e.target.id === 'add-modal') closeAddModal(); }
 </script>
 
 </body>
