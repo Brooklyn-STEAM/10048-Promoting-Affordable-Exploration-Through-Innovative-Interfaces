@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>Profile — {{ current_user.name }}</title>
+  {% include 'icon.html.jinja'%}
 </head>
 <body class="min-h-screen bg-[#d6cbbf] flex items-center justify-center p-6">
-
+<link rel="icon" type="image/x-icon" href="/static/images/Hidden Gemsiiii.ico">
 {% include '_nav.html.jinja' %}
 
 <div class="bg-[#ece4d8] w-full max-w-md rounded-2xl p-8 border-2 border-[#1f1f1f] shadow-[6px_6px_0px_#1f1f1f]">
