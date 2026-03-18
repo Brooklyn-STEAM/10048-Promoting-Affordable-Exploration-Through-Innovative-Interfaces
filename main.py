@@ -72,6 +72,9 @@ BOROUGHS = [
     {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
 ]
 
+@app.route("/")
+def index():
+    return render_template("homepage.html.jinja")
 
 @app.route("/browse", methods=["GET", "POST"])
 @login_required
