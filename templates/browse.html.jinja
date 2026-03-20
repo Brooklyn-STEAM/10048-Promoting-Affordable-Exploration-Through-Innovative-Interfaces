@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/x-icon" href="/static/images/Hidden Gems.ico">
+
   <style>
     :root {
       --accent: {{ selected.accent }};
@@ -204,7 +204,13 @@
 </div>
 
 
-
+<div class="absolute bottom-6 left-8 right-8 flex justify-between z-10">
+  <div class="flex gap-6">
+    <a href="#" class="nav-link">About</a>
+    <a href="#" class="nav-link">Contact</a>
+  </div>
+  <a href="#" class="nav-link">Privacy</a>
+</div>
 
 <script>
   document.querySelectorAll('.borough-form').forEach(form => {
@@ -224,7 +230,67 @@
   requestAnimationFrame(() => {
     document.body.style.backgroundColor = '{{ selected.color }}';
   });
-  
 </script>
+
+<style>
+  .pigeon {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+  }
+</style>
+
+<script>
+  function spawnPigeon() {
+    const p = document.createElement('img');
+    p.classList.add('pigeon');
+    p.src = "{{ url_for('static', filename='images/pigeon.gif') }}";
+
+
+    const startY = Math.random() * (window.innerHeight * 0.65) + 40;
+
+    // random size between 80px and 160px
+    const size = 80 + Math.random() * 80;
+    p.style.width  = size + 'px';
+    p.style.height = 'auto';
+    p.style.transform = 'scaleX(-1)';
+    p.style.top    = startY + 'px';
+
+    // random speed
+    const duration = 1800 + Math.random() * 1200;
+
+    document.body.appendChild(p);
+
+    let startTime = null;
+    const startX  = -(size + 60);
+    const endX    = window.innerWidth + 60;
+
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      const progress = (ts - startTime) / duration;
+      if (progress >= 1) {
+        p.remove();
+        return;
+      }
+      const drift = Math.sin(progress * Math.PI * 5) * 10;
+      p.style.left = (startX + (endX - startX) * progress) + 'px';
+      p.style.top  = (startY + drift) + 'px';
+      requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  // Spawn on click
+  document.addEventListener('click', spawnPigeon);
+
+  // Auto spawn every 2-4 seconds
+  function autoSpawn() {
+    spawnPigeon();
+    setTimeout(autoSpawn, 2000 + Math.random() * 6000);
+  }
+  autoSpawn();
+</script>
+
 </body>
 </html>
