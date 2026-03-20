@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>Profile — {{ current_user.name }}</title>
-  {% include 'icon.html.jinja'%}
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Archivo:wght@300;400;500&display=swap');
+    body { font-family: 'Archivo', sans-serif; }
+    .serif { font-family: 'Cormorant Garamond', serif; }
+    input:focus { border-color: #7a6a55 !important; box-shadow: 3px 3px 0px #7a6a55 !important; }
+  </style>
 </head>
-<body class="min-h-screen bg-[#d6cbbf] flex items-center justify-center p-6">
-<link rel="icon" type="image/x-icon" href="/static/images/Hidden Gemsiiii.ico">
+
+<body class="w-screen h-screen flex overflow-hidden">
+
 {% include '_nav.html.jinja' %}
 
 
@@ -18,7 +24,7 @@
   <div class="absolute w-[280px] h-[280px] rounded-full border border-white/5"></div>
   <div class="absolute w-[160px] h-[160px] rounded-full border border-white/5"></div>
 
-  <!-- avatar -->
+ 
   <div class="z-10 flex flex-col items-center gap-4">
     {% if current_user.profile_picture %}
       <img src="{{ current_user.profile_picture }}"
@@ -64,7 +70,7 @@
       <div class="w-8 h-px bg-[#7a6a55] mt-4 opacity-60"></div>
     </div>
 
- 
+    
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
@@ -73,7 +79,7 @@
       {% endif %}
     {% endwith %}
 
-    
+   
     <form method="POST" action="/profile/update-username" class="mb-6">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Username</label>
       <div class="flex gap-2">
@@ -86,7 +92,7 @@
       </div>
     </form>
 
-    
+   
     <form method="POST" action="/profile/update-password" class="mb-6">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">New Password</label>
       <div class="flex gap-2">
@@ -99,7 +105,7 @@
       </div>
     </form>
 
-    
+   
     <form method="POST" action="/profile/update-picture" class="mb-8">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Profile Picture URL</label>
       <div class="flex gap-2">
@@ -113,10 +119,10 @@
       </div>
     </form>
 
-    
+   
     <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
 
-    
+   
     <a href="/logout"
       class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
       Log Out
