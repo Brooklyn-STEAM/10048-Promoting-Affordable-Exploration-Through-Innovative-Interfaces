@@ -4,25 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-    
+    {% include 'icon.html.jinja'%}
   </head>
 
-  <body class="bg-gradient-to-b from-gray-700 to-gray-500 shadow-md px-6 py-3 text-gray-400 min-h-screen font-sans">
-    
+ <body class="bg-gradient-to-bl from-orange-200 to-black h-screen flex items-center justify-center">
 
-    
-    <section class="flex flex-col items-center mt-12">
-    <h1 class="text-5xl font-bold text-white mb-6 rounded-lg hover:scale-105 hover:bg-gray-700 transition-all duration-200">Welcome to the 404 Page</h1>
-      <img 
-        src="/static/404.gif" 
-        class="w-150 h-auto"
-        alt="EZ-BAM"
-        class="w-150 h-auto"
-      >
-      <h1 class="text-5xl font-bold text-white mb-6 rounded-lg hover:scale-105 hover:bg-gray-700 transition-all duration-200">What you are looking for doesn't exsist</h1>
-      <h3 class="text-5xl font-bold text-white mb-6 rounded-lg hover:scale-105 hover:bg-gray-700 transition-all duration-200">Womp Womp</h3>
-    </section>
+  <div class="flex flex-col items-center text-white font-bold font-sans rtl">
+    <img src="https://cdn.rawgit.com/ahmedhosna95/upload/1731955f/sad404.svg" alt="404" class="mb-5 mt-20 h-[342px]" />
+    <span class="text-[3.3em] font-extrabold mb-10">404 PAGE</span>
+    <p class="text-lg mb-3">
+      The page you were looking for could not be found
+    </p>
+    <a href="/browse"
+          class="w-full py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 mt-2 text-center">
+          Back to Boroughs
+    </a>
 
-  </body>
+  </div>
+
+</body>
 </html>
