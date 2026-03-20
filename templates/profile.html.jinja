@@ -11,119 +11,88 @@
 <link rel="icon" type="image/x-icon" href="/static/images/Hidden Gemsiiii.ico">
 {% include '_nav.html.jinja' %}
 
+<div class="bg-[#ece4d8] w-full max-w-md rounded-2xl p-8 border-2 border-[#1f1f1f] shadow-[6px_6px_0px_#1f1f1f]">
 
-<div class="w-1/3 h-full bg-[#3a3328] flex flex-col items-center justify-center relative overflow-hidden flex-shrink-0">
-  <!-- rings -->
-  <div class="absolute w-[400px] h-[400px] rounded-full border border-white/5"></div>
-  <div class="absolute w-[280px] h-[280px] rounded-full border border-white/5"></div>
-  <div class="absolute w-[160px] h-[160px] rounded-full border border-white/5"></div>
-
-  <!-- avatar -->
-  <div class="z-10 flex flex-col items-center gap-4">
+  <div class="flex flex-col items-center mb-8">
     {% if current_user.profile_picture %}
       <img src="{{ current_user.profile_picture }}"
-           class="w-24 h-24 rounded-full object-cover border-2 border-white/20"
+           class="w-20 h-20 rounded-full object-cover border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] mb-4"
            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-      <div class="w-24 h-24 rounded-full bg-[#5c6b5c] items-center justify-center border-2 border-white/20" style="display:none;">
-        <span class="text-white text-4xl font-light">{{ current_user.name[0] | upper }}</span>
+      <div class="w-20 h-20 rounded-full bg-[#5c6b5c] items-center justify-center border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] mb-4" style="display:none;">
+        <span class="text-white text-3xl font-bold">{{ current_user.name[0] | upper }}</span>
       </div>
     {% else %}
-      <div class="w-24 h-24 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-white/20">
-        <span class="text-white text-4xl font-light">{{ current_user.name[0] | upper }}</span>
+      <div class="w-20 h-20 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] mb-4">
+        <span class="text-white text-3xl font-bold">{{ current_user.name[0] | upper }}</span>
       </div>
     {% endif %}
-
-    <div class="text-center">
-      <p class="serif text-[#e8ded0] text-2xl font-light">{{ current_user.name }}</p>
-      <p class="text-[#e8ded0]/30 text-xs tracking-widest mt-1">{{ current_user.email }}</p>
-    </div>
-
-    <a href="/browse" style="
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 20px; border-radius:999px;
-      border:1px solid rgba(232,222,208,0.2);
-      color:rgba(232,222,208,0.5); font-size:0.6rem;
-      letter-spacing:0.2em; text-transform:uppercase;
-      text-decoration:none; transition:all 0.2s;
-      margin-top:8px;
-    " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
-       onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
-      ← Browse Boroughs
-    </a>
+    <h2 class="text-2xl font-bold text-[#2b2b2b]">{{ current_user.name }}</h2>
+    <p class="text-[#4a4a4a] text-sm mt-1">{{ current_user.email }}</p>
   </div>
-</div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="mb-4 px-4 py-3 rounded-xl bg-[#5c6b5c] text-white text-sm border-2 border-[#1f1f1f]">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
 
-<div class="flex-1 h-full bg-[#ece4d8] overflow-y-auto flex items-center justify-center p-12">
-  <div class="w-full max-w-sm">
-
-   
-    <div class="mb-8">
-      <p class="text-xs tracking-[0.25em] uppercase text-[#7a6a55] mb-2">Account</p>
-      <h2 class="serif text-4xl font-light text-[#2b2b2b]">Your Profile</h2>
-      <div class="w-8 h-px bg-[#7a6a55] mt-4 opacity-60"></div>
+  <form method="POST" action="/profile/update-username" class="mb-6">
+    <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Username</p>
+    <div class="flex gap-2">
+      <input type="text" name="username" value="{{ current_user.name }}" required
+        class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f] text-[#2b2b2b]">
+      <button type="submit"
+        class="px-4 py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+        Save
+      </button>
     </div>
+  </form>
 
  
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-          <div class="mb-5 px-4 py-3 rounded-xl bg-[#5c6b5c] text-white text-sm">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+  <form method="POST" action="/profile/update-password" class="mb-6">
+    <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">New Password</p>
+    <div class="flex gap-2">
+      <input type="password" name="password" placeholder="••••••••" required minlength="8"
+        class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f] text-[#2b2b2b]">
+      <button type="submit"
+        class="px-4 py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+        Save
+      </button>
+    </div>
+  </form>
 
-    
-    <form method="POST" action="/profile/update-username" class="mb-6">
-      <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Username</label>
-      <div class="flex gap-2">
-        <input type="text" name="username" value="{{ current_user.name }}" required
-          class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all">
-        <button type="submit"
-          class="px-5 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
-          Save
-        </button>
-      </div>
-    </form>
+  <form method="POST" action="/profile/update-picture" class="mb-8">
+    <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Profile Picture URL</p>
+    <div class="flex gap-2">
+      <input type="url" name="picture_url" placeholder="https://example.com/photo.jpg"
+             value="{{ current_user.profile_picture or '' }}"
+        class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] focus:outline-none shadow-[3px_3px_0px_#1f1f1f] text-[#2b2b2b]">
+      <button type="submit"
+        class="px-4 py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+        Save
+      </button>
+    </div>
+  </form>
 
-    
-    <form method="POST" action="/profile/update-password" class="mb-6">
-      <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">New Password</label>
-      <div class="flex gap-2">
-        <input type="password" name="password" placeholder="••••••••" required minlength="8"
-          class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all">
-        <button type="submit"
-          class="px-5 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
-          Save
-        </button>
-      </div>
-    </form>
 
-    
-    <form method="POST" action="/profile/update-picture" class="mb-8">
-      <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Profile Picture URL</label>
-      <div class="flex gap-2">
-        <input type="url" name="picture_url" placeholder="https://example.com/photo.jpg"
-               value="{{ current_user.profile_picture or '' }}"
-          class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all">
-        <button type="submit"
-          class="px-5 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
-          Save
-        </button>
-      </div>
-    </form>
+  <div class="border-t-2 border-[#1f1f1f] mb-6"></div>
 
-    
-    <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
-
-    
+  <div class="space-y-3">
+    <a href="/browse"
+      class="block text-center w-full py-3 rounded-xl bg-[#5c6b5c] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
+      Browse Boroughs
+    </a>
     <a href="/logout"
-      class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+      class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150">
       Log Out
     </a>
-
   </div>
-</div>
 
+</div>
 </body>
 </html>
