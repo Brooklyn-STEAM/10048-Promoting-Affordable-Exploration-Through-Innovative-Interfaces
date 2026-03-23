@@ -246,17 +246,14 @@
     p.classList.add('pigeon');
     p.src = "{{ url_for('static', filename='images/pigeon.gif') }}";
 
-
     const startY = Math.random() * (window.innerHeight * 0.65) + 40;
 
-    // random size between 80px and 160px
     const size = 80 + Math.random() * 80;
     p.style.width  = size + 'px';
     p.style.height = 'auto';
     p.style.transform = 'scaleX(-1)';
     p.style.top    = startY + 'px';
 
-    // random speed
     const duration = 1800 + Math.random() * 1200;
 
     document.body.appendChild(p);
@@ -281,99 +278,106 @@
     requestAnimationFrame(step);
   }
 
-  // Spawn on click
+  let pigeonSpawningPaused = false;
+
   document.addEventListener('click', spawnPigeon);
 
-  // Auto spawn every 2-4 seconds
   function autoSpawn() {
-    spawnPigeon();
+    if (!pigeonSpawningPaused) {
+      spawnPigeon();
+    }
     setTimeout(autoSpawn, 2000 + Math.random() * 6000);
   }
+
   autoSpawn();
 </script>
 
-<!-- NOIR GAME OVERLAY -->
-<div id="noirGameOverlay" class="fixed inset-0 hidden z-[9998] bg-black/90 backdrop-blur-sm opacity-0 transition-opacity duration-700">
-  
-  <!-- Intro text -->
-  <div id="noirIntro" class="absolute inset-0 flex items-center justify-center text-center text-[#e8ded0] text-3xl font-light opacity-0 transition-opacity duration-700">
-    <p style="font-family:'Cormorant Garamond', serif;">Welcome to the Manhattan Noir Run</p>
+
+<!-- NOIR OVERLAY -->
+<div id="noirOverlay"
+     class="fixed inset-0 hidden opacity-0 transition-opacity duration-700
+            bg-black/90 backdrop-blur-sm z-[9998] pointer-events-none">
+
+  <!-- Noir Intro -->
+  <div id="noirIntro"
+       class="absolute inset-0 flex items-center justify-center text-center
+              text-[#e8ded0] text-4xl font-light opacity-0 transition-opacity duration-700"
+       style="font-family:'Cormorant Garamond', serif; letter-spacing:0.05em;">
+    <div>
+      <div>THE NIGHT BELONGS TO THE BIRDS</div>
+      <div class="text-lg mt-2 opacity-70 tracking-widest">NYC — After Hours</div>
+    </div>
   </div>
 
-  <!-- Canvas -->
-  <canvas id="noirCanvas" class="absolute inset-0 w-full h-full"></canvas>
-
-  <!-- Neon + Lightning -->
-  <div id="noirNeon" class="absolute inset-0 pointer-events-none"></div>
-  <div id="noirLightning" class="absolute inset-0 pointer-events-none bg-white opacity-0 transition-opacity duration-75"></div>
-
-  <!-- Close button -->
-  <button id="closeNoirGame"
-          class="absolute top-6 right-6 text-[#e8ded0] text-sm tracking-widest uppercase border border-[#e8ded0]/40 px-4 py-2 rounded-full hover:bg-[#e8ded0] hover:text-black transition">
-    Close
-  </button>
+  <!-- Noir Game Canvas -->
+  <canvas id="noirCanvas"
+          class="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-700">
+  </canvas>
 </div>
 
 <style>
-  #noirGameOverlay { pointer-events: none; }
-  #noirGameOverlay.active { pointer-events: auto; }
+  #noirOverlay.active {
+    pointer-events: auto;
+  }
+  .pigeon {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+  }
 </style>
+
+
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
-  /* ELEMENTS */
   const trigger = document.querySelector(".borough-img-wrap");
-  const overlay = document.getElementById("noirGameOverlay");
+  const overlay = document.getElementById("noirOverlay");
   const intro   = document.getElementById("noirIntro");
   const canvas  = document.getElementById("noirCanvas");
   const ctx     = canvas.getContext("2d");
-  const closeBtn = document.getElementById("closeNoirGame");
 
-  /* GAME STATE */
   let noirClicks = 0;
   let noirActive = false;
 
-  let pigeon = { x: 200, y: 300, vy: 0, vx: 0, size: 40 };
-  let gravity = 0.4;
-  let flapStrength = -8;
-
+  let skyline = [];
+  let fogLayers = [];
   let rooftops = [];
   let rain = [];
   let steam = [];
   let taxiBeams = [];
-  let skyline = [];
-  let fogLayers = [];
-  let birds = [];
+  let ambientBirds = [];
+  let lightningFlash = 0;
 
-  let shakeX = 0;
-  let shakeY = 0;
-  let shakeTime = 0;
+  let pigeon = {
+    x: 200,
+    y: 300,
+    vx: 0,
+    vy: 0,
+    size: 40
+  };
 
-  let scrollSpeed = 0.6;
-  let gameTime = 0;
-  let gameOver = false;
+  let gravity = 0.4;
+  let flapStrength = -8;
 
-  /* INPUT STATE */
-let keys = {
-  left: false,
-  right: false,
-  flap: false
-};
+  /* INPUT STATE (W, A, D only) */
+  let keys = {
+    left: false,
+    right: false,
+    flap: false
+  };
 
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") keys.flap = true;
-  if (e.code === "ArrowLeft") keys.left = true;
-  if (e.code === "ArrowRight") keys.right = true;
-});
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "w" || e.key === "W") keys.flap = true;
+    if (e.key === "a" || e.key === "A") keys.left = true;
+    if (e.key === "d" || e.key === "D") keys.right = true;
+  });
 
-document.addEventListener("keyup", (e) => {
-  if (e.code === "Space") keys.flap = false;
-  if (e.code === "ArrowLeft") keys.left = false;
-  if (e.code === "ArrowRight") keys.right = false;
-});
+  document.addEventListener("keyup", (e) => {
+    if (e.key === "w" || e.key === "W") keys.flap = false;
+    if (e.key === "a" || e.key === "A") keys.left = false;
+    if (e.key === "d" || e.key === "D") keys.right = false;
+  });
 
-  /* CANVAS RESIZE */
   function resizeCanvas() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -381,23 +385,13 @@ document.addEventListener("keyup", (e) => {
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
 
-  /* TRIGGER (10 clicks) */
-  trigger.addEventListener("click", () => {
-    noirClicks++;
-    if (noirClicks >= 10 && !noirActive) {
-      noirActive = true;
-      startNoirGame();
-    }
-  });
-
-  /* START GAME SEQUENCE */
-  function startNoirGame() {
+  /* OPEN OVERLAY */
+  function openNoirOverlay() {
     overlay.classList.remove("hidden");
     overlay.classList.add("active");
-    overlay.style.opacity = 0;
 
-    document.removeEventListener('click', spawnPigeon);
     pigeonSpawningPaused = true;
+    document.removeEventListener('click', spawnPigeon);
 
     requestAnimationFrame(() => {
       overlay.style.opacity = 1;
@@ -405,31 +399,41 @@ document.addEventListener("keyup", (e) => {
 
     setTimeout(() => intro.style.opacity = 1, 300);
     setTimeout(() => intro.style.opacity = 0, 2000);
-
     setTimeout(() => {
-      initGame();
+      canvas.style.opacity = 1;
+      initWorld();
       startLoop();
     }, 2600);
   }
 
-  /* INIT GAME WORLD */
-  function initGame() {
-    pigeon.x = canvas.width * 0.3;
-    pigeon.y = canvas.height * 0.5;
-    pigeon.vy = 0;
-    pigeon.vx = 0;
-
+  /* INIT WORLD */
+  function initWorld() {
+    skyline = [];
+    fogLayers = [];
     rooftops = [];
     rain = [];
     steam = [];
     taxiBeams = [];
-    skyline = [];
-    fogLayers = [];
-    birds = [];
+    ambientBirds = [];
+    lightningFlash = 0;
 
-    gameTime = 0;
-    gameOver = false;
+    initRain();
+    initSteam();
+    initTaxiBeams();
+    initAmbientBirds();
 
+    // Skyline
+    let skylineCount = Math.ceil(canvas.width / 400) + 2;
+    for (let i = 0; i < skylineCount; i++) {
+      skyline.push({
+        x: i * 400,
+        y: canvas.height - (250 + Math.random() * 150),
+        w: 400,
+        h: 300 + Math.random() * 200
+      });
+    }
+
+    // Fog
     for (let i = 0; i < 3; i++) {
       fogLayers.push({
         x: Math.random() * canvas.width,
@@ -442,16 +446,7 @@ document.addEventListener("keyup", (e) => {
       });
     }
 
-    let skylineCount = Math.ceil(canvas.width / 400) + 2;
-    for (let i = 0; i < skylineCount; i++) {
-      skyline.push({
-        x: i * 400,
-        y: canvas.height - (250 + Math.random() * 150),
-        w: 400,
-        h: 300 + Math.random() * 200
-      });
-    }
-
+    // Rooftops
     let count = Math.ceil(canvas.width / 300) + 3;
     for (let i = 0; i < count; i++) {
       rooftops.push({
@@ -463,53 +458,80 @@ document.addEventListener("keyup", (e) => {
     }
   }
 
-  /* UPDATE FUNCTIONS */
-  function updatePigeon() {
-  // Flap
-  if (keys.flap) {
-    pigeon.vy += flapStrength * 0.2;
-    shakeTime = 3;
+  function initRain() {
+    rain = [];
+    for (let i = 0; i < 120; i++) {
+      rain.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        len: 10 + Math.random() * 15,
+        speed: 6 + Math.random() * 4
+      });
+    }
   }
 
-  // Gravity
-  pigeon.vy += gravity;
-  pigeon.y += pigeon.vy;
-
-  // Horizontal movement
-  if (keys.left)  pigeon.vx -= 0.4;
-  if (keys.right) pigeon.vx += 0.4;
-
-  // Natural friction
-  pigeon.vx *= 0.92;
-
-  // Apply horizontal movement
-  pigeon.x += pigeon.vx;
-
-  // Keep pigeon on screen
-  if (pigeon.y > canvas.height - 80) {
-    pigeon.y = canvas.height - 80;
-    pigeon.vy = 0;
+  function initSteam() {
+    steam = [];
+    for (let i = 0; i < 6; i++) {
+      steam.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height - (120 + Math.random() * 200),
+        w: 80 + Math.random() * 40,
+        h: 120 + Math.random() * 60,
+        opacity: 0.05 + Math.random() * 0.05,
+        speed: 0.3 + Math.random() * 0.2
+      });
+    }
   }
-  if (pigeon.y < 40) {
-    pigeon.y = 40;
-    pigeon.vy = 0;
-  }
-  if (pigeon.x < 40) pigeon.x = 40;
-  if (pigeon.x > canvas.width - 40) pigeon.x = canvas.width - 40;
-}
 
-  function updateSkyline() {
+  function initTaxiBeams() {
+    taxiBeams = [];
+    for (let i = 0; i < 3; i++) {
+      taxiBeams.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height - (60 + Math.random() * 80),
+        w: 200 + Math.random() * 150,
+        h: 40,
+        opacity: 0.05 + Math.random() * 0.05,
+        speed: 1 + Math.random() * 1.5
+      });
+    }
+  }
+
+  function initAmbientBirds() {
+    ambientBirds = [];
+    for (let i = 0; i < 5; i++) {
+      ambientBirds.push({
+        x: Math.random() * canvas.width,
+        y: 80 + Math.random() * 200,
+        speed: 0.5 + Math.random() * 0.5
+      });
+    }
+  }
+
+  function updateLightning() {
+    if (Math.random() < 0.002) {
+      lightningFlash = 1;
+    }
+    if (lightningFlash > 0) {
+      lightningFlash -= 0.05;
+      if (lightningFlash < 0) lightningFlash = 0;
+    }
+  }
+
+  /* UPDATE WORLD */
+  function updateWorld() {
+    // Skyline scroll
     skyline.forEach(b => {
-      b.x -= scrollSpeed * 0.4;
+      b.x -= 0.4;
       if (b.x + b.w < 0) {
         b.x = canvas.width + Math.random() * 200;
         b.h = 300 + Math.random() * 200;
         b.y = canvas.height - (250 + Math.random() * 150);
       }
     });
-  }
 
-  function updateFog() {
+    // Fog drift
     fogLayers.forEach(layer => {
       layer.x -= layer.speed;
       layer.y += layer.drift;
@@ -518,233 +540,184 @@ document.addEventListener("keyup", (e) => {
         layer.y = canvas.height * (0.3 + Math.random() * 0.3);
       }
     });
-  }
 
-  function updateRain() {
-    if (rain.length < 200) {
-      rain.push({
-        x: Math.random() * canvas.width,
-        y: -10,
-        speed: 8 + Math.random() * 4,
-        length: 10 + Math.random() * 10
-      });
-    }
-    rain.forEach(drop => drop.y += drop.speed);
-    rain = rain.filter(drop => drop.y < canvas.height + 20);
-  }
+    // Rain
+    rain.forEach(r => {
+      r.y += r.speed;
+      r.x += 1.5;
+      if (r.y > canvas.height) {
+        r.y = -20;
+        r.x = Math.random() * canvas.width;
+      }
+    });
 
-  function updateSteam() {
-    if (steam.length < 20 && Math.random() < 0.1) {
-      steam.push({
-        x: Math.random() * canvas.width,
-        y: canvas.height - 120,
-        opacity: 0.1 + Math.random() * 0.2,
-        size: 40 + Math.random() * 40,
-        rise: 0.5 + Math.random() * 0.5
-      });
-    }
+    // Steam
     steam.forEach(s => {
-      s.y -= s.rise;
-      s.opacity -= 0.002;
+      s.y -= s.speed;
+      if (s.y + s.h < 0) {
+        s.y = canvas.height - (120 + Math.random() * 200);
+        s.x = Math.random() * canvas.width;
+      }
     });
-    steam = steam.filter(s => s.opacity > 0);
-  }
 
-  function updateTaxiBeams() {
-    if (Math.random() < 0.02) {
-      taxiBeams.push({
-        x: -200,
-        y: canvas.height - (80 + Math.random() * 120),
-        w: 200,
-        h: 40,
-        speed: 6 + Math.random() * 3
-      });
-    }
-    taxiBeams.forEach(b => b.x += b.speed);
-    taxiBeams = taxiBeams.filter(b => b.x < canvas.width + 300);
-  }
-
-  function updateBirds() {
-    if (birds.length < 6 && Math.random() < 0.02) {
-      birds.push({
-        x: canvas.width + 50,
-        y: 80 + Math.random() * 200,
-        speed: 1 + Math.random() * 1.5,
-        flap: 0
-      });
-    }
-    birds.forEach(b => {
+    // Taxi beams
+    taxiBeams.forEach(b => {
       b.x -= b.speed;
-      b.flap += 0.2;
+      if (b.x + b.w < 0) {
+        b.x = canvas.width + Math.random() * 300;
+      }
     });
-    birds = birds.filter(b => b.x > -100);
+
+    // Ambient birds
+    ambientBirds.forEach(b => {
+      b.x -= b.speed;
+      if (b.x < -50) {
+        b.x = canvas.width + 50;
+        b.y = 80 + Math.random() * 200;
+      }
+    });
   }
 
-  function updateShake() {
-    if (shakeTime > 0) {
-      shakeTime--;
-      shakeX = (Math.random() - 0.5) * 6;
-      shakeY = (Math.random() - 0.5) * 6;
-    } else {
-      shakeX = 0;
-      shakeY = 0;
+  function updatePigeon() {
+    if (keys.flap) {
+      pigeon.vy += flapStrength * 0.2;
     }
+
+    pigeon.vy += gravity;
+    pigeon.y += pigeon.vy;
+
+    if (keys.left)  pigeon.vx -= 0.4;
+    if (keys.right) pigeon.vx += 0.4;
+
+    pigeon.vx *= 0.92;
+    pigeon.x += pigeon.vx;
+
+    if (pigeon.y > canvas.height - 80) {
+      pigeon.y = canvas.height - 80;
+      pigeon.vy = 0;
+    }
+    if (pigeon.y < 40) {
+      pigeon.y = 40;
+      pigeon.vy = 0;
+    }
+    if (pigeon.x < 40) pigeon.x = 40;
+    if (pigeon.x > canvas.width - 40) pigeon.x = canvas.width - 40;
   }
 
-  /* DRAW FUNCTIONS */
-  function clearCanvas() {
+  /* DRAW WORLD */
+  function drawWorld() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
 
-  function drawSkyline() {
+    // Skyline
     ctx.fillStyle = "#0f0f12";
     skyline.forEach(b => {
-      ctx.fillRect(b.x + shakeX, b.y + shakeY, b.w, b.h);
+      ctx.fillRect(b.x, b.y, b.w, b.h);
     });
-  }
 
-  function drawFog() {
+    // Fog
     fogLayers.forEach(layer => {
       ctx.fillStyle = `rgba(200,200,200,${layer.opacity})`;
       ctx.beginPath();
-      ctx.ellipse(layer.x + shakeX, layer.y + shakeY, layer.w, layer.h, 0, 0, Math.PI * 2);
+      ctx.ellipse(layer.x, layer.y, layer.w, layer.h, 0, 0, Math.PI * 2);
       ctx.fill();
     });
-  }
 
-  function drawRooftops() {
+    // Rooftops
     ctx.fillStyle = "#1a1a1d";
     rooftops.forEach(r => {
-      ctx.fillRect(r.x + shakeX, r.y + shakeY, r.w, r.h);
+      ctx.fillRect(r.x, r.y, r.w, r.h);
     });
-  }
 
-  function drawPigeon() {
-  const tilt = pigeon.vx * 0.03;
-
-  ctx.save();
-  ctx.translate(pigeon.x + shakeX, pigeon.y + shakeY);
-  ctx.rotate(tilt);
-
-  ctx.fillStyle = "#e8ded0";
-  ctx.beginPath();
-  ctx.ellipse(0, 0, pigeon.size, pigeon.size * 0.6, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#000";
-  ctx.beginPath();
-  ctx.arc(pigeon.size * 0.4, -pigeon.size * 0.1, 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-  function drawRain() {
-    ctx.strokeStyle = "rgba(200,200,255,0.4)";
-    ctx.lineWidth = 2;
-    rain.forEach(drop => {
+    // Steam
+    steam.forEach(s => {
+      ctx.fillStyle = `rgba(200,200,200,${s.opacity})`;
       ctx.beginPath();
-      ctx.moveTo(drop.x + shakeX, drop.y + shakeY);
-      ctx.lineTo(drop.x + shakeX, drop.y + drop.length + shakeY);
+      ctx.ellipse(s.x, s.y, s.w, s.h, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Taxi beams
+    taxiBeams.forEach(b => {
+      ctx.fillStyle = `rgba(255,255,200,${b.opacity})`;
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+    });
+
+    // Rain
+    ctx.strokeStyle = "rgba(220,220,255,0.25)";
+    ctx.lineWidth = 1;
+    rain.forEach(r => {
+      ctx.beginPath();
+      ctx.moveTo(r.x, r.y);
+      ctx.lineTo(r.x - 3, r.y - r.len);
       ctx.stroke();
     });
-  }
 
-  function drawSteam() {
-    steam.forEach(s => {
-      ctx.fillStyle = `rgba(220,220,220,${s.opacity})`;
+    // Ambient birds
+    ctx.fillStyle = "rgba(200,200,200,0.3)";
+    ambientBirds.forEach(b => {
       ctx.beginPath();
-      ctx.ellipse(s.x + shakeX, s.y + shakeY, s.size, s.size * 0.6, 0, 0, Math.PI * 2);
+      ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
       ctx.fill();
     });
-  }
 
-  function drawTaxiBeams() {
-    taxiBeams.forEach(beam => {
-      let gradient = ctx.createLinearGradient(
-        beam.x + shakeX,
-        beam.y + shakeY,
-        beam.x + beam.w + shakeX,
-        beam.y + shakeY
-      );
-      gradient.addColorStop(0, "rgba(255,255,180,0.0)");
-      gradient.addColorStop(1, "rgba(255,255,180,0.4)");
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(beam.x + shakeX, beam.y + shakeY, beam.w, beam.h);
-    });
-  }
-
-  function drawBirds() {
-    ctx.fillStyle = "#cfcfcf";
-    birds.forEach(b => {
-      ctx.beginPath();
-      ctx.moveTo(b.x + shakeX, b.y + shakeY);
-      ctx.lineTo(b.x - 12 + shakeX, b.y + 4 + shakeY);
-      ctx.lineTo(b.x - 12 + shakeX, b.y - 4 + shakeY);
-      ctx.closePath();
-      ctx.fill();
-    });
-  }
-
-  function drawNeon() {
-    const neon = document.getElementById("noirNeon");
-    neon.style.opacity = 0.15 + Math.sin(gameTime * 0.02) * 0.1;
-  }
-
-  function drawLightning() {
-    const flash = document.getElementById("noirLightning");
-    if (Math.random() < 0.002) {
-      flash.style.opacity = 1;
-      setTimeout(() => flash.style.opacity = 0, 80);
-      shakeTime = 10;
+    // Lightning
+    if (lightningFlash > 0) {
+      ctx.fillStyle = `rgba(255,255,255,${lightningFlash * 0.8})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
   }
 
-  /* MAIN GAME LOOP */
+  function drawPigeon() {
+    const tilt = pigeon.vx * 0.03;
+
+    ctx.save();
+    ctx.translate(pigeon.x, pigeon.y);
+    ctx.rotate(tilt);
+
+    ctx.fillStyle = "#e8ded0";
+    ctx.beginPath();
+    ctx.ellipse(0, 0, pigeon.size, pigeon.size * 0.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(pigeon.size * 0.4, -pigeon.size * 0.1, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  /* GAME LOOP */
   function gameLoop() {
-    if (!noirActive || gameOver) return;
+    if (!noirActive) return;
 
-    gameTime++;
-
+    updateWorld();
     updatePigeon();
-    updateSkyline();
-    updateFog();
-    updateRain();
-    updateSteam();
-    updateTaxiBeams();
-    updateBirds();
-    updateShake();
+    updateLightning();
 
-    clearCanvas();
-    drawSkyline();
-    drawFog();
-    drawRooftops();
-    drawBirds();
-    drawTaxiBeams();
-    drawSteam();
-    drawRain();
+    drawWorld();
     drawPigeon();
-    drawNeon();
-    drawLightning();
 
     requestAnimationFrame(gameLoop);
   }
 
   function startLoop() {
+    noirActive = true;
     requestAnimationFrame(gameLoop);
   }
 
-  /* CLOSE BUTTON */
-  closeBtn.addEventListener("click", () => {
-    noirActive = false;
-    overlay.classList.add("hidden");
-    overlay.classList.remove("active");
-    document.addEventListener('click', spawnPigeon);
-    pigeonSpawningPaused = false;
+  /* TRIGGER */
+  trigger.addEventListener("click", () => {
+    noirClicks++;
+    if (noirClicks >= 10 && !noirActive) {
+      openNoirOverlay();
+    }
   });
-
 });
 </script>
+
+
+
 
 </body>
 </html>
