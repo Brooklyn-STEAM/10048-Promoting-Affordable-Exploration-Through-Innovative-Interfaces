@@ -16,3 +16,51 @@
   {% endif %}
 </a>
 {% endif %}
+
+
+<audio id="bg-music" loop style="display:none;">
+
+  <source src="{{ url_for('static', filename='audio/track1.mp3') }}" type="audio/mpeg">
+</audio>
+
+<script>
+  
+  const tracks = [
+    "{{ url_for('static', filename='audio/newyork2008.mp3') }}",
+    "{{ url_for('static', filename='audio/track2.mp3') }}",
+    "{{ url_for('static', filename='audio/track3.mp3') }}",
+  ];
+
+  let trackIndex = parseInt(sessionStorage.getItem('trackIndex') || '0');
+  let trackTime  = parseFloat(sessionStorage.getItem('trackTime') || '0');
+
+  const audio  = document.getElementById('bg-music');
+  audio.volume = 0.2;
+  audio.src    = tracks[trackIndex];
+
+  
+  audio.addEventListener('canplay', () => {
+    if (trackTime > 0) {
+      audio.currentTime = trackTime;
+      trackTime = 0;
+    }
+    audio.play().catch(() => {
+      
+      document.addEventListener('click', () => audio.play(), { once: true });
+    });
+  }, { once: true });
+
+  
+  window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('trackIndex', trackIndex);
+    sessionStorage.setItem('trackTime', audio.currentTime);
+  });
+
+  
+  audio.addEventListener('ended', () => {
+    trackIndex = (trackIndex + 1) % tracks.length;
+    audio.src  = tracks[trackIndex];
+    audio.play();
+    sessionStorage.setItem('trackIndex', trackIndex);
+  });
+</script>

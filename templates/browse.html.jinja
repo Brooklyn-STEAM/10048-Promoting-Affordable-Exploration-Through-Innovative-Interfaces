@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Borough Selector</title>
+  {% include 'icon.html.jinja' %}
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
@@ -167,6 +168,8 @@
 
 <body>
 
+{% include '_nav.html.jinja' %}
+
 
 <div class="absolute top-0 left-0 right-0 flex items-center px-8 py-6 z-10">
   <h1 class="fade-up">Borough Selector</h1>
@@ -202,7 +205,6 @@
   </form>
   {% endfor %}
 </div>
-
 
 <div class="absolute bottom-6 left-8 right-8 flex justify-between z-10">
   <div class="flex gap-6">
@@ -249,11 +251,11 @@
 
     const startY = Math.random() * (window.innerHeight * 0.65) + 40;
 
-    // random size between 80px and 160px
+
     const size = 80 + Math.random() * 80;
     p.style.width  = size + 'px';
     p.style.height = 'auto';
-    p.style.transform = 'scaleX(-1)';
+    p.style.transform = 'scaleX(1)';
     p.style.top    = startY + 'px';
 
     // random speed
@@ -262,8 +264,8 @@
     document.body.appendChild(p);
 
     let startTime = null;
-    const startX  = -(size + 60);
-    const endX    = window.innerWidth + 60;
+    const startX  = window.innerWidth + 60;
+    const endX    = -(size + 60);
 
     function step(ts) {
       if (!startTime) startTime = ts;
@@ -283,8 +285,7 @@
 
   // Spawn on click
   document.addEventListener('click', spawnPigeon);
-
-  // Auto spawn every 2-4 seconds
+  
   function autoSpawn() {
     spawnPigeon();
     setTimeout(autoSpawn, 2000 + Math.random() * 6000);
@@ -292,459 +293,7 @@
   autoSpawn();
 </script>
 
-<!-- NOIR GAME OVERLAY -->
-<div id="noirGameOverlay" class="fixed inset-0 hidden z-[9998] bg-black/90 backdrop-blur-sm opacity-0 transition-opacity duration-700">
-  
-  <!-- Intro text -->
-  <div id="noirIntro" class="absolute inset-0 flex items-center justify-center text-center text-[#e8ded0] text-3xl font-light opacity-0 transition-opacity duration-700">
-    <p style="font-family:'Cormorant Garamond', serif;">Welcome to the Manhattan Noir Run</p>
-  </div>
 
-  <!-- Canvas -->
-  <canvas id="noirCanvas" class="absolute inset-0 w-full h-full"></canvas>
-
-  <!-- Neon + Lightning -->
-  <div id="noirNeon" class="absolute inset-0 pointer-events-none"></div>
-  <div id="noirLightning" class="absolute inset-0 pointer-events-none bg-white opacity-0 transition-opacity duration-75"></div>
-
-  <!-- Close button -->
-  <button id="closeNoirGame"
-          class="absolute top-6 right-6 text-[#e8ded0] text-sm tracking-widest uppercase border border-[#e8ded0]/40 px-4 py-2 rounded-full hover:bg-[#e8ded0] hover:text-black transition">
-    Close
-  </button>
-</div>
-
-<style>
-  #noirGameOverlay { pointer-events: none; }
-  #noirGameOverlay.active { pointer-events: auto; }
-</style>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  /* ELEMENTS */
-  const trigger = document.querySelector(".borough-img-wrap");
-  const overlay = document.getElementById("noirGameOverlay");
-  const intro   = document.getElementById("noirIntro");
-  const canvas  = document.getElementById("noirCanvas");
-  const ctx     = canvas.getContext("2d");
-  const closeBtn = document.getElementById("closeNoirGame");
-
-  /* GAME STATE */
-  let noirClicks = 0;
-  let noirActive = false;
-
-  let pigeon = { x: 200, y: 300, vy: 0, vx: 0, size: 40 };
-  let gravity = 0.4;
-  let flapStrength = -8;
-
-  let rooftops = [];
-  let rain = [];
-  let steam = [];
-  let taxiBeams = [];
-  let skyline = [];
-  let fogLayers = [];
-  let birds = [];
-
-  let shakeX = 0;
-  let shakeY = 0;
-  let shakeTime = 0;
-
-  let scrollSpeed = 0.6;
-  let gameTime = 0;
-  let gameOver = false;
-
-  /* INPUT STATE */
-let keys = {
-  left: false,
-  right: false,
-  flap: false
-};
-
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") keys.flap = true;
-  if (e.code === "ArrowLeft") keys.left = true;
-  if (e.code === "ArrowRight") keys.right = true;
-});
-
-document.addEventListener("keyup", (e) => {
-  if (e.code === "Space") keys.flap = false;
-  if (e.code === "ArrowLeft") keys.left = false;
-  if (e.code === "ArrowRight") keys.right = false;
-});
-
-  /* CANVAS RESIZE */
-  function resizeCanvas() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
-
-  /* TRIGGER (10 clicks) */
-  trigger.addEventListener("click", () => {
-    noirClicks++;
-    if (noirClicks >= 10 && !noirActive) {
-      noirActive = true;
-      startNoirGame();
-    }
-  });
-
-  /* START GAME SEQUENCE */
-  function startNoirGame() {
-    overlay.classList.remove("hidden");
-    overlay.classList.add("active");
-    overlay.style.opacity = 0;
-
-    document.removeEventListener('click', spawnPigeon);
-    pigeonSpawningPaused = true;
-
-    requestAnimationFrame(() => {
-      overlay.style.opacity = 1;
-    });
-
-    setTimeout(() => intro.style.opacity = 1, 300);
-    setTimeout(() => intro.style.opacity = 0, 2000);
-
-    setTimeout(() => {
-      initGame();
-      startLoop();
-    }, 2600);
-  }
-
-  /* INIT GAME WORLD */
-  function initGame() {
-    pigeon.x = canvas.width * 0.3;
-    pigeon.y = canvas.height * 0.5;
-    pigeon.vy = 0;
-    pigeon.vx = 0;
-
-    rooftops = [];
-    rain = [];
-    steam = [];
-    taxiBeams = [];
-    skyline = [];
-    fogLayers = [];
-    birds = [];
-
-    gameTime = 0;
-    gameOver = false;
-
-    for (let i = 0; i < 3; i++) {
-      fogLayers.push({
-        x: Math.random() * canvas.width,
-        y: canvas.height * (0.3 + Math.random() * 0.3),
-        w: 350 + Math.random() * 200,
-        h: 120 + Math.random() * 80,
-        opacity: 0.02 + Math.random() * 0.03,
-        speed: 0.1 + Math.random() * 0.15,
-        drift: (Math.random() - 0.5) * 0.05
-      });
-    }
-
-    let skylineCount = Math.ceil(canvas.width / 400) + 2;
-    for (let i = 0; i < skylineCount; i++) {
-      skyline.push({
-        x: i * 400,
-        y: canvas.height - (250 + Math.random() * 150),
-        w: 400,
-        h: 300 + Math.random() * 200
-      });
-    }
-
-    let count = Math.ceil(canvas.width / 300) + 3;
-    for (let i = 0; i < count; i++) {
-      rooftops.push({
-        x: i * 300,
-        y: canvas.height - (80 + Math.random() * 120),
-        w: 300,
-        h: 200
-      });
-    }
-  }
-
-  /* UPDATE FUNCTIONS */
-  function updatePigeon() {
-  // Flap
-  if (keys.flap) {
-    pigeon.vy += flapStrength * 0.2;
-    shakeTime = 3;
-  }
-
-  // Gravity
-  pigeon.vy += gravity;
-  pigeon.y += pigeon.vy;
-
-  // Horizontal movement
-  if (keys.left)  pigeon.vx -= 0.4;
-  if (keys.right) pigeon.vx += 0.4;
-
-  // Natural friction
-  pigeon.vx *= 0.92;
-
-  // Apply horizontal movement
-  pigeon.x += pigeon.vx;
-
-  // Keep pigeon on screen
-  if (pigeon.y > canvas.height - 80) {
-    pigeon.y = canvas.height - 80;
-    pigeon.vy = 0;
-  }
-  if (pigeon.y < 40) {
-    pigeon.y = 40;
-    pigeon.vy = 0;
-  }
-  if (pigeon.x < 40) pigeon.x = 40;
-  if (pigeon.x > canvas.width - 40) pigeon.x = canvas.width - 40;
-}
-
-  function updateSkyline() {
-    skyline.forEach(b => {
-      b.x -= scrollSpeed * 0.4;
-      if (b.x + b.w < 0) {
-        b.x = canvas.width + Math.random() * 200;
-        b.h = 300 + Math.random() * 200;
-        b.y = canvas.height - (250 + Math.random() * 150);
-      }
-    });
-  }
-
-  function updateFog() {
-    fogLayers.forEach(layer => {
-      layer.x -= layer.speed;
-      layer.y += layer.drift;
-      if (layer.x + layer.w < 0) {
-        layer.x = canvas.width + Math.random() * 200;
-        layer.y = canvas.height * (0.3 + Math.random() * 0.3);
-      }
-    });
-  }
-
-  function updateRain() {
-    if (rain.length < 200) {
-      rain.push({
-        x: Math.random() * canvas.width,
-        y: -10,
-        speed: 8 + Math.random() * 4,
-        length: 10 + Math.random() * 10
-      });
-    }
-    rain.forEach(drop => drop.y += drop.speed);
-    rain = rain.filter(drop => drop.y < canvas.height + 20);
-  }
-
-  function updateSteam() {
-    if (steam.length < 20 && Math.random() < 0.1) {
-      steam.push({
-        x: Math.random() * canvas.width,
-        y: canvas.height - 120,
-        opacity: 0.1 + Math.random() * 0.2,
-        size: 40 + Math.random() * 40,
-        rise: 0.5 + Math.random() * 0.5
-      });
-    }
-    steam.forEach(s => {
-      s.y -= s.rise;
-      s.opacity -= 0.002;
-    });
-    steam = steam.filter(s => s.opacity > 0);
-  }
-
-  function updateTaxiBeams() {
-    if (Math.random() < 0.02) {
-      taxiBeams.push({
-        x: -200,
-        y: canvas.height - (80 + Math.random() * 120),
-        w: 200,
-        h: 40,
-        speed: 6 + Math.random() * 3
-      });
-    }
-    taxiBeams.forEach(b => b.x += b.speed);
-    taxiBeams = taxiBeams.filter(b => b.x < canvas.width + 300);
-  }
-
-  function updateBirds() {
-    if (birds.length < 6 && Math.random() < 0.02) {
-      birds.push({
-        x: canvas.width + 50,
-        y: 80 + Math.random() * 200,
-        speed: 1 + Math.random() * 1.5,
-        flap: 0
-      });
-    }
-    birds.forEach(b => {
-      b.x -= b.speed;
-      b.flap += 0.2;
-    });
-    birds = birds.filter(b => b.x > -100);
-  }
-
-  function updateShake() {
-    if (shakeTime > 0) {
-      shakeTime--;
-      shakeX = (Math.random() - 0.5) * 6;
-      shakeY = (Math.random() - 0.5) * 6;
-    } else {
-      shakeX = 0;
-      shakeY = 0;
-    }
-  }
-
-  /* DRAW FUNCTIONS */
-  function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function drawSkyline() {
-    ctx.fillStyle = "#0f0f12";
-    skyline.forEach(b => {
-      ctx.fillRect(b.x + shakeX, b.y + shakeY, b.w, b.h);
-    });
-  }
-
-  function drawFog() {
-    fogLayers.forEach(layer => {
-      ctx.fillStyle = `rgba(200,200,200,${layer.opacity})`;
-      ctx.beginPath();
-      ctx.ellipse(layer.x + shakeX, layer.y + shakeY, layer.w, layer.h, 0, 0, Math.PI * 2);
-      ctx.fill();
-    });
-  }
-
-  function drawRooftops() {
-    ctx.fillStyle = "#1a1a1d";
-    rooftops.forEach(r => {
-      ctx.fillRect(r.x + shakeX, r.y + shakeY, r.w, r.h);
-    });
-  }
-
-  function drawPigeon() {
-  const tilt = pigeon.vx * 0.03;
-
-  ctx.save();
-  ctx.translate(pigeon.x + shakeX, pigeon.y + shakeY);
-  ctx.rotate(tilt);
-
-  ctx.fillStyle = "#e8ded0";
-  ctx.beginPath();
-  ctx.ellipse(0, 0, pigeon.size, pigeon.size * 0.6, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#000";
-  ctx.beginPath();
-  ctx.arc(pigeon.size * 0.4, -pigeon.size * 0.1, 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-  function drawRain() {
-    ctx.strokeStyle = "rgba(200,200,255,0.4)";
-    ctx.lineWidth = 2;
-    rain.forEach(drop => {
-      ctx.beginPath();
-      ctx.moveTo(drop.x + shakeX, drop.y + shakeY);
-      ctx.lineTo(drop.x + shakeX, drop.y + drop.length + shakeY);
-      ctx.stroke();
-    });
-  }
-
-  function drawSteam() {
-    steam.forEach(s => {
-      ctx.fillStyle = `rgba(220,220,220,${s.opacity})`;
-      ctx.beginPath();
-      ctx.ellipse(s.x + shakeX, s.y + shakeY, s.size, s.size * 0.6, 0, 0, Math.PI * 2);
-      ctx.fill();
-    });
-  }
-
-  function drawTaxiBeams() {
-    taxiBeams.forEach(beam => {
-      let gradient = ctx.createLinearGradient(
-        beam.x + shakeX,
-        beam.y + shakeY,
-        beam.x + beam.w + shakeX,
-        beam.y + shakeY
-      );
-      gradient.addColorStop(0, "rgba(255,255,180,0.0)");
-      gradient.addColorStop(1, "rgba(255,255,180,0.4)");
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(beam.x + shakeX, beam.y + shakeY, beam.w, beam.h);
-    });
-  }
-
-  function drawBirds() {
-    ctx.fillStyle = "#cfcfcf";
-    birds.forEach(b => {
-      ctx.beginPath();
-      ctx.moveTo(b.x + shakeX, b.y + shakeY);
-      ctx.lineTo(b.x - 12 + shakeX, b.y + 4 + shakeY);
-      ctx.lineTo(b.x - 12 + shakeX, b.y - 4 + shakeY);
-      ctx.closePath();
-      ctx.fill();
-    });
-  }
-
-  function drawNeon() {
-    const neon = document.getElementById("noirNeon");
-    neon.style.opacity = 0.15 + Math.sin(gameTime * 0.02) * 0.1;
-  }
-
-  function drawLightning() {
-    const flash = document.getElementById("noirLightning");
-    if (Math.random() < 0.002) {
-      flash.style.opacity = 1;
-      setTimeout(() => flash.style.opacity = 0, 80);
-      shakeTime = 10;
-    }
-  }
-
-  /* MAIN GAME LOOP */
-  function gameLoop() {
-    if (!noirActive || gameOver) return;
-
-    gameTime++;
-
-    updatePigeon();
-    updateSkyline();
-    updateFog();
-    updateRain();
-    updateSteam();
-    updateTaxiBeams();
-    updateBirds();
-    updateShake();
-
-    clearCanvas();
-    drawSkyline();
-    drawFog();
-    drawRooftops();
-    drawBirds();
-    drawTaxiBeams();
-    drawSteam();
-    drawRain();
-    drawPigeon();
-    drawNeon();
-    drawLightning();
-
-    requestAnimationFrame(gameLoop);
-  }
-
-  function startLoop() {
-    requestAnimationFrame(gameLoop);
-  }
-
-  /* CLOSE BUTTON */
-  closeBtn.addEventListener("click", () => {
-    noirActive = false;
-    overlay.classList.add("hidden");
-    overlay.classList.remove("active");
-    document.addEventListener('click', spawnPigeon);
-    pigeonSpawningPaused = false;
-  });
-
-});
-</script>
 
 </body>
 </html>
