@@ -24,7 +24,6 @@
 </audio>
 
 <script>
-  
   const tracks = [
     "{{ url_for('static', filename='audio/newyork2008.mp3') }}",
     "{{ url_for('static', filename='audio/track2.mp3') }}",
@@ -34,33 +33,73 @@
   let trackIndex = parseInt(sessionStorage.getItem('trackIndex') || '0');
   let trackTime  = parseFloat(sessionStorage.getItem('trackTime') || '0');
 
-  const audio  = document.getElementById('bg-music');
-  audio.volume = 0.2;
-  audio.src    = tracks[trackIndex];
+  const audio = document.getElementById('bg-music');
 
-  
+  // START SILENT
+  audio.volume = 0;
+  audio.src = tracks[trackIndex];
+
+  const MAX_VOLUME = 0.2;     // your original level
+  const FADE_DURATION = 4000; // 4 seconds
+
+  function fadeInAudio() {
+    const steps = 50;
+    const stepTime = FADE_DURATION / steps;
+    const volumeStep = MAX_VOLUME / steps;
+
+    let currentStep = 0;
+
+    const fade = setInterval(() => {
+      currentStep++;
+      audio.volume = Math.min(volumeStep * currentStep, MAX_VOLUME);
+
+      if (currentStep >= steps) {
+        clearInterval(fade);
+      }
+    }, stepTime);
+  }
+
+  // When ready to play
   audio.addEventListener('canplay', () => {
-    if (trackTime > 0) {
-      audio.currentTime = trackTime;
-      trackTime = 0;
-    }
-    audio.play().catch(() => {
-      
-      document.addEventListener('click', () => audio.play(), { once: true });
-    });
-  }, { once: true });
+  if (trackTime > 0) {
+    audio.currentTime = trackTime;
+    trackTime = 0;
+  }
 
-  
+  audio.play().then(() => {
+    // Only fade if starting fresh
+    if (audio.currentTime < 1) {
+      fadeInAudio();
+    } else {
+      audio.volume = MAX_VOLUME;
+    }
+  }).catch(() => {
+    document.addEventListener('click', () => {
+      audio.play().then(() => {
+        if (audio.currentTime < 1) {
+          fadeInAudio();
+        } else {
+          audio.volume = MAX_VOLUME;
+        }
+      });
+    }, { once: true });
+  });
+
+}, { once: true });
+
+  // Save playback state
   window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('trackIndex', trackIndex);
     sessionStorage.setItem('trackTime', audio.currentTime);
   });
 
-  
+  // Next track (NO fade reset so it stays smooth)
   audio.addEventListener('ended', () => {
     trackIndex = (trackIndex + 1) % tracks.length;
-    audio.src  = tracks[trackIndex];
+    audio.src = tracks[trackIndex];
+    audio.volume = MAX_VOLUME; // keep consistent volume
     audio.play();
+
     sessionStorage.setItem('trackIndex', trackIndex);
   });
 </script>
