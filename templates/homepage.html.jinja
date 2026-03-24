@@ -28,6 +28,19 @@
       0%, 100% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
       50% { filter: drop-shadow(0 0 25px rgba(255,255,255,0.35)); }
     }
+
+    <style>
+  @keyframes bounceType {
+    0%   { transform: translateY(0); }
+    40%  { transform: translateY(-6px); }
+    70%  { transform: translateY(2px); }
+    100% { transform: translateY(0); }
+  }
+
+  .animate-bounceType {
+    animation: bounceType 0.35s ease-out;
+  }
+</style>
   </style>
 
   <script>
@@ -114,18 +127,31 @@
       const percentEl = document.getElementById("percent");
       const bar = document.getElementById("bar");
 
-      // Smooth borough rotation
-      let i = 0;
-      setInterval(() => {
-        boroughEl.style.opacity = 0;
+      // Borough shuffle with typewriter + bounce (Tailwind-friendly)
+let i = 0;
+setInterval(() => {
+  const text = boroughs[i % boroughs.length];
+  i++;
 
-        setTimeout(() => {
-          boroughEl.innerText = boroughs[i % boroughs.length];
-          boroughEl.style.opacity = 1;
-          i++;
-        }, 250);
+  // TYPEWRITER EFFECT
+  boroughEl.innerText = "";
+  let idx = 0;
 
-      }, 1400);
+  const typeInterval = setInterval(() => {
+    boroughEl.innerText += text[idx];
+    idx++;
+
+    if (idx === text.length) {
+      clearInterval(typeInterval);
+
+      // BOUNCE EFFECT
+      boroughEl.classList.remove("animate-bounceType");
+      void boroughEl.offsetWidth; // restart animation
+      boroughEl.classList.add("animate-bounceType");
+    }
+  }, 50); // typing speed
+
+}, 1500); // <-- Apple‑smooth timing
 
       // Rotating facts
       setInterval(() => {
