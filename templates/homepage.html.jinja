@@ -1,55 +1,148 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="icon" type="image/x-icon" href="/static/images/Hidden Gemsiiii.ico">
-    <title>Hidden Gems: Budget adventures</title>
-   <script>
-  
-  setTimeout(() => {
-    document.body.classList.add('fade-out');
-  }, 14500);
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
- 
-  setTimeout(() => {
-    window.location.href = "/browse";
-  }, 15000);
-</script>
+  <title>Hidden Gems — Discovering NYC</title>
 
-<style>
-  .fade-out {
-    opacity: 0;
-    transition: opacity 0.5s ease-out;
-  }
-</style>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1c1c1c, #3b2f2f, #6b5b4d);
+      color: #f5efe6;
+    }
 
-  <body class="min-h-screen bg-[#efe6d8] flex flex-col items-center justify-center text-gray-700">
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
 
-    <!-- Container -->
-    <div class="flex flex-col items-center gap-6 p-6">
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+      100% { transform: translateY(0px); }
+    }
 
-      <!-- Title -->
-      <h1 class="text-4xl md:text-5xl font-bold text-[#3b2f2f] 
-                 bg-white/40 px-6 py-3 rounded-xl shadow-md 
-                 backdrop-blur-sm border border-white/30
-                 transition-all duration-300 hover:scale-[1.03]">
-        Loading your next adventure...
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
+      50% { filter: drop-shadow(0 0 25px rgba(255,255,255,0.35)); }
+    }
+  </style>
+
+  <script>
+    const boroughs = ["Brooklyn", "Queens", "Manhattan", "Bronx", "Staten Island"];
+
+    const facts = [
+      "Brooklyn has more residents than Chicago.",
+      "Queens is the most linguistically diverse place on Earth.",
+      "The Bronx is where hip-hop was born.",
+      "Staten Island hides an eerie boat graveyard.",
+      "Manhattan’s grid hasn’t changed much since 1811."
+    ];
+
+    let progress = 0;
+
+    window.onload = () => {
+      const boroughEl = document.getElementById("borough");
+      const factEl = document.getElementById("fact");
+      const percentEl = document.getElementById("percent");
+      const bar = document.getElementById("bar");
+
+      // Smooth borough rotation
+      let i = 0;
+      setInterval(() => {
+        boroughEl.style.opacity = 0;
+
+        setTimeout(() => {
+          boroughEl.innerText = boroughs[i % boroughs.length];
+          boroughEl.style.opacity = 1;
+          i++;
+        }, 250);
+
+      }, 1400);
+
+      // Rotating facts
+      setInterval(() => {
+        factEl.style.opacity = 0;
+
+        setTimeout(() => {
+          factEl.innerText = facts[Math.floor(Math.random() * facts.length)];
+          factEl.style.opacity = 1;
+        }, 300);
+
+      }, 4000);
+
+      // Progress simulation
+      const interval = setInterval(() => {
+        progress += Math.random() * 7;
+
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+
+          setTimeout(() => {
+            document.body.classList.add("fade-out");
+          }, 500);
+
+          setTimeout(() => {
+            window.location.href = "/browse";
+          }, 1200);
+        }
+
+        percentEl.innerText = Math.floor(progress) + "%";
+        bar.style.width = progress + "%";
+
+      }, 500);
+    };
+  </script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center">
+
+  <div class="w-full max-w-lg px-6 flex flex-col items-center gap-10 text-center">
+
+    <!-- Title -->
+    <div class="flex flex-col items-center gap-2">
+      <h1 class="text-4xl font-bold tracking-tight">
+        Hidden Gems
       </h1>
-
-      <!-- GIF -->
-      <img 
-        src="/static/borough_load.gif"
-        alt="Hidden Gems Loading"
-        class="w-[280px] md:w-[380px] rounded-2xl shadow-xl border border-white/40"
-      >
-
-      <!-- Subtext -->
-      <p class="text-lg text-[#4a3f35] opacity-80">
-        Finding hidden spots around NYC...
+      <p class="text-sm opacity-70 tracking-wide">
+        Finding your next NYC adventure
       </p>
     </div>
 
-  </body>
+    <!-- GIF (Upgraded) -->
+    <img 
+      src="/static/borough_load.gif"
+      alt="Loading NYC"
+      class="w-56 md:w-72 rounded-3xl shadow-2xl border border-white/20"
+      style="animation: float 4s ease-in-out infinite, glow 3s ease-in-out infinite;"
+    >
+
+    <!-- Borough -->
+    <div class="text-xl">
+      Exploring 
+      <span id="borough" class="font-semibold transition-opacity duration-300">
+        Manhattan
+      </span>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full flex flex-col gap-2">
+      <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+        <div id="bar" class="h-full bg-white rounded-full transition-all duration-300"></div>
+      </div>
+      <div id="percent" class="text-sm opacity-70">0%</div>
+    </div>
+
+    <!-- Fact -->
+    <div id="fact"
+         class="text-sm opacity-80 max-w-md leading-relaxed transition-opacity duration-300">
+      Loading a hidden fact...
+    </div>
+
+  </div>
+
+</body>
 </html>
