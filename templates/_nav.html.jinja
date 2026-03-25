@@ -18,16 +18,27 @@
 {% endif %}
 
 
-<audio id="bg-music" loop style="display:none;">
+<audio id="bg-music" style="display:none;">
 
-  <source src="{{ url_for('static', filename='audio/track1.mp3') }}" type="audio/mpeg">
+  <source src="{{ url_for('static', filename='audio/newyork2008.mp3') }}" type="audio/mpeg">
 </audio>
 
 <script>
   const tracks = [
+    "{{ url_for('static', filename='audio/akinh.mp3') }}",
     "{{ url_for('static', filename='audio/newyork2008.mp3') }}",
-    "{{ url_for('static', filename='audio/track2.mp3') }}",
-    "{{ url_for('static', filename='audio/track3.mp3') }}",
+    "{{ url_for('static', filename='audio/theglorylove.mp3') }}",
+    "{{ url_for('static', filename='audio/changepartners.mp3') }}",
+    "{{ url_for('static', filename='audio/tcttafm.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
+    "{{ url_for('static', filename='audio/.mp3') }}",
   ];
 
   let trackIndex = parseInt(sessionStorage.getItem('trackIndex') || '0');
@@ -94,12 +105,19 @@
   });
 
   // Next track (NO fade reset so it stays smooth)
-  audio.addEventListener('ended', () => {
-    trackIndex = (trackIndex + 1) % tracks.length;
-    audio.src = tracks[trackIndex];
-    audio.volume = MAX_VOLUME; // keep consistent volume
+ audio.addEventListener('ended', () => {
+  trackIndex = (trackIndex + 1) % tracks.length;
+
+  audio.src = tracks[trackIndex];
+  audio.load(); //force reload of new track
+
+  audio.addEventListener('canplay', function handleNext() {
+    audio.volume = MAX_VOLUME;
     audio.play();
 
-    sessionStorage.setItem('trackIndex', trackIndex);
+    audio.removeEventListener('canplay', handleNext);
   });
+
+  sessionStorage.setItem('trackIndex', trackIndex);
+});
 </script>
