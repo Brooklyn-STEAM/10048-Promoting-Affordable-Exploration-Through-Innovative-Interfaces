@@ -123,16 +123,46 @@ def borough_page(n):
     featured = locations[:3]
 
     locations_json = json.dumps([{
-        "ID":          l["ID"],
-        "Name":        l["Name"],
-        "Borough":     l["Borough"],
-        "Address":     l.get("Address") or "",
-        "Description": l.get("Description") or "",
-        "DatePosted":  l["DatePosted"].strftime("%b %d, %Y") if isinstance(l["DatePosted"], datetime) else str(l["DatePosted"]),
-        "Image":       l.get("Image") or "",
-        "LikeCount":   l.get("LikeCount") or 0,
-        "Liked":       l["ID"] in liked_ids,
-    } for l in locations])
+    "ID":          l["ID"],
+    "Name":        l["Name"],
+    "Borough":     l["Borough"],
+
+    # Address + description
+    "Address":     l.get("Address") or "",
+    "Description": l.get("Description") or "",
+
+    # Date
+    "DatePosted":  (
+        l["DatePosted"].strftime("%b %d, %Y")
+        if isinstance(l["DatePosted"], datetime)
+        else str(l["DatePosted"])
+    ),
+
+    # Image
+    "Image":       l.get("Image") or "",
+
+    # Likes
+    "LikeCount":   l.get("LikeCount") or 0,
+    "Liked":       l["ID"] in liked_ids,
+
+    # ⭐️ NEW FIELDS FOR REDESIGNED LIGHTBOX
+    "Type":        l.get("Type") or "Spot",
+    "Category":    l.get("Category") or "General",
+
+    "Latitude":    l.get("Latitude"),
+    "Longitude":   l.get("Longitude"),
+
+    # Tags stored as comma-separated string → convert to list
+    "Tags":        (l.get("Tags").split(",") if l.get("Tags") else []),
+
+    # Hours stored as JSON string → convert to Python list
+    "Hours":       (json.loads(l["Hours"]) if l.get("Hours") else []),
+
+    # ⭐️ Ownership flag for delete button
+    "IsOwner":     (l["UserID"] == current_user.id)
+
+} for l in locations])
+
 
     return render_template(
         "borough.html.jinja",
@@ -352,3 +382,25 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+@app.post("/borough/<slug>/delete/<int:id>")
+def delete_location(slug, id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"success": False, "error": "Not logged in"})
+
+    loc = Location.query.get(id)
+    if not loc:
+        return jsonify({"success": False, "error": "Not found"})
+
+    # Only the owner can delete
+    if loc.UserID != user_id:
+        return jsonify({"success": False, "error": "Not allowed"})
+
+    db.session.delete(loc)
+    db.session.commit()
+
+    return jsonify({"success": True})
+

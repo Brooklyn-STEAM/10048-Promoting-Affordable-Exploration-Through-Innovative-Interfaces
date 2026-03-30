@@ -342,47 +342,110 @@
     ">‹</button>
 
     <!-- Card -->
-    <div style="flex:1; border-radius:20px; overflow:hidden; background:rgba(0,0,0,0.3); border:1px solid rgba(232,222,208,0.15);">
-      <div id="lb-map-area" style="height:360px; background:#0d0d0d; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;">
-        <!-- Map grid background -->
-        <div style="position:absolute;inset:0;opacity:0.07;background-image:linear-gradient(rgba(232,222,208,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(232,222,208,0.5) 1px,transparent 1px);background-size:40px 40px;"></div>
-        <!-- Pin icon -->
-        <div style="font-size:2.5rem; z-index:1;">📍</div>
-        <p id="lb-addr-text" style="font-size:0.8rem; color:rgba(232,222,208,0.6); z-index:1; text-align:center; max-width:260px; line-height:1.5;"></p>
-        <a id="lb-map-link" href="#" target="_blank" style="
-          z-index:1; display:inline-flex; align-items:center; gap:6px;
-          padding:8px 20px; border-radius:999px;
-          background:rgba(232,222,208,0.08); border:1px solid rgba(232,222,208,0.25);
-          color:#e8ded0; font-size:0.6rem; letter-spacing:0.2em;
-          text-transform:uppercase; text-decoration:none;
-          transition:background 0.2s;
-        ">Open in Google Maps ↗</a>
-        <div id="lb-no-addr" style="display:none; font-size:0.75rem; color:rgba(232,222,208,0.2); z-index:1;">No address provided</div>
-      </div>
-      <div style="padding:22px 26px;">
-        <p id="lb-badge" style="
-          display:inline-block; font-size:0.5rem; letter-spacing:0.2em;
-          text-transform:uppercase; padding:3px 10px; border-radius:999px;
-          background:var(--accent); color:#fff; margin-bottom:10px; opacity:0.9;
-        "></p>
-        <h2 id="lb-title" style="
-          font-family:'Cormorant Garamond',serif; font-weight:300;
-          font-size:2rem; color:#e8ded0; line-height:1.1; margin-bottom:6px;
-        "></h2>
-        <p id="lb-meta" style="font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(232,222,208,0.35); margin-bottom:12px;"></p>
-        <p id="lb-desc" style="font-size:0.85rem; color:rgba(232,222,208,0.65); line-height:1.7; margin-bottom:16px;"></p>
-        <button id="lb-like-btn" onclick="toggleLikeById()" style="
-          background:rgba(232,222,208,0.06); border:1px solid rgba(232,222,208,0.2);
-          border-radius:999px; padding:7px 18px; cursor:pointer;
-          display:flex; align-items:center; gap:6px;
-          color:#e8ded0; font-size:0.75rem; font-family:inherit;
-          transition: background 0.2s;
-        ">
-          <span id="lb-heart">♡</span>
-          <span id="lb-like-count">0</span>
-          <span style="font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; opacity:0.5;">likes</span>
-        </button>
-      </div>
+<div class="rounded-[20px] overflow-hidden bg-black/30 border border-white/10 w-full">
+
+  <!-- Map area -->
+  <div id="lb-map-area"
+       class="relative h-[220px] bg-black/40 flex items-end justify-between p-4 gap-2">
+
+    <div class="absolute inset-0 opacity-[0.06]"
+         style="background-image: linear-gradient(rgba(232,222,208,.8) 1px,transparent 1px),
+                                  linear-gradient(90deg,rgba(232,222,208,.8) 1px,transparent 1px);
+                background-size:30px 30px"></div>
+
+    <!-- Type badge -->
+    <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-full px-3 py-1"
+         style="background: var(--accent)">
+      <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+      <span id="lb-badge"
+            class="text-[10px] font-bold tracking-[.2em] uppercase text-white"></span>
+    </div>
+
+    <!-- Coordinates -->
+    <span id="lb-coords"
+          class="z-10 text-[10px] tracking-[.12em] uppercase text-[#e8ded0]/25 font-mono"></span>
+
+    <!-- Maps button -->
+    <a id="lb-map-link"
+       href="#"
+       target="_blank"
+       class="z-10 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5
+              bg-[#e8ded0]/[.08] border border-[#e8ded0]/20 text-[#e8ded0]
+              text-[10px] font-bold tracking-[.18em] uppercase no-underline
+              hover:bg-[#e8ded0]/[.15] transition-colors">
+      Open in Maps ↗
+    </a>
+  </div>
+
+  <!-- Accent bar -->
+  <div class="h-[3px] w-full" style="background: var(--accent)"></div>
+
+  <!-- Body -->
+  <div class="px-6 pt-5">
+
+    <div class="flex items-center gap-2 mb-3">
+      <span id="lb-type"
+            class="text-[9px] font-bold tracking-[.22em] uppercase px-2.5 py-0.5
+                   rounded-sm text-white"
+            style="background: var(--accent)"></span>
+
+      <span id="lb-open-status"
+            class="inline-flex items-center gap-1 text-[9px] font-bold tracking-[.16em]
+                   uppercase text-green-400 bg-green-400/10 border border-green-400/20
+                   rounded-sm px-2.5 py-0.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+        Open now
+      </span>
+    </div>
+
+    <h2 id="lb-title"
+        class="font-['Cormorant_Garamond'] font-light text-[2rem] leading-none
+               text-[#e8ded0] mb-1"></h2>
+
+    <p id="lb-meta"
+       class="text-[10px] tracking-[.18em] uppercase text-[#e8ded0]/35 mb-3"></p>
+
+    <p id="lb-desc"
+       class="text-[13px] text-[#e8ded0]/60 leading-relaxed mb-4"></p>
+
+    <!-- Tags -->
+    <div id="lb-tags" class="flex flex-wrap gap-1.5 mb-5"></div>
+  </div>
+
+  <!-- Hours -->
+  <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-6 py-4">
+    <p class="text-[9px] font-bold tracking-[.24em] uppercase text-[#e8ded0]/35 mb-3">Hours</p>
+    <div id="lb-hours" class="grid grid-cols-2 gap-x-4 gap-y-0"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-6 py-4">
+    <p id="lb-addr-text"
+       class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed"></p>
+
+    <button id="lb-like-btn"
+            onclick="toggleLikeById()"
+            class="flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#e8ded0]/15
+                   bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px]
+                   tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors
+                   cursor-pointer">
+      <span id="lb-heart">♡</span>
+      <span id="lb-like-count">0</span>
+      <span class="text-[8px] opacity-50 tracking-[.15em]">likes</span>
+    </button>
+  </div>
+
+  <button id="lb-delete-btn"
+        onclick="deleteLocation()"
+        class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">
+  Remove location
+</button>
+
+  
+
+
+</div>
+
     </div>
 
     
@@ -446,6 +509,7 @@
       }
     }
   }
+  
 
   async function toggleLikeById() {
     const loc     = locations[lbIndex];
@@ -471,6 +535,37 @@
   let featIndex = 0;
   const featTotal = locations.length;
   const VISIBLE = 3;
+
+
+  async function deleteLocation() {
+  const loc = locations[lbIndex];
+  if (!loc) return;
+
+  const confirmDelete = confirm("Are you sure you want to remove this location?");
+  if (!confirmDelete) return;
+
+  const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
+
+  const res = await fetch(`/borough/${boroughSlug}/delete/${loc.ID}`, {
+    method: 'POST'
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    // Remove from local array
+    locations.splice(lbIndex, 1);
+
+    // Close lightbox
+    closeLightbox();
+
+    // Refresh UI
+    location.reload();
+  } else {
+    alert("Failed to delete location.");
+  }
+}
+
 
   function buildFeatDots() {
     const dotsEl = document.getElementById('feat-dots');
@@ -524,56 +619,129 @@
   }
 
   function renderLightbox() {
-    const loc = locations[lbIndex];
-    if (!loc) return;
+  const loc = locations[lbIndex];
+  if (!loc) return;
 
-   
-    document.getElementById('lb-counter').textContent = (lbIndex + 1) + ' / ' + lbTotal;
+  // Counter
+  document.getElementById('lb-counter').textContent =
+    `${lbIndex + 1} / ${lbTotal}`;
 
-    
-    const badges = ['Featured', 'Hidden gem', 'Local pick'];
-    document.getElementById('lb-badge').textContent = badges[lbIndex] || 'Gem';
+  // Badge (Featured / Hidden Gem / Local Pick)
+  const badges = ['Featured', 'Hidden gem', 'Local pick'];
+  document.getElementById('lb-badge').textContent =
+    loc.Type || badges[lbIndex] || 'Gem';
 
-   
-    const noAddr   = document.getElementById('lb-no-addr');
-    const addrText = document.getElementById('lb-addr-text');
-    const mapLink  = document.getElementById('lb-map-link');
-    if (loc.Address) {
-      const q = encodeURIComponent(loc.Address + ', New York City');
-      addrText.textContent = loc.Address;
-      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${q}`;
-      addrText.style.display = 'block';
-      mapLink.style.display  = 'inline-flex';
-      noAddr.style.display   = 'none';
-    } else {
-      addrText.style.display = 'none';
-      mapLink.style.display  = 'none';
-      noAddr.style.display   = 'block';
-    }
+  // Category / Type
+  document.getElementById('lb-type').textContent =
+    loc.Category || 'Location';
 
-    
-    document.getElementById('lb-title').textContent = loc.Name;
-    document.getElementById('lb-meta').textContent  = loc.Borough + ' · ' + loc.DatePosted;
-    document.getElementById('lb-desc').textContent  = loc.Description || 'No description provided.';
-    document.getElementById('lb-like-count').textContent = loc.LikeCount || 0;
-    document.getElementById('lb-heart').textContent = loc.Liked ? '♥' : '♡';
-    document.getElementById('lb-like-btn').style.color = loc.Liked ? 'var(--accent)' : '#e8ded0';
+  // Coordinates
+  const coordsEl = document.getElementById('lb-coords');
+  if (loc.Latitude && loc.Longitude) {
+    coordsEl.textContent = `${loc.Latitude}° N · ${loc.Longitude}° W`;
+  } else {
+    coordsEl.textContent = '';
+  }
 
-    document.getElementById('lb-prev').style.visibility = lbIndex > 0 ? 'visible' : 'hidden';
-    document.getElementById('lb-next').style.visibility = lbIndex < lbTotal - 1 ? 'visible' : 'hidden';
+  // Address + Maps link
+  const addrText = document.getElementById('lb-addr-text');
+  const mapLink = document.getElementById('lb-map-link');
+  const noAddr = document.getElementById('lb-no-addr');
 
-    
-    const dotsEl = document.getElementById('lb-dots');
-    dotsEl.innerHTML = '';
-    locations.forEach((_, i) => {
-      const d = document.createElement('div');
-      d.style.cssText = `width:6px; height:6px; border-radius:50%; cursor:pointer;
-        background: ${i === lbIndex ? 'var(--accent)' : 'rgba(232,222,208,0.25)'};
-        transition: background 0.2s;`;
-      d.onclick = () => { lbIndex = i; renderLightbox(); };
-      dotsEl.appendChild(d);
+  if (loc.Address) {
+    addrText.textContent = loc.Address;
+    const q = encodeURIComponent(loc.Address + ', New York City');
+    mapLink.href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    addrText.style.display = 'block';
+    mapLink.style.display = 'inline-flex';
+    if (noAddr) noAddr.style.display = 'none';
+  } else {
+    addrText.style.display = 'none';
+    mapLink.style.display = 'none';
+    if (noAddr) noAddr.style.display = 'block';
+  }
+
+  // Title
+  document.getElementById('lb-title').textContent = loc.Name;
+
+  // Meta (borough + date)
+  document.getElementById('lb-meta').textContent =
+    `${loc.Borough || ''} · ${loc.DatePosted || ''}`;
+
+  // Description
+  document.getElementById('lb-desc').textContent =
+    loc.Description || 'No description provided.';
+
+  // Tags
+  const tagsEl = document.getElementById('lb-tags');
+  tagsEl.innerHTML = '';
+  if (loc.Tags && Array.isArray(loc.Tags)) {
+    loc.Tags.forEach(tag => {
+      const el = document.createElement('span');
+      el.className =
+        "text-[9px] font-semibold tracking-[.14em] uppercase px-2.5 py-1 rounded-sm border border-[#e8ded0]/15 text-[#e8ded0]/50 bg-[#e8ded0]/[.04]";
+      el.textContent = tag;
+      tagsEl.appendChild(el);
     });
   }
+
+  // Hours
+  const hoursEl = document.getElementById('lb-hours');
+  hoursEl.innerHTML = '';
+  if (loc.Hours && Array.isArray(loc.Hours)) {
+    loc.Hours.forEach(day => {
+      const row = document.createElement('div');
+      row.className =
+        `flex justify-between py-1 border-b border-[#e8ded0]/[.05] ${
+          day.today ? 'text-[#e8ded0]' : 'text-[#e8ded0]/40'
+        }`;
+
+      row.innerHTML = `
+        <span class="text-[11px] tracking-[.08em] uppercase font-mono">${day.name}</span>
+        <span class="text-[11px] font-mono ${day.today ? 'font-bold' : ''}"
+              style="${day.today ? 'color: var(--accent)' : ''}">
+          ${day.hours}
+        </span>
+      `;
+
+      hoursEl.appendChild(row);
+    });
+  }
+
+  // Likes
+  document.getElementById('lb-like-count').textContent =
+    loc.LikeCount || 0;
+  document.getElementById('lb-heart').textContent =
+    loc.Liked ? '♥' : '♡';
+  document.getElementById('lb-like-btn').style.color =
+    loc.Liked ? 'var(--accent)' : '#e8ded0';
+
+  // Delete button visibility
+const delBtn = document.getElementById('lb-delete-btn');
+delBtn.style.display = loc.IsOwner ? 'flex' : 'none';
+
+
+  // Prev / Next visibility
+  document.getElementById('lb-prev').style.visibility =
+    lbIndex > 0 ? 'visible' : 'hidden';
+  document.getElementById('lb-next').style.visibility =
+    lbIndex < lbTotal - 1 ? 'visible' : 'hidden';
+
+  // Dots
+  const dotsEl = document.getElementById('lb-dots');
+  dotsEl.innerHTML = '';
+  locations.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.style.cssText = `
+      width:6px; height:6px; border-radius:50%; cursor:pointer;
+      background: ${i === lbIndex ? 'var(--accent)' : 'rgba(232,222,208,0.25)'};
+      transition: background 0.2s;
+    `;
+    d.onclick = () => { lbIndex = i; renderLightbox(); };
+    dotsEl.appendChild(d);
+  });
+}
+
 
   function lbStep(dir) {
     const next = lbIndex + dir;
