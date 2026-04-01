@@ -1,5 +1,10 @@
 from flask import Flask, render_template, request, redirect, flash, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
+
+
+
+
+
 import pymysql
 import json
 from datetime import datetime
@@ -380,27 +385,38 @@ def logout():
     return redirect("/login")
 
 
+from flask import jsonify
+
+@app.post("/borough/<path:n>/delete/<int:id>")
+@login_required
+def delete_location(n, id):
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    # Check ownership
+    cursor.execute("SELECT UserID FROM `Location` WHERE ID = %s", (id,))
+    row = cursor.fetchone()
+
+    if not row:
+        connection.close()
+        return jsonify({"success": False, "error": "Not found"})
+
+    if row["UserID"] != current_user.id:
+        connection.close()
+        return jsonify({"success": False, "error": "Not allowed"})
+
+    # Delete
+    cursor.execute("DELETE FROM `Location` WHERE ID = %s", (id,))
+    connection.commit()
+    connection.close()
+
+    return jsonify({"success": True})
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
 
 
-@app.post("/borough/<slug>/delete/<int:id>")
-def delete_location(slug, id):
-    user_id = session.get("user_id")
-    if not user_id:
-        return jsonify({"success": False, "error": "Not logged in"})
-
-    loc = Location.query.get(id)
-    if not loc:
-        return jsonify({"success": False, "error": "Not found"})
-
-    # Only the owner can delete
-    if loc.UserID != user_id:
-        return jsonify({"success": False, "error": "Not allowed"})
-
-    db.session.delete(loc)
-    db.session.commit()
-
-    return jsonify({"success": True})
 
