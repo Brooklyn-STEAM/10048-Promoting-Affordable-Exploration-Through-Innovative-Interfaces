@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  {% include 'icon.html.jinja' %}
 
   <title>Hidden Gems — Discovering NYC</title>
 
@@ -19,173 +20,209 @@
     }
 
     @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-12px); }
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-12px); }
       100% { transform: translateY(0px); }
     }
 
     @keyframes glow {
       0%, 100% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
-      50% { filter: drop-shadow(0 0 25px rgba(255,255,255,0.35)); }
+      50%       { filter: drop-shadow(0 0 25px rgba(255,255,255,0.35)); }
     }
 
-    <style>
-  @keyframes bounceType {
-    0%   { transform: translateY(0); }
-    40%  { transform: translateY(-6px); }
-    70%  { transform: translateY(2px); }
-    100% { transform: translateY(0); }
-  }
+    @keyframes bounceType {
+      0%   { transform: translateY(0); }
+      40%  { transform: translateY(-6px); }
+      70%  { transform: translateY(2px); }
+      100% { transform: translateY(0); }
+    }
 
-  .animate-bounceType {
-    animation: bounceType 0.35s ease-out;
-  }
-</style>
+    .animate-bounceType {
+      animation: bounceType 0.35s ease-out;
+    }
+
+    #fact {
+      transition: opacity 0.3s ease;
+    }
   </style>
 
   <script>
     const boroughs = ["Brooklyn", "Queens", "Manhattan", "Bronx", "Staten Island"];
 
     const facts = [
-  // Brooklyn
-  "Brooklyn has more residents than Chicago.",
-  "Brooklyn was its own independent city until 1898.",
-  "Coney Island was once the largest amusement area in the U.S.",
-  "The Brooklyn Bridge was the longest suspension bridge in the world when it opened.",
-  "Brooklyn’s Prospect Park was designed by the same people as Central Park.",
-
-  // Queens
-  "Queens is the most linguistically diverse place on Earth.",
-  "Over 160 languages are spoken in Queens.",
-  "Queens is home to both JFK and LaGuardia airports.",
-  "Flushing Meadows hosted two World’s Fairs.",
-  "The Unisphere in Queens is one of NYC’s most iconic landmarks.",
-
-  // Manhattan
-  "Manhattan’s grid plan was designed in 1811 and barely changed since.",
-  "Central Park is larger than Monaco.",
-  "Wall Street got its name from an actual wall built in the 1600s.",
-  "Times Square was once called Longacre Square.",
-  "The Empire State Building has its own zip code.",
-
-  // Bronx
-  "The Bronx is the birthplace of hip-hop.",
-  "Yankee Stadium is located in the Bronx.",
-  "The Bronx Zoo is the largest metropolitan zoo in the U.S.",
-  "Grand Concourse was inspired by the Champs-Élysées in Paris.",
-  "The Bronx is the only borough on the mainland U.S.",
-
-  // Staten Island
-  "Staten Island has a hidden boat graveyard.",
-  "The Staten Island Ferry is free and offers amazing skyline views.",
-  "Staten Island is the least populated borough.",
-  "It has more green space per person than any other borough.",
-  "The Conference House hosted peace talks during the American Revolution.",
-
-  // City-wide / fun
-  "New York City has over 800 languages spoken.",
-  "There are more than 13,000 yellow taxis in NYC.",
-  "NYC’s subway system is one of the largest in the world.",
-  "Some NYC buildings have secret underground tunnels.",
-  "Pizza slices in NYC are famously foldable by design.",
-  "There are entire abandoned subway stations beneath the city.",
-  "NYC has over 1,700 parks.",
-  "Hot dog stands have been part of NYC culture for over 100 years.",
-  "The city never truly sleeps — many places are open 24/7.",
-  "You can walk across multiple bridges connecting boroughs.",
-
-  // Hidden gem vibes
-  "There are rooftop farms hidden across NYC.",
-  "Some speakeasies in NYC are hidden behind fake storefronts.",
-  "There are tiny streets in NYC that most tourists never find.",
-  "You can kayak for free in parts of NYC during the summer.",
-  "Some subway stations have beautiful, hidden art installations.",
-  "There are secret gardens tucked between buildings.",
-  "Old train tracks still exist beneath parts of Manhattan.",
-  "There are quiet beaches in NYC that feel miles away from the city.",
-  "Some libraries in NYC have rooms that feel like time capsules.",
-  "You can find historic houses from the 1700s still standing.",
-
-  // Fun/random
-  "NYC was once the capital of the United States.",
-  "The city was originally called New Amsterdam.",
-  "Broadway is one of the longest streets in the world.",
-  "NYC has over 8 million residents.",
-  "There are more than 2 million rats estimated in NYC.",
-  "Skyscrapers changed the way cities are built worldwide.",
-  "The subway runs 24 hours a day.",
-  "Some streets in NYC change direction depending on time of day.",
-  "There are hidden bars inside phone booths.",
-  "Every borough has its own unique vibe and culture."
-];
+      "Brooklyn has more residents than Chicago.",
+      "Brooklyn was its own independent city until 1898.",
+      "Coney Island was once the largest amusement area in the U.S.",
+      "The Brooklyn Bridge was the longest suspension bridge in the world when it opened.",
+      "Brooklyn's Prospect Park was designed by the same people as Central Park.",
+      "Queens is the most linguistically diverse place on Earth.",
+      "Over 160 languages are spoken in Queens.",
+      "Queens is home to both JFK and LaGuardia airports.",
+      "Flushing Meadows hosted two World's Fairs.",
+      "The Unisphere in Queens is one of NYC's most iconic landmarks.",
+      "Manhattan's grid plan was designed in 1811 and barely changed since.",
+      "Central Park is larger than Monaco.",
+      "Wall Street got its name from an actual wall built in the 1600s.",
+      "Times Square was once called Longacre Square.",
+      "The Empire State Building has its own zip code.",
+      "The Bronx is the birthplace of hip-hop.",
+      "Yankee Stadium is located in the Bronx.",
+      "The Bronx Zoo is the largest metropolitan zoo in the U.S.",
+      "Grand Concourse was inspired by the Champs-Élysées in Paris.",
+      "The Bronx is the only borough on the mainland U.S.",
+      "Staten Island has a hidden boat graveyard.",
+      "The Staten Island Ferry is free and offers amazing skyline views.",
+      "Staten Island is the least populated borough.",
+      "It has more green space per person than any other borough.",
+      "The Conference House hosted peace talks during the American Revolution.",
+      "New York City has over 800 languages spoken.",
+      "There are more than 13,000 yellow taxis in NYC.",
+      "NYC's subway system is one of the largest in the world.",
+      "Some NYC buildings have secret underground tunnels.",
+      "Pizza slices in NYC are famously foldable by design.",
+      "There are entire abandoned subway stations beneath the city.",
+      "NYC has over 1,700 parks.",
+      "Hot dog stands have been part of NYC culture for over 100 years.",
+      "The city never truly sleeps — many places are open 24/7.",
+      "You can walk across multiple bridges connecting boroughs.",
+      "There are rooftop farms hidden across NYC.",
+      "Some speakeasies in NYC are hidden behind fake storefronts.",
+      "There are tiny streets in NYC that most tourists never find.",
+      "You can kayak for free in parts of NYC during the summer.",
+      "Some subway stations have beautiful, hidden art installations.",
+      "There are secret gardens tucked between buildings.",
+      "Old train tracks still exist beneath parts of Manhattan.",
+      "There are quiet beaches in NYC that feel miles away from the city.",
+      "Some libraries in NYC have rooms that feel like time capsules.",
+      "You can find historic houses from the 1700s still standing.",
+      "NYC was once the capital of the United States.",
+      "The city was originally called New Amsterdam.",
+      "Broadway is one of the longest streets in the world.",
+      "NYC has over 8 million residents.",
+      "There are more than 2 million rats estimated in NYC.",
+      "Skyscrapers changed the way cities are built worldwide.",
+      "The subway runs 24 hours a day.",
+      "There are hidden bars inside phone booths.",
+      "Every borough has its own unique vibe and culture."
+    ];
 
     let progress = 0;
 
     window.onload = () => {
       const boroughEl = document.getElementById("borough");
-      const factEl = document.getElementById("fact");
+      const factEl    = document.getElementById("fact");
       const percentEl = document.getElementById("percent");
-      const bar = document.getElementById("bar");
+      const bar       = document.getElementById("bar");
 
-      // Borough shuffle with typewriter + bounce (Tailwind-friendly)
-let i = 0;
-setInterval(() => {
-  const text = boroughs[i % boroughs.length];
-  i++;
-
-  // TYPEWRITER EFFECT
-  boroughEl.innerText = "";
-  let idx = 0;
-
-  const typeInterval = setInterval(() => {
-    boroughEl.innerText += text[idx];
-    idx++;
-
-    if (idx === text.length) {
-      clearInterval(typeInterval);
-
-      // BOUNCE EFFECT
-      boroughEl.classList.remove("animate-bounceType");
-      void boroughEl.offsetWidth; // restart animation
-      boroughEl.classList.add("animate-bounceType");
-    }
-  }, 50); // typing speed
-
-}, 1500); // <-- Apple‑smooth timing
+      // Borough typewriter + bounce
+      let i = 0;
+      setInterval(() => {
+        const text = boroughs[i % boroughs.length];
+        i++;
+        boroughEl.innerText = "";
+        let idx = 0;
+        const typeInterval = setInterval(() => {
+          boroughEl.innerText += text[idx];
+          idx++;
+          if (idx === text.length) {
+            clearInterval(typeInterval);
+            boroughEl.classList.remove("animate-bounceType");
+            void boroughEl.offsetWidth;
+            boroughEl.classList.add("animate-bounceType");
+          }
+        }, 50);
+      }, 1500);
 
       // Rotating facts
       setInterval(() => {
         factEl.style.opacity = 0;
-
         setTimeout(() => {
-          factEl.innerText = facts[Math.floor(Math.random() * facts.length)];
+          factEl.innerText  = facts[Math.floor(Math.random() * facts.length)];
           factEl.style.opacity = 1;
         }, 300);
-
       }, 4000);
 
-      // Progress simulation
+      
       const interval = setInterval(() => {
         progress += Math.random() * 7;
-
         if (progress >= 100) {
           progress = 100;
           clearInterval(interval);
-
-          setTimeout(() => {
-            document.body.classList.add("fade-out");
-          }, 500);
-
-          setTimeout(() => {
-            window.location.href = "/browse";
-          }, 1200);
+          setTimeout(() => { document.body.classList.add("fade-out"); }, 500);
+          setTimeout(() => { window.location.href = "/browse"; }, 1200);
         }
-
-        percentEl.innerText = Math.floor(progress) + "%";
-        bar.style.width = progress + "%";
-
+        percentEl.innerText  = Math.floor(progress) + "%";
+        bar.style.width      = progress + "%";
       }, 500);
     };
+  </script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <style>
+    .text-js { opacity: 0; }
+    .cursor {
+      display: block;
+      position: absolute;
+      height: 100%;
+      top: 0;
+      right: -5px;
+      width: 2px;
+      background-color: white;
+      z-index: 1;
+      animation: flash 0.5s none infinite alternate;
+    }
+    @keyframes flash {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .headline {
+      position: relative;
+      display: inline-block;
+      color: white;
+      text-align: center;
+    }
+    .headline h1 {
+      letter-spacing: 1.6px;
+      font-weight: 300;
+    }
+  </style>
+
+  <script>
+    function autoType(elementClass, typingSpeed, delay, callback) {
+      var thhis = $(elementClass);
+      thhis.css({ "position": "relative", "display": "inline-block" });
+      thhis.prepend('<div class="cursor" style="right:initial;left:0;"></div>');
+      thhis = thhis.find(".text-js");
+      var text = thhis.text().trim().split('');
+      var amntOfChars = text.length;
+      var newString = "";
+      thhis.text("|");
+      setTimeout(function() {
+        thhis.css("opacity", 1);
+        thhis.prev().removeAttr("style");
+        thhis.text("");
+        for (var i = 0; i < amntOfChars; i++) {
+          (function(i, char) {
+            setTimeout(function() {
+              newString += char;
+              thhis.text(newString);
+              if (i === amntOfChars - 1 && callback) {
+                setTimeout(callback, typingSpeed * 2);
+              }
+            }, i * typingSpeed);
+          })(i + 1, text[i]);
+        }
+      }, delay || 500);
+    }
+
+    $(document).ready(function() {
+      // Type first line, then second line after first finishes
+      autoType(".type-js:first", 60, 600, function() {
+        autoType(".type-js:last", 55, 200);
+      });
+    });
   </script>
 </head>
 
@@ -193,43 +230,46 @@ setInterval(() => {
 
   <div class="w-full max-w-lg px-6 flex flex-col items-center gap-10 text-center">
 
-    <!-- Title -->
-    <div class="flex flex-col items-center gap-2">
-      <h1 class="text-4xl font-bold tracking-tight">
-        Hidden Gems
-      </h1>
-      <p class="text-sm opacity-70 tracking-wide">
-        Finding your next NYC adventure
-      </p>
+    <!-- Title with typing effect -->
+    <div class="flex flex-col items-center gap-3">
+      <div class="type-js headline" style="
+        font-size: clamp(3.5rem, 10vw, 7rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        font-family: 'Georgia', serif;
+      ">
+        <h1 class="text-js">Hidden Gems</h1>
+      </div>
+      <!-- divider line -->
+      <div style="width:60px; height:2px; background:rgba(255,255,255,0.3); border-radius:999px; margin: 4px 0;"></div>
+      <div class="type-js headline" style="
+        font-size: clamp(0.75rem, 2vw, 1rem);
+        opacity: 0.5;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        font-weight: 400;
+      " id="subtitle-wrap">
+        <h1 class="text-js">Finding your next NYC adventure</h1>
+      </div>
     </div>
 
-    <!-- GIF (Upgraded) -->
-    <img 
-      src="/static/borough_load.gif"
-      alt="Loading NYC"
-      class="w-56 md:w-72 rounded-3xl shadow-2xl border border-white/20"
-      style="animation: float 4s ease-in-out infinite, glow 3s ease-in-out infinite;"
-    >
-
-    <!-- Borough -->
+    <!-- Borough typewriter -->
     <div class="text-xl">
-      Exploring 
-      <span id="borough" class="font-semibold transition-opacity duration-300">
-        Manhattan
-      </span>
+      Exploring
+      <span id="borough" class="font-semibold">Manhattan</span>
     </div>
 
-    <!-- Progress Bar -->
+    <!-- Progress bar -->
     <div class="w-full flex flex-col gap-2">
       <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-        <div id="bar" class="h-full bg-white rounded-full transition-all duration-300"></div>
+        <div id="bar" class="h-full bg-white rounded-full transition-all duration-300" style="width:0%"></div>
       </div>
       <div id="percent" class="text-sm opacity-70">0%</div>
     </div>
 
     <!-- Fact -->
-    <div id="fact"
-         class="text-sm opacity-80 max-w-md leading-relaxed transition-opacity duration-300">
+    <div id="fact" class="text-sm opacity-80 max-w-md leading-relaxed">
       Loading a hidden fact...
     </div>
 
