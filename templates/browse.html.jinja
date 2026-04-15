@@ -361,6 +361,19 @@ let doorScareTimer = 0;
 
 let hallwayShake = 0;
 
+let ventJumpscare = false;
+let ventJumpscareTimer = 0;
+
+
+let whisperText = "";
+let whisperOpacity = 0;
+
+
+let ventCorrectStreak = 0;
+let ventCorrectTimer = 0;
+let ventWrongTimer = 0;
+
+
 
 
 
@@ -502,9 +515,6 @@ function setupFloor(floor) {
       break;
     case 5:
       // Memory Loop Twins
-      break;
-    case 6:
-      // Final 6B
       break;
   }
 }
@@ -816,34 +826,74 @@ if (currentFloor === 2) {
   let ventX = correctVent === 1 ? 150 : 250;
   let wrongVentX = correctVent === 1 ? 250 : 150;
 
-  // Standing near correct vent
+  // ============================
+  // CORRECT VENT
+  // ============================
   if (Math.abs(player.x - ventX) < 40) {
-    ventTimer++;
-    screenFlash = 2; // subtle white pulse
+    ventCorrectTimer++;
 
-    if (ventTimer > 120) {
-      screenFlash = 20; // bright flash
-      startTransition();
+    if (ventCorrectTimer === 60) {
+      whisperText = "come closer";
+      whisperOpacity = 1;
     }
+
+    if (ventCorrectTimer > 120) {
+      ventCorrectStreak++;
+      ventCorrectTimer = 0;
+      correctVent = Math.random() < 0.5 ? 1 : 2; // new random vent
+    }
+
   } else {
-    ventTimer = 0;
+    ventCorrectTimer = 0;
   }
 
-  // Wrong vent danger flicker + heartbeat shake
+  // ============================
+  // WRONG VENT
+  // ============================
   if (Math.abs(player.x - wrongVentX) < 40) {
+    ventWrongTimer++;
 
-    // Red danger flicker
-    if (ghostTimer % 10 < 5) {
-      screenFlash = 5;
+    if (ventWrongTimer === 40) {
+      whisperText = "not that one";
+      whisperOpacity = 1;
     }
 
-    // ⭐ Step 5 — Heartbeat shake
-    hallwayShake = Math.sin(ghostTimer * 0.4) * 2;
-  } 
-  else {
-    // Reset shake when not near wrong vent
-    hallwayShake = 0;
+    if (ventWrongTimer > 90 && !ventJumpscare) {
+      ventJumpscare = true;
+      ventJumpscareTimer = 0;
+      ventCorrectStreak = 0; // reset streak
+    }
+
+  } else {
+    ventWrongTimer = 0;
   }
+
+  // ============================
+  // JUMPSCARE
+  // ============================
+  if (ventJumpscare) {
+    ventJumpscareTimer++;
+
+    if (ventJumpscareTimer < 20) screenFlash = 20;
+
+    deathShake = Math.sin(ventJumpscareTimer * 2) * 6;
+
+    if (ventJumpscareTimer > 40) {
+      ventJumpscare = false;
+      triggerDeath();
+    }
+  }
+
+  // ============================
+  // EXIT DOOR APPEARS AFTER 5 CORRECT GUESSES
+  // ============================
+  if (ventCorrectStreak >= 5) {
+    startTransition();
+  }
+}
+
+
+
 
 }
 
@@ -889,26 +939,7 @@ if (currentFloor === 2) {
     }
   }
 
-  /* FLOOR 6 — SURVIVAL */
-  if (currentFloor === 6) {
-    survivalTimer++;
-
-    if (ghostTimer % 100 === 0) {
-      flickerActive = true;
-      flickerTimer = 0;
-    }
-
-    if (flickerActive) {
-      flickerTimer++;
-      if (player.dir === -1) triggerDeath();
-      if (flickerTimer > 40) flickerActive = false;
-    }
-
-    if (survivalTimer > 600) {
-      endGameWin();
-      return;
-    }
-  }
+  
 
  // Floor completion
 if (player.x >= 440 && !transitionActive && !deathActive && !doorScare) {
@@ -922,7 +953,7 @@ if (player.x >= 440 && !transitionActive && !deathActive && !doorScare) {
 
   // Normal transition for other floors
   currentFloor++;
-  if (currentFloor > 6) {
+  if (currentFloor > 5) {
     endGameWin();
     return;
   }
@@ -1111,26 +1142,14 @@ function drawHallwayFloor2() {
   ctx.lineTo(480, 212);
   ctx.stroke();
 
-  // Vents
   ctx.strokeStyle = "white";
-  ctx.strokeRect(150, 180, 20, 20);
-  ctx.strokeRect(250, 180, 20, 20);
+ctx.strokeRect(150, 180, 20, 20);
+ctx.strokeRect(250, 180, 20, 20);
+
 
   // Glow on correct vent
-  let glow = Math.sin(ghostTimer * 0.1) * 0.1 + 0.2;
-  let ventX = correctVent === 1 ? 150 : 250;
 
-  ctx.fillStyle = `rgba(255,0,0,${glow})`;
-  ctx.fillRect(ventX, 180, 20, 20);
-
-  // Creature silhouette behind correct vent
-  ctx.fillStyle = "rgba(255,0,0,0.15)";
-  ctx.fillRect(ventX + 4, 184, 12, 12);
   // Steam bursts from pipes
-if (ghostTimer % 60 < 10) {
-  ctx.fillStyle = "rgba(255,255,255,0.1)";
-  ctx.fillRect(60 + (correctVent === 1 ? 0 : 140), 150, 40, 20);
-}
 // Exit door
 ctx.strokeStyle = "white";
 ctx.strokeRect(440, 150, 30, 60);
@@ -1146,63 +1165,78 @@ ctx.fillRect(440, 150, 30, 60);
 
 
 /* ============================
-   DRAW GHOST (placeholder)
+   DRAW GHOST
    ============================ */
 function drawGhost() {
- if (currentFloor === 1) {
-  drawCrawler(crawlerX, player.y - 12);
-}
+  if (currentFloor === 1) {
+    drawCrawler(crawlerX, player.y - 12);
+  }
 
+  if (currentFloor === 3 && flickerActive) {
+    ctx.fillStyle = "white";
+    ctx.fillRect(400, 100, 20, 40);
+  }
+
+  if (currentFloor === 4) {
+    ctx.strokeStyle = scratching ? "red" : "white";
+    ctx.strokeRect(300, 150, 40, 60);
+  }
+
+  if (currentFloor === 5) {
+    ctx.fillStyle = loopFreeze ? "white" : "rgba(255,255,255,0.3)";
+    ctx.fillRect(200, 180, 10, 20);
+    ctx.fillRect(230, 180, 10, 20);
+  }
+}
 
 function drawCrawler(x, y) {
   const white = "white";
   const red = "red";
 
   const frames = [
-  [ // Frame 0 — crawl 1
-    "....####....",
-    "...######...",
-    "..###R###...",
-    "..######....",
-    "..###.###...",
-    "..##...##...",
-    "..##...##...",
-    "..##...##...",
-    "..###.###...",
-    "..######....",
-    "...####.....",
-    "....##......"
-  ],
-  [ // Frame 1 — crawl 2
-    "....####....",
-    "...######...",
-    "..###R###...",
-    "..######....",
-    "..###.###...",
-    "..##...##...",
-    "..##...##...",
-    "..###.###...",
-    "..######....",
-    "...####.....",
-    "....####....",
-    ".....##....."
-  ],
-  [ // Frame 2 — LUNGE ATTACK
-    "..########..",
-    ".##########.",
-    "###RRRRRR###",
-    "###########.",
-    "###########.",
-    ".###....###.",
-    ".###....###.",
-    ".###....###.",
-    "..########..",
-    "...######...",
-    "....####....",
-    ".....##....."
-  ]
-];
-
+    [ // Frame 0 — crawl 1
+      "....####....",
+      "...######...",
+      "..###R###...",
+      "..######....",
+      "..###.###...",
+      "..##...##...",
+      "..##...##...",
+      "..##...##...",
+      "..###.###...",
+      "..######....",
+      "...####.....",
+      "....##......"
+    ],
+    [ // Frame 1 — crawl 2
+      "....####....",
+      "...######...",
+      "..###R###...",
+      "..######....",
+      "..###.###...",
+      "..##...##...",
+      "..##...##...",
+      "..###.###...",
+      "..######....",
+      "...####.....",
+      "....####....",
+      ".....##....."
+    ],
+    [ // Frame 2 — LUNGE ATTACK
+      "..########..",
+      ".##########.",
+      "###RRRRRR###",
+      "###########.",
+      "###########.",
+      ".###....###.",
+      ".###....###.",
+      ".###....###.",
+      "..########..",
+      "...######...",
+      "....####....",
+      ".....##....."
+    ]
+  ];
 
   const pixels = frames[crawlerFrame];
 
@@ -1224,15 +1258,8 @@ function drawCrawler(x, y) {
 
 
 
-  if (currentFloor === 2) {
-    ctx.fillStyle = "red";
-    ctx.fillRect(150, 180, 20, 20);
-    ctx.fillRect(250, 180, 20, 20);
 
-    ctx.fillStyle = "white";
-    let ventX = correctVent === 1 ? 150 : 250;
-    ctx.fillRect(ventX, 180, 20, 20);
-  }
+  
 
   if (currentFloor === 3 && flickerActive) {
     ctx.fillStyle = "white";
@@ -1250,11 +1277,6 @@ function drawCrawler(x, y) {
     ctx.fillRect(230, 180, 10, 20);
   }
 
-  if (currentFloor === 6 && flickerActive) {
-    ctx.fillStyle = "white";
-    ctx.fillRect(100, 150, 10, 20);
-    ctx.fillRect(300, 150, 10, 20);
-  }
 }
 
 /* ============================
@@ -1295,6 +1317,23 @@ if (currentFloor === 1) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     screenFlash--;
   }
+
+  // ============================
+// WHISPER TEXT OVERLAY
+// ============================
+if (whisperOpacity > 0) {
+  ctx.globalAlpha = whisperOpacity;
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
+  ctx.font = "10px serif";
+  ctx.textAlign = "center";
+  ctx.fillText(whisperText, canvas.width / 2, 40);
+
+  whisperOpacity -= 0.01; // fade out
+  if (whisperOpacity < 0) whisperOpacity = 0;
+
+  ctx.globalAlpha = 1;
+}
+
 
   // 7. Restore ALWAYS (outside the flash block)
   ctx.restore();
