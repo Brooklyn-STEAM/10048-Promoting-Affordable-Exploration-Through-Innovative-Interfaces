@@ -222,7 +222,6 @@ def toggle_like(n, loc_id):
 @app.route("/borough/<path:n>/add", methods=["POST"])
 @login_required
 def add_location(n):
-    # n is the URL slug e.g. "staten-island"
     borough_name = n.replace("-", " ")
     borough = next((b for b in BOROUGHS if b["name"] == borough_name), None)
     if not borough:
@@ -236,7 +235,7 @@ def add_location(n):
         flash("Please fill in the name and address")
         return redirect(f"/borough/{n}")
 
-   
+    # 🖼️ Handle image upload
     image = request.files.get("image")
     filename = None
     if image and image.filename and allowed_file(image.filename):
@@ -244,16 +243,31 @@ def add_location(n):
         filename = str(uuid.uuid4()) + "_" + secure_filename(image.filename)
         image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
 
+    # 🕒 Parse hours
+    days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+    hours_list = []
+    for d in days:
+        open_t = request.form.get(f"hours_{d}_open")
+        close_t = request.form.get(f"hours_{d}_close")
+        if open_t and close_t:
+            hours_str = f"{open_t} – {close_t}"
+        else:
+            hours_str = "Closed"
+        hours_list.append({"name": d, "hours": hours_str, "today": False})
+    hours_json = json.dumps(hours_list)
+
+    # 💾 Insert into DB
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("""
-        INSERT INTO `Location` (UserID, Name, Address, Description, Borough, Image)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (current_user.id, loc_name, address, description, borough_name, filename))
+        INSERT INTO `Location` (UserID, Name, Address, Description, Borough, Image, Hours)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, (current_user.id, loc_name, address, description, borough_name, filename, hours_json))
     connection.close()
 
     flash(f'"{loc_name}" added!')
     return redirect(f"/borough/{n}")
+
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -385,22 +399,27 @@ if __name__ == "__main__":
 
 
 
-@app.post("/borough/<slug>/delete/<int:id>")
-def delete_location(slug, id):
-    user_id = session.get("user_id")
-    if not user_id:
-        return jsonify({"success": False, "error": "Not logged in"})
+@app.route("/borough/<path:n>/delete/<int:loc_id>", methods=["POST"])
+@login_required
+def delete_location(n, loc_id):
+    from flask import jsonify
+    connection = connect_db()
+    cursor = connection.cursor()
 
-    loc = Location.query.get(id)
-    if not loc:
+    cursor.execute("SELECT UserID FROM `Location` WHERE ID = %s", (loc_id,))
+    row = cursor.fetchone()
+
+    if not row:
+        connection.close()
         return jsonify({"success": False, "error": "Not found"})
 
-    # Only the owner can delete
-    if loc.UserID != user_id:
+    if row["UserID"] != current_user.id:
+        connection.close()
         return jsonify({"success": False, "error": "Not allowed"})
 
-    db.session.delete(loc)
-    db.session.commit()
+    cursor.execute("DELETE FROM `Like` WHERE LocationID = %s", (loc_id,))
+    cursor.execute("DELETE FROM `Location` WHERE ID = %s", (loc_id,))
+    connection.close()
 
     return jsonify({"success": True})
 
