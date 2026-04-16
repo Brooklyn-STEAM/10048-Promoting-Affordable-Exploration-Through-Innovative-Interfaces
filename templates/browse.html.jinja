@@ -318,9 +318,14 @@
    EASTER EGG TRIGGER (10 CLICKS)
    ============================ */
 let horrorClicks = 0;
-const centerImg = document.querySelector(".borough-img-wrap");
+window.addEventListener("load", () => {
+  const centerImg = document.querySelector(".borough-img-wrap");
 
-if (centerImg) {
+  if (!centerImg) {
+    console.warn("borough-img-wrap not found");
+    return;
+  }
+
   centerImg.addEventListener("click", () => {
     horrorClicks++;
     if (horrorClicks >= 10) {
@@ -328,7 +333,8 @@ if (centerImg) {
       startPixelHorrorGame();
     }
   });
-}
+});
+
 
 /* ============================
    GAME VARIABLES
@@ -952,11 +958,11 @@ if (player.x >= 440 && !transitionActive && !deathActive && !doorScare) {
   }
 
   // Normal transition for other floors
-  currentFloor++;
-  if (currentFloor > 5) {
-    endGameWin();
-    return;
+  if (currentFloor > 3) {
+  endGameWin();
+  return;
   }
+
   startTransition();
 }
 

@@ -482,10 +482,12 @@
     <!-- SCROLLABLE CONTENT -->
     <div class="flex-1 overflow-y-auto px-6 pb-6 space-y-4">
 
-      <form method="POST"
-            action="/borough/{{ borough.name | replace(' ', '-') }}/add"
-            enctype="multipart/form-data"
-            class="space-y-4">
+      <form id="add-location-form"
+      method="POST"
+      action="/borough/{{ borough.name | replace(' ', '-') }}/add"
+      enctype="multipart/form-data"
+      class="space-y-4">
+
 
         <!-- NAME -->
         <div>
@@ -760,6 +762,63 @@ async function confirmDelete() {
   const loc = locations[lbIndex];
   if (!loc) return;
 
+  // Determine open/closed
+const openStatus = document.getElementById('lb-open-status');
+
+let isOpen = false;
+
+// Determine today's hours
+if (loc.Hours && Array.isArray(loc.Hours)) {
+  const jsDay = new Date().getDay(); // 0=Sun
+  const map = [6,0,1,2,3,4,5];       // convert JS → Mon–Sun order
+  const today = loc.Hours[map[jsDay]];
+
+  if (today && today.hours && today.hours !== "Closed") {
+    isOpen = true;
+  }
+}
+
+// Apply styles
+if (isOpen) {
+  openStatus.style.display = "inline-flex";
+  openStatus.innerHTML = `
+    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+    Open now
+  `;
+  openStatus.style.color = "rgb(74,222,128)"; // green-400
+  openStatus.style.borderColor = "rgba(74,222,128,0.3)";
+  openStatus.style.background = "rgba(74,222,128,0.1)";
+} else {
+  openStatus.style.display = "inline-flex";
+  openStatus.innerHTML = `
+    <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+    Closed
+  `;
+  openStatus.style.color = "rgb(239,68,68)"; // red-400
+  openStatus.style.borderColor = "rgba(239,68,68,0.3)";
+  openStatus.style.background = "rgba(239,68,68,0.1)";
+}
+
+
+// Update badge
+if (isOpen) {
+  openStatus.style.display = "inline-flex";
+  openStatus.innerHTML = `
+    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+    Open now
+  `;
+} else {
+  openStatus.style.display = "inline-flex";
+  openStatus.innerHTML = `
+    <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+    Closed
+  `;
+  openStatus.style.color = "rgb(239,68,68)";
+  openStatus.style.borderColor = "rgba(239,68,68,0.3)";
+  openStatus.style.background = "rgba(239,68,68,0.1)";
+}
+
+
   // Counter
   document.getElementById('lb-counter').textContent =
     `${lbIndex + 1} / ${lbTotal}`;
@@ -838,13 +897,36 @@ async function confirmDelete() {
         <span class="text-[11px] tracking-[.08em] uppercase font-mono">${day.name}</span>
         <span class="text-[11px] font-mono ${day.today ? 'font-bold' : ''}"
               style="${day.today ? 'color: var(--accent)' : ''}">
-          ${day.hours}
+          ${formatHours(day.hours)}
         </span>
       `;
 
       hoursEl.appendChild(row);
     });
   }
+
+  function formatHours(hoursStr) {
+  if (!hoursStr || hoursStr === "Closed") return "Closed";
+
+  const parts = hoursStr.split(" – ");
+  if (parts.length !== 2) return hoursStr; // fallback
+
+  const [open, close] = parts;
+
+  return `${to12Hour(open)} – ${to12Hour(close)}`;
+}
+
+function to12Hour(timeStr) {
+  if (!timeStr || !timeStr.includes(":")) return timeStr;
+
+  let [h, m] = timeStr.split(":").map(Number);
+  const suffix = h >= 12 ? "PM" : "AM";
+  h = (h % 12) || 12;
+
+  return `${h}:${m.toString().padStart(2, "0")} ${suffix}`;
+}
+
+
 
   // Likes
   document.getElementById('lb-like-count').textContent =
