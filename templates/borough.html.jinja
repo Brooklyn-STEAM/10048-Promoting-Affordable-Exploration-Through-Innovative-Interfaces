@@ -762,42 +762,54 @@ async function confirmDelete() {
   const loc = locations[lbIndex];
   if (!loc) return;
 
-  // Determine open/closed
+ // Determine open/closed
 const openStatus = document.getElementById('lb-open-status');
-
 let isOpen = false;
 
-// Determine today's hours
 if (loc.Hours && Array.isArray(loc.Hours)) {
   const jsDay = new Date().getDay(); // 0=Sun
   const map = [6,0,1,2,3,4,5];       // convert JS → Mon–Sun order
   const today = loc.Hours[map[jsDay]];
 
   if (today && today.hours && today.hours !== "Closed") {
-    isOpen = true;
+    const [openStr, closeStr] = today.hours.split(" – ");
+
+    const now = new Date();
+
+    const [openH, openM] = openStr.split(":").map(Number);
+    const [closeH, closeM] = closeStr.split(":").map(Number);
+
+    const openTime = new Date();
+    openTime.setHours(openH, openM, 0);
+
+    const closeTime = new Date();
+    closeTime.setHours(closeH, closeM, 0);
+
+    if (now >= openTime && now <= closeTime) {
+      isOpen = true;
+    }
   }
 }
 
 // Apply styles
 if (isOpen) {
-  openStatus.style.display = "inline-flex";
   openStatus.innerHTML = `
     <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
     Open now
   `;
-  openStatus.style.color = "rgb(74,222,128)"; // green-400
+  openStatus.style.color = "rgb(74,222,128)";
   openStatus.style.borderColor = "rgba(74,222,128,0.3)";
   openStatus.style.background = "rgba(74,222,128,0.1)";
 } else {
-  openStatus.style.display = "inline-flex";
   openStatus.innerHTML = `
     <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
     Closed
   `;
-  openStatus.style.color = "rgb(239,68,68)"; // red-400
+  openStatus.style.color = "rgb(239,68,68)";
   openStatus.style.borderColor = "rgba(239,68,68,0.3)";
   openStatus.style.background = "rgba(239,68,68,0.1)";
 }
+
 
 
 // Update badge

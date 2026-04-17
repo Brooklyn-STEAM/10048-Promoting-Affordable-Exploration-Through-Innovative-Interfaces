@@ -189,7 +189,8 @@
   <div class="arc-ring"></div>
   <div class="arc-ring"></div>
 
-  <div class="borough-img-wrap">
+  <div class="borough-img-wrap" id="centerImage">
+
     <img src="{{ url_for('static', filename='images/' + selected.name + '.png') }}"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
          style="width:100%; height:100%; object-fit:cover;">
@@ -293,40 +294,34 @@
   autoSpawn();
 </script>
 
-<!-- ========================= -->
-<!--  PIXEL HORROR GAME OVERLAY -->
-<!-- ========================= -->
-<div id="pixel-horror-overlay" 
+<!-- PIXEL HORROR GAME OVERLAY -->
+<div id="pixel-horror-overlay"
      style="display:none; position:fixed; inset:0; background:black; z-index:999999;">
-
-  <!-- Canvas -->
   <canvas id="horrorCanvas" width="480" height="270"
-          style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) scale(2); 
+          style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) scale(2);
                  image-rendering:pixelated; background:black;">
   </canvas>
-
-  <!-- Exit Button -->
   <button id="exitHorrorGame"
-          style="position:absolute; top:20px; right:20px; padding:6px 12px; 
-                 background:#111; color:#fff; border:1px solid #444; cursor:pointer;">
+          style="position:absolute; top:20px; right:20px; padding:6px 12px;
+                 background:#111; color:#fff; border:1px solid #444; cursor:pointer; z-index:10;">
     Exit
   </button>
+  <div id="horrorControls"
+       style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+              color:rgba(255,255,255,0.4); font-size:11px; letter-spacing:0.15em; text-transform:uppercase;">
+    A / D to move
+  </div>
 </div>
-
 <script>
 /* ============================
    EASTER EGG TRIGGER (10 CLICKS)
    ============================ */
 let horrorClicks = 0;
 window.addEventListener("load", () => {
-  const centerImg = document.querySelector(".borough-img-wrap");
-
-  if (!centerImg) {
-    console.warn("borough-img-wrap not found");
-    return;
-  }
-
-  centerImg.addEventListener("click", () => {
+  const centerImg = document.getElementById("centerImage");
+  if (!centerImg) { console.warn("centerImage not found"); return; }
+  centerImg.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
     horrorClicks++;
     if (horrorClicks >= 10) {
       horrorClicks = 0;
@@ -334,8 +329,6 @@ window.addEventListener("load", () => {
     }
   });
 });
-
-
 /* ============================
    GAME VARIABLES
    ============================ */
@@ -344,118 +337,74 @@ let player = { x: 20, y: 200, dir: 1, speed: 1.2 };
 let keys = {};
 let currentFloor = 1;
 let gameRunning = false;
-
-let ghostActive = false;
 let ghostTimer = 0;
-
+// Floor 1 — Crawler
 let crawlerX = -40;
 let crawlerSpeed = 0.4;
-
 let crawlerFrame = 0;
 let crawlerAnimTimer = 0;
-
 let crawlerFlicker = false;
 let crawlerFlickerTimer = 0;
-
 let crawlerLunge = false;
 let crawlerLungeTimer = 0;
 let screenFlash = 0;
-
-
 let doorScare = false;
 let doorScareTimer = 0;
-
 let hallwayShake = 0;
-
-let ventJumpscare = false;
-let ventJumpscareTimer = 0;
-
-
-let whisperText = "";
-let whisperOpacity = 0;
-
-
+// Floor 2 — Pipe Whisperer
 let ventCorrectStreak = 0;
 let ventCorrectTimer = 0;
 let ventWrongTimer = 0;
-
-
-
-
-
-
-
-
-
-/* ============================
-   CINEMATIC INTRO VARIABLES
-   ============================ */
+let ventJumpscare = false;
+let ventJumpscareTimer = 0;
+let whisperText = "";
+let whisperOpacity = 0;
+let correctVent = 1;
+// Floor 3 — Lightkeeper
+let flickerActive = false;
+let flickerTimer = 0;
+// Floor 4 — Door Scratcher
+let scratching = false;
+let scratchTimer = 0;
+// Floor 5 — Memory Loop Twins
+let loopTimer = 0;
+let loopFreeze = false;
+let survivalTimer = 0;
+// Intro / transition / death
 let introActive = false;
 let introOpacity = 0;
 let introTimer = 0;
 let introTitle = "THE BUILDING THAT REMEMBERS";
-
-/* ============================
-   DEATH ANIMATION VARIABLES
-   ============================ */
 let deathActive = false;
 let deathTimer = 0;
 let deathShake = 0;
-
-/* ============================
-   GHOST MECHANIC VARIABLES
-   ============================ */
-let correctVent = 1;
-let ventTimer = 0;
-
-let flickerActive = false;
-let flickerTimer = 0;
-
-let scratching = false;
-let scratchTimer = 0;
-
-let loopTimer = 0;
-let loopFreeze = false;
-
-let survivalTimer = 0;
-
-/* ============================
-   ELEVATOR TRANSITION
-   ============================ */
 let transitionActive = false;
 let transitionTimer = 0;
-
 /* ============================
    START GAME
    ============================ */
 function startPixelHorrorGame() {
   document.getElementById("pixel-horror-overlay").style.display = "block";
-
   canvas = document.getElementById("horrorCanvas");
   ctx = canvas.getContext("2d");
-
   currentFloor = 1;
-  gameRunning = true;
-
-  // Reset player
+  gameRunning = false; // will be set true after intro
   player.x = 20;
   player.y = 200;
   player.dir = 1;
-
-  // Reset states
+  player.speed = 1.2;
   deathActive = false;
   transitionActive = false;
   ghostTimer = 0;
   survivalTimer = 0;
-
-  // Start intro
+  screenFlash = 0;
+  deathShake = 0;
+  hallwayShake = 0;
   introActive = true;
   introOpacity = 0;
   introTimer = 0;
-
   requestAnimationFrame(gameLoop);
 }
-
 /* ============================
    EXIT GAME
    ============================ */
@@ -466,39 +415,27 @@ document.getElementById("exitHorrorGame").onclick = () => {
   transitionActive = false;
   deathActive = false;
 };
-
 /* ============================
    KEYBOARD INPUT
    ============================ */
-document.addEventListener("keydown", e => {
-  keys[e.key.toLowerCase()] = true;
-});
-
-document.addEventListener("keyup", e => {
-  keys[e.key.toLowerCase()] = false;
-});
-
-
+document.addEventListener("keydown", e => { keys[e.key] = true; });
+document.addEventListener("keyup",   e => { keys[e.key] = false; });
 /* ============================
    FLOOR SETUP
    ============================ */
 function setupFloor(floor) {
-  ghostActive = false;
   ghostTimer = 0;
+  survivalTimer = 0;
   player.x = 20;
   player.y = 200;
-
-  ventTimer = 0;
-  flickerActive = false;
-  scratching = false;
-  scratchTimer = 0;
-  loopTimer = 0;
-  loopFreeze = false;
-  survivalTimer = 0;
-
-  switch (floor) {
-    case 1:
-  // Hallway Crawler
+  player.speed = 1.2;
+  player.dir = 1;
+  screenFlash = 0;
+  deathShake = 0;
+  hallwayShake = 0;
+  whisperText = "";
+  whisperOpacity = 0;
+  // Floor 1
   crawlerX = -40;
   crawlerSpeed = 0.4;
   crawlerFrame = 0;
@@ -507,91 +444,79 @@ function setupFloor(floor) {
   crawlerFlickerTimer = 0;
   crawlerLunge = false;
   crawlerLungeTimer = 0;
-  break;
-
-    case 2:
-      // Pipe Whisperer
-      correctVent = Math.random() < 0.5 ? 1 : 2;
-      break;
-    case 3:
-      // Lightkeeper
-      break;
-    case 4:
-      // Door Scratcher
-      break;
-    case 5:
-      // Memory Loop Twins
-      break;
-  }
+  doorScare = false;
+  doorScareTimer = 0;
+  // Floor 2
+  ventCorrectStreak = 0;
+  ventCorrectTimer = 0;
+  ventWrongTimer = 0;
+  ventJumpscare = false;
+  ventJumpscareTimer = 0;
+  correctVent = Math.random() < 0.5 ? 1 : 2;
+  // Floor 3
+  flickerActive = false;
+  flickerTimer = 0;
+  // Floor 4
+  scratching = false;
+  scratchTimer = 0;
+  // Floor 5
+  loopTimer = 0;
+  loopFreeze = false;
 }
-
 /* ============================
-   INTRO DRAW
+   INTRO
    ============================ */
 function drawIntro() {
   introTimer++;
-
-  if (introTimer < 120) {
-    introOpacity = introTimer / 120;
-  } else if (introTimer < 240) {
-    introOpacity = 1;
-  } else if (introTimer < 360) {
-    introOpacity = 1 - ((introTimer - 240) / 120);
-  } else {
+  if (introTimer < 120)       introOpacity = introTimer / 120;
+  else if (introTimer < 240)  introOpacity = 1;
+  else if (introTimer < 360)  introOpacity = 1 - ((introTimer - 240) / 120);
+  else {
     introActive = false;
     gameRunning = true;
-
     setupFloor(currentFloor);
     return;
   }
-
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   ctx.globalAlpha = introOpacity;
   ctx.fillStyle = "white";
   ctx.font = "20px serif";
   ctx.textAlign = "center";
   ctx.fillText(introTitle, canvas.width / 2, canvas.height / 2);
-
   if (Math.random() < 0.05) {
     ctx.fillStyle = "rgba(255,0,0,0.2)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
-
   ctx.globalAlpha = 1;
 }
-
 /* ============================
    ELEVATOR TRANSITION
    ============================ */
 function startTransition() {
   transitionActive = true;
   transitionTimer = 0;
+  gameRunning = false;
 }
-
 function drawTransition() {
   transitionTimer++;
-
   let opacity = Math.min(1, transitionTimer / 60);
   ctx.fillStyle = `rgba(0,0,0,${opacity})`;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   if (transitionTimer > 60 && transitionTimer < 120) {
     ctx.fillStyle = "rgba(255,255,255,0.4)";
     ctx.font = "12px serif";
     ctx.textAlign = "center";
     ctx.fillText("THE BUILDING REMEMBERS...", canvas.width / 2, canvas.height / 2);
   }
-
   if (transitionTimer >= 150) {
     transitionActive = false;
+    gameRunning = true;
     setupFloor(currentFloor);
   }
 }
-
 /* ============================
-   CINEMATIC DEATH ANIMATION
+   DEATH
    ============================ */
 function triggerDeath() {
   if (deathActive) return;
@@ -599,84 +524,69 @@ function triggerDeath() {
   deathTimer = 0;
   gameRunning = false;
 }
-
 function drawDeath() {
   deathTimer++;
-
   deathShake = Math.sin(deathTimer * 0.5) * 4;
-
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   if (deathTimer < 30 || (deathTimer % 20 < 10)) {
     ctx.fillStyle = "rgba(255,0,0,0.3)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
-
   if (deathTimer < 40) {
     ctx.fillStyle = "white";
-    ctx.fillRect(
-      canvas.width / 2 - 20 + deathShake,
-      canvas.height / 2 - 20,
-      40,
-      40
-    );
+    ctx.fillRect(canvas.width / 2 - 20 + deathShake, canvas.height / 2 - 20, 40, 40);
   }
-
   if (deathTimer > 40) {
     ctx.fillStyle = deathTimer % 15 < 7 ? "white" : "red";
     ctx.font = "20px serif";
     ctx.textAlign = "center";
-
     let glitch = Math.random() < 0.2 ? (Math.random() * 10 - 5) : 0;
-
-    ctx.fillText(
-      "THE BUILDING THAT REMEMBERS",
-      canvas.width / 2 + glitch,
-      canvas.height / 2
-    );
+    ctx.fillText("THE BUILDING THAT REMEMBERS", canvas.width / 2 + glitch, canvas.height / 2);
   }
-
   if (deathTimer > 180) {
-    document.getElementById("pixel-horror-overlay").style.display = "none";
+    // Restart from floor 1
+    currentFloor = 1;
     deathActive = false;
+    introActive = true;
+    introOpacity = 0;
+    introTimer = 0;
   }
 }
-
 /* ============================
-   END GAME (WIN)
+   WIN
    ============================ */
 function endGameWin() {
   gameRunning = false;
-
   let t = 0;
   function finalSequence() {
     t++;
-
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     ctx.fillStyle = t % 20 < 10 ? "white" : "red";
     ctx.font = "20px serif";
     ctx.textAlign = "center";
-
     let glitch = Math.random() < 0.1 ? (Math.random() * 10 - 5) : 0;
     ctx.fillText("THE BUILDING THAT REMEMBERS", canvas.width / 2 + glitch, canvas.height / 2);
-
+    if (t === 80) {
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.font = "12px serif";
+      ctx.fillText("you escaped", canvas.width / 2, canvas.height / 2 + 30);
+    }
     if (t < 240) {
       requestAnimationFrame(finalSequence);
     } else {
       document.getElementById("pixel-horror-overlay").style.display = "none";
     }
   }
-
   finalSequence();
 }
-
 /* ============================
    GAME LOOP
    ============================ */
 function gameLoop() {
+  if (!document.getElementById("pixel-horror-overlay") ||
+      document.getElementById("pixel-horror-overlay").style.display === "none") return;
   if (introActive) {
     drawIntro();
   } else if (transitionActive) {
@@ -687,254 +597,159 @@ function gameLoop() {
     update();
     draw();
   }
-
   requestAnimationFrame(gameLoop);
 }
-
 /* ============================
-   UPDATE LOGIC
+   UPDATE
    ============================ */
 function update() {
-  // Floor 5 freeze: still check for forbidden input, but no movement
-  if (loopFreeze) {
+  ghostTimer++;
+  /* ---------- FLOOR 5 FREEZE ---------- */
+  if (loopFreeze && currentFloor === 5) {
     loopTimer++;
-    if (keys["ArrowLeft"] || keys["ArrowRight"]) triggerDeath();
+    if (keys["ArrowLeft"] || keys["ArrowRight"] || keys["a"] || keys["d"]) {
+      triggerDeath();
+      return;
+    }
     if (loopTimer > 200) {
       loopTimer = 0;
       loopFreeze = false;
     }
     return;
   }
-
-  // Movement
-  if (keys["d"] || keys["D"]) {
-  player.x += player.speed;
-  player.dir = 1;
-}
-
-if (keys["a"] || keys["A"]) {
-  player.x -= player.speed;
-  player.dir = -1;
-}
-
-
-  // Clamp
-  if (player.x < 10) player.x = 10;
+  /* ---------- MOVEMENT ---------- */
+  if (keys["d"] || keys["D"]) { player.x += player.speed; player.dir = 1; }
+  if (keys["a"] || keys["A"]) { player.x -= player.speed; player.dir = -1; }
+  if (player.x < 10)  player.x = 10;
   if (player.x > 440) player.x = 440;
-
-  ghostTimer++;
-
-/* FLOOR 1 — CRAWLER */
-if (currentFloor === 1) {
-
-  // Turning around kills you
-  if (player.dir === -1) triggerDeath();
-
-
- // Crawler chases you (but not once it's lunging)
-if (!doorScare && !crawlerLunge) {
-  crawlerX += crawlerSpeed;
-}
-
-
-
-  // If crawler reaches player → death
-if (!doorScare && !crawlerLunge && crawlerX + 12 >= player.x) {
-  crawlerFrame = 2;
-  crawlerLunge = true;
-  crawlerLungeTimer = 0;
-}
-
-
-
-  // Animate crawler
-  crawlerAnimTimer++;
-  if (crawlerAnimTimer > 20) {
-    crawlerAnimTimer = 0;
-    crawlerFrame = (crawlerFrame + 1) % 2;
-  }
-
-  // D) Proximity panic (lights flicker when crawler is close)
-  if (player.x - crawlerX < 80) {   // within 80px
-    crawlerFlicker = true;
-  } else {
-    crawlerFlicker = false;
-    crawlerFlickerTimer = 0;
-  }
-
-  if (crawlerFlicker) {
-    crawlerFlickerTimer++;
-  }
-}
-
-// Proximity camera shake (gets stronger as crawler gets closer)
-let dist = player.x - crawlerX;
-if (dist < 120) {
-  hallwayShake = (120 - dist) * 0.05;  // smooth ramp
-} else {
-  hallwayShake = 0;
-}
-
-
-// Lunge attack sequence (Step 5)
-if (crawlerLunge) {
-  crawlerLungeTimer++;
-
-  // Flash red for dramatic effect
-  if (crawlerLungeTimer === 1) {
-    screenFlash = 20; 
-  }
-
-  // After 15 frames, kill the player
-  if (crawlerLungeTimer > 15) {
-    triggerDeath();
-  }
-}
-
-// ============================
-// DOOR ESCAPE SCARE (Floor 1)
-// ============================
-if (doorScare) {
-  doorScareTimer++;
-
-  // Freeze player + crawler
-  player.speed = 0;
-
-  // Flash + shake when crawler hits door
-  if (doorScareTimer === 20) {
-    screenFlash = 15;
-  }
-
-  // Screen shake effect
-  if (doorScareTimer > 20 && doorScareTimer < 50) {
-    deathShake = Math.sin(doorScareTimer * 1.5) * 3;
-  }
-
-  // After scare finishes → start normal transition
-  if (doorScareTimer > 60) {
-    doorScare = false;
-    player.speed = 1.2;
-
-    currentFloor++;
-    startTransition();
-  }
-}
-
-
-
-
-
-
-
-/* FLOOR 2 — PIPE WHISPERER */
-if (currentFloor === 2) {
-
-  let ventX = correctVent === 1 ? 150 : 250;
-  let wrongVentX = correctVent === 1 ? 250 : 150;
-
-  // ============================
-  // CORRECT VENT
-  // ============================
-  if (Math.abs(player.x - ventX) < 40) {
-    ventCorrectTimer++;
-
-    if (ventCorrectTimer === 60) {
-      whisperText = "come closer";
-      whisperOpacity = 1;
-    }
-
-    if (ventCorrectTimer > 120) {
-      ventCorrectStreak++;
-      ventCorrectTimer = 0;
-      correctVent = Math.random() < 0.5 ? 1 : 2; // new random vent
-    }
-
-  } else {
-    ventCorrectTimer = 0;
-  }
-
-  // ============================
-  // WRONG VENT
-  // ============================
-  if (Math.abs(player.x - wrongVentX) < 40) {
-    ventWrongTimer++;
-
-    if (ventWrongTimer === 40) {
-      whisperText = "not that one";
-      whisperOpacity = 1;
-    }
-
-    if (ventWrongTimer > 90 && !ventJumpscare) {
-      ventJumpscare = true;
-      ventJumpscareTimer = 0;
-      ventCorrectStreak = 0; // reset streak
-    }
-
-  } else {
-    ventWrongTimer = 0;
-  }
-
-  // ============================
-  // JUMPSCARE
-  // ============================
-  if (ventJumpscare) {
-    ventJumpscareTimer++;
-
-    if (ventJumpscareTimer < 20) screenFlash = 20;
-
-    deathShake = Math.sin(ventJumpscareTimer * 2) * 6;
-
-    if (ventJumpscareTimer > 40) {
-      ventJumpscare = false;
+  /* ---------- FLOOR 1: CRAWLER ---------- */
+  if (currentFloor === 1) {
+    // BUG FIX: Only trigger death if player actively moves left (key held), not just facing left
+    if ((keys["a"] || keys["A"]) && player.dir === -1) {
       triggerDeath();
+      return;
+    }
+    // Crawler advances (unless door scare or lunging)
+    if (!doorScare && !crawlerLunge) {
+      crawlerX += crawlerSpeed;
+    }
+    // Animate crawler frames
+    crawlerAnimTimer++;
+    if (crawlerAnimTimer > 20) {
+      crawlerAnimTimer = 0;
+      crawlerFrame = (crawlerFrame + 1) % 2;
+    }
+    // Proximity flicker
+    crawlerFlicker = (player.x - crawlerX) < 80;
+    if (crawlerFlicker) crawlerFlickerTimer++;
+    else crawlerFlickerTimer = 0;
+    // Camera shake based on proximity
+    let dist = player.x - crawlerX;
+    hallwayShake = dist < 120 ? (120 - dist) * 0.05 : 0;
+    // Crawler catches player → lunge
+    if (!doorScare && !crawlerLunge && crawlerX + 12 >= player.x) {
+      crawlerFrame = 2;
+      crawlerLunge = true;
+      crawlerLungeTimer = 0;
+    }
+    // Lunge sequence
+    if (crawlerLunge) {
+      crawlerLungeTimer++;
+      if (crawlerLungeTimer === 1) screenFlash = 20;
+      if (crawlerLungeTimer > 15) { triggerDeath(); return; }
+    }
+    // Door scare sequence
+    if (doorScare) {
+      doorScareTimer++;
+      player.speed = 0;
+      if (doorScareTimer === 20) screenFlash = 15;
+      if (doorScareTimer > 20 && doorScareTimer < 50) {
+        deathShake = Math.sin(doorScareTimer * 1.5) * 3;
+      }
+      if (doorScareTimer > 60) {
+        doorScare = false;
+        deathShake = 0;
+        currentFloor++;
+        startTransition();
+        return;
+      }
     }
   }
-
-  // ============================
-  // EXIT DOOR APPEARS AFTER 5 CORRECT GUESSES
-  // ============================
-  if (ventCorrectStreak >= 5) {
-    startTransition();
+  /* ---------- FLOOR 2: PIPE WHISPERER ---------- */
+  if (currentFloor === 2) {
+    let ventX      = correctVent === 1 ? 150 : 250;
+    let wrongVentX = correctVent === 1 ? 250 : 150;
+    // Correct vent
+    if (Math.abs(player.x - ventX) < 40) {
+      ventCorrectTimer++;
+      if (ventCorrectTimer === 60)  { whisperText = "come closer"; whisperOpacity = 1; }
+      if (ventCorrectTimer > 120) {
+        ventCorrectStreak++;
+        ventCorrectTimer = 0;
+        correctVent = Math.random() < 0.5 ? 1 : 2;
+      }
+    } else {
+      ventCorrectTimer = 0;
+    }
+    // Wrong vent
+    if (Math.abs(player.x - wrongVentX) < 40) {
+      ventWrongTimer++;
+      if (ventWrongTimer === 40)  { whisperText = "not that one"; whisperOpacity = 1; }
+      if (ventWrongTimer > 90 && !ventJumpscare) {
+        ventJumpscare = true;
+        ventJumpscareTimer = 0;
+        ventCorrectStreak = 0;
+      }
+    } else {
+      ventWrongTimer = 0;
+    }
+    // Jumpscare
+    if (ventJumpscare) {
+      ventJumpscareTimer++;
+      if (ventJumpscareTimer < 20) screenFlash = 20;
+      deathShake = Math.sin(ventJumpscareTimer * 2) * 6;
+      if (ventJumpscareTimer > 40) {
+        ventJumpscare = false;
+        triggerDeath();
+        return;
+      }
+    }
+    // 5 correct → advance
+    if (ventCorrectStreak >= 5 && !transitionActive) {
+      currentFloor++;
+      startTransition();
+      return;
+    }
   }
-}
-
-
-
-
-}
-
-
-
-
-  /* FLOOR 3 — LIGHTKEEPER */
+  /* ---------- FLOOR 3: LIGHTKEEPER ---------- */
   if (currentFloor === 3) {
     if (ghostTimer % 120 === 0) {
       flickerActive = true;
       flickerTimer = 0;
     }
-
     if (flickerActive) {
       flickerTimer++;
-      if (player.dir === -1) triggerDeath();
+      // BUG FIX: only die if moving left during flicker
+      if ((keys["a"] || keys["A"]) && player.dir === -1) { triggerDeath(); return; }
       if (flickerTimer > 40) flickerActive = false;
     }
   }
-
-  /* FLOOR 4 — DOOR SCRATCHER */
+  /* ---------- FLOOR 4: DOOR SCRATCHER ---------- */
   if (currentFloor === 4) {
     if (ghostTimer % 150 === 0) {
       scratching = true;
       scratchTimer = 0;
     }
-
     if (scratching) {
       scratchTimer++;
-      if (keys["ArrowLeft"] || keys["ArrowRight"]) triggerDeath();
+      if (keys["ArrowLeft"] || keys["ArrowRight"] || keys["a"] || keys["d"]) {
+        triggerDeath();
+        return;
+      }
       if (scratchTimer > 60) scratching = false;
     }
   }
-
-  /* FLOOR 5 — MEMORY LOOP TWINS */
+  /* ---------- FLOOR 5: MEMORY LOOP TWINS ---------- */
   if (currentFloor === 5) {
     loopTimer++;
     if (loopTimer < 120) {
@@ -944,38 +759,27 @@ if (currentFloor === 2) {
       loopFreeze = false;
     }
   }
-
-  
-
- // Floor completion
-if (player.x >= 440 && !transitionActive && !deathActive && !doorScare) {
-
-  // Trigger door scare ONLY on Floor 1
-  if (currentFloor === 1) {
-    doorScare = true;
-    doorScareTimer = 0;
-    return; // pause normal transition, let doorScare block handle the rest
+  /* ---------- FLOOR COMPLETION ---------- */
+  if (player.x >= 440 && !transitionActive && !deathActive && !doorScare) {
+    // Floor 1: door scare before advancing
+    if (currentFloor === 1) {
+      doorScare = true;
+      doorScareTimer = 0;
+      return;
+    }
+    // BUG FIX: win condition is floor >= 4 (floors 1-4, win after completing floor 4)
+    if (currentFloor >= 4) {
+      endGameWin();
+      return;
+    }
+    currentFloor++;
+    startTransition();
   }
-
-  // Normal transition for other floors
-  if (currentFloor > 3) {
-  endGameWin();
-  return;
-  }
-
-  startTransition();
 }
-
-
-}
-
 /* ============================
-   DRAW PLAYER (white silhouette)
+   DRAW PLAYER
    ============================ */
 function drawPlayerRight(x, y) {
-  const white = "white";
-  const red = "red";
-
   const pixels = [
     "....###.....",
     "...#####....",
@@ -992,26 +796,15 @@ function drawPlayerRight(x, y) {
     "...#####....",
     "...#####...."
   ];
-
   for (let py = 0; py < pixels.length; py++) {
     for (let px = 0; px < pixels[py].length; px++) {
       const p = pixels[py][px];
-      if (p === "#") {
-        ctx.fillStyle = white;
-        ctx.fillRect(x + px, y + py, 1, 1);
-      }
-      if (p === "R") {
-        ctx.fillStyle = red;
-        ctx.fillRect(x + px, y + py, 1, 1);
-      }
+      if (p === "#") { ctx.fillStyle = "white"; ctx.fillRect(x + px, y + py, 1, 1); }
+      if (p === "R") { ctx.fillStyle = "red";   ctx.fillRect(x + px, y + py, 1, 1); }
     }
   }
 }
-
 function drawPlayerLeft(x, y) {
-  const white = "white";
-  const red = "red";
-
   const pixels = [
     ".....###....",
     "....#####...",
@@ -1028,179 +821,24 @@ function drawPlayerLeft(x, y) {
     "....#####...",
     "....#####..."
   ];
-
   for (let py = 0; py < pixels.length; py++) {
     for (let px = 0; px < pixels[py].length; px++) {
       const p = pixels[py][px];
-      if (p === "#") {
-        ctx.fillStyle = white;
-        ctx.fillRect(x + px, y + py, 1, 1);
-      }
-      if (p === "R") {
-        ctx.fillStyle = red;
-        ctx.fillRect(x + px, y + py, 1, 1);
-      }
+      if (p === "#") { ctx.fillStyle = "white"; ctx.fillRect(x + px, y + py, 1, 1); }
+      if (p === "R") { ctx.fillStyle = "red";   ctx.fillRect(x + px, y + py, 1, 1); }
     }
   }
 }
 function drawPlayer() {
-  if (player.dir === 1) {
-    drawPlayerRight(player.x, player.y - 14);
-  } else {
-    drawPlayerLeft(player.x, player.y - 14);
-  }
+  if (player.dir === 1) drawPlayerRight(player.x, player.y - 14);
+  else                  drawPlayerLeft(player.x,  player.y - 14);
 }
-
-
 /* ============================
-   DRAW HALLWAY (noir style)
+   DRAW CRAWLER
    ============================ */
-function drawHallway() {
-  // Background darkness
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Subtle wall gradient
-  let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grd.addColorStop(0, "#0a0a0a");
-  grd.addColorStop(1, "#000000");
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Ceiling lights (dim, flickering)
-  ctx.fillStyle = crawlerFlicker ? "rgba(255,0,0,0.2)" : "rgba(255,255,255,0.05)";
-  ctx.fillRect(60, 20, 40, 6);
-  ctx.fillRect(200, 20, 40, 6);
-  ctx.fillRect(340, 20, 40, 6);
-
-  // Perspective floor lines
-  ctx.strokeStyle = "rgba(255,255,255,0.05)";
-  ctx.beginPath();
-  ctx.moveTo(0, 212);
-  ctx.lineTo(480, 212);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(0, 212);
-  ctx.lineTo(240, 260);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(480, 212);
-  ctx.lineTo(240, 260);
-  ctx.stroke();
-
-  // Wall grime / texture
-  for (let i = 0; i < 40; i++) {
-    ctx.fillStyle = "rgba(255,255,255,0.03)";
-    let x = Math.random() * 480;
-    let y = Math.random() * 200;
-    ctx.fillRect(x, y, 2, 2);
-  }
-
-  // EXIT DOOR (glowing + window)
-ctx.strokeStyle = "rgba(255,255,255,0.9)";
-ctx.lineWidth = 2;
-ctx.strokeRect(440, 150, 30, 60);
-
-// Door glow pulse
-let glow = Math.sin(ghostTimer * 0.1) * 0.1 + 0.2;
-ctx.fillStyle = `rgba(255,0,0,${glow})`;
-ctx.fillRect(440, 150, 30, 60);
-
-// Window slit
-ctx.fillStyle = "rgba(255,255,255,0.2)";
-ctx.fillRect(448, 160, 14, 8);
-
-// EXIT SIGN (flickering red)
-let exitFlicker = (ghostTimer % 20 < 10) ? 1 : 0.4;
-if (crawlerFlicker) exitFlicker = Math.random() * 0.6 + 0.2; // panic flicker
-
-ctx.fillStyle = `rgba(255,0,0,${exitFlicker})`;
-ctx.font = "10px serif";
-ctx.textAlign = "center";
-ctx.fillText("EXIT", 455, 145);
-ctx.fillStyle = "rgba(255,0,0,0.1)";
-ctx.fillRect(440, 150, 30, 10);
-
-
-}
-
-/* ============================
-   DRAW HALLWAY — FLOOR 2
-   ============================ */
-function drawHallwayFloor2() {
-  // Background
-  ctx.fillStyle = "#050505";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Vertical pipes
-  for (let i = 0; i < 6; i++) {
-    ctx.fillStyle = "rgba(255,255,255,0.03)";
-    ctx.fillRect(60 + i * 70, 0, 6, 270);
-  }
-
-  // Floor line
-  ctx.strokeStyle = "#222";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, 212);
-  ctx.lineTo(480, 212);
-  ctx.stroke();
-
-  ctx.strokeStyle = "white";
-ctx.strokeRect(150, 180, 20, 20);
-ctx.strokeRect(250, 180, 20, 20);
-
-
-  // Glow on correct vent
-
-  // Steam bursts from pipes
-// Exit door
-ctx.strokeStyle = "white";
-ctx.strokeRect(440, 150, 30, 60);
-
-ctx.fillStyle = "rgba(255,255,255,0.05)";
-ctx.fillRect(440, 150, 30, 60);
-
-
-}
-
-
-
-
-
-/* ============================
-   DRAW GHOST
-   ============================ */
-function drawGhost() {
-  if (currentFloor === 1) {
-    drawCrawler(crawlerX, player.y - 12);
-  }
-
-  if (currentFloor === 3 && flickerActive) {
-    ctx.fillStyle = "white";
-    ctx.fillRect(400, 100, 20, 40);
-  }
-
-  if (currentFloor === 4) {
-    ctx.strokeStyle = scratching ? "red" : "white";
-    ctx.strokeRect(300, 150, 40, 60);
-  }
-
-  if (currentFloor === 5) {
-    ctx.fillStyle = loopFreeze ? "white" : "rgba(255,255,255,0.3)";
-    ctx.fillRect(200, 180, 10, 20);
-    ctx.fillRect(230, 180, 10, 20);
-  }
-}
-
 function drawCrawler(x, y) {
-  const white = "white";
-  const red = "red";
-
   const frames = [
-    [ // Frame 0 — crawl 1
+    [ // Frame 0
       "....####....",
       "...######...",
       "..###R###...",
@@ -1214,7 +852,7 @@ function drawCrawler(x, y) {
       "...####.....",
       "....##......"
     ],
-    [ // Frame 1 — crawl 2
+    [ // Frame 1
       "....####....",
       "...######...",
       "..###R###...",
@@ -1228,7 +866,7 @@ function drawCrawler(x, y) {
       "....####....",
       ".....##....."
     ],
-    [ // Frame 2 — LUNGE ATTACK
+    [ // Frame 2 — LUNGE
       "..########..",
       ".##########.",
       "###RRRRRR###",
@@ -1243,113 +881,234 @@ function drawCrawler(x, y) {
       ".....##....."
     ]
   ];
-
-  const pixels = frames[crawlerFrame];
-
+  const pixels = frames[crawlerFrame] || frames[0];
   for (let py = 0; py < pixels.length; py++) {
     for (let px = 0; px < pixels[py].length; px++) {
       const p = pixels[py][px];
-      if (p === "#") {
-        ctx.fillStyle = white;
-        ctx.fillRect(x + px, y + py, 1, 1);
-      }
-      if (p === "R") {
-        ctx.fillStyle = red;
-        ctx.fillRect(x + px, y + py, 1, 1);
-      }
+      if (p === "#") { ctx.fillStyle = "white"; ctx.fillRect(x + px, y + py, 1, 1); }
+      if (p === "R") { ctx.fillStyle = "red";   ctx.fillRect(x + px, y + py, 1, 1); }
     }
   }
 }
-
-
-
-
-
-  
-
-  if (currentFloor === 3 && flickerActive) {
-    ctx.fillStyle = "white";
-    ctx.fillRect(400, 100, 20, 40);
+/* ============================
+   DRAW HALLWAY — FLOOR 1
+   ============================ */
+function drawHallway() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grd.addColorStop(0, "#0a0a0a");
+  grd.addColorStop(1, "#000000");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = crawlerFlicker ? "rgba(255,0,0,0.2)" : "rgba(255,255,255,0.05)";
+  ctx.fillRect(60, 20, 40, 6);
+  ctx.fillRect(200, 20, 40, 6);
+  ctx.fillRect(340, 20, 40, 6);
+  ctx.strokeStyle = "rgba(255,255,255,0.05)";
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(480, 212); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(240, 260); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(480, 212); ctx.lineTo(240, 260); ctx.stroke();
+  // Wall texture
+  for (let i = 0; i < 40; i++) {
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillRect(Math.random() * 480, Math.random() * 200, 2, 2);
   }
-
-  if (currentFloor === 4) {
-    ctx.strokeStyle = scratching ? "red" : "white";
-    ctx.strokeRect(300, 150, 40, 60);
+  // Exit door
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(440, 150, 30, 60);
+  let glow = Math.sin(ghostTimer * 0.1) * 0.1 + 0.2;
+  ctx.fillStyle = `rgba(255,0,0,${glow})`;
+  ctx.fillRect(440, 150, 30, 60);
+  ctx.fillStyle = "rgba(255,255,255,0.2)";
+  ctx.fillRect(448, 160, 14, 8);
+  let exitFlicker = (ghostTimer % 20 < 10) ? 1 : 0.4;
+  if (crawlerFlicker) exitFlicker = Math.random() * 0.6 + 0.2;
+  ctx.fillStyle = `rgba(255,0,0,${exitFlicker})`;
+  ctx.font = "10px serif";
+  ctx.textAlign = "center";
+  ctx.fillText("EXIT", 455, 145);
+  // Floor label
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  ctx.font = "8px serif";
+  ctx.textAlign = "left";
+  ctx.fillText("FLOOR 1", 10, 15);
+}
+/* ============================
+   DRAW HALLWAY — FLOOR 2
+   ============================ */
+function drawHallwayFloor2() {
+  ctx.fillStyle = "#050505";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < 6; i++) {
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillRect(60 + i * 70, 0, 6, 270);
   }
-
-  if (currentFloor === 5) {
+  ctx.strokeStyle = "#222";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(480, 212); ctx.stroke();
+  // Vents
+  let ventX      = correctVent === 1 ? 150 : 250;
+  let wrongVentX = correctVent === 1 ? 250 : 150;
+  // Correct vent: green glow hint
+  ctx.strokeStyle = "rgba(0,255,100,0.3)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(ventX - 10, 180, 20, 20);
+  ctx.strokeStyle = "rgba(255,255,255,0.5)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(wrongVentX - 10, 180, 20, 20);
+  // Labels
+  ctx.fillStyle = "rgba(255,255,255,0.2)";
+  ctx.font = "7px serif";
+  ctx.textAlign = "center";
+  ctx.fillText("vent", ventX, 176);
+  ctx.fillText("vent", wrongVentX, 176);
+  // Streak counter
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.font = "8px serif";
+  ctx.textAlign = "left";
+  ctx.fillText(`FLOOR 2 — correct: ${ventCorrectStreak}/5`, 10, 15);
+  // Exit door (only visible after 5 correct)
+  if (ventCorrectStreak >= 5) {
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(440, 150, 30, 60);
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fillRect(440, 150, 30, 60);
+  }
+}
+/* ============================
+   DRAW HALLWAY — FLOORS 3-5
+   ============================ */
+function drawHallwayGeneric(floorNum) {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grd.addColorStop(0, "#080808");
+  grd.addColorStop(1, "#000");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "rgba(255,255,255,0.04)";
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(480, 212); ctx.stroke();
+  // Floor 3 — light flicker
+  if (floorNum === 3) {
+    ctx.fillStyle = flickerActive ? "rgba(255,0,0,0.15)" : "rgba(255,255,255,0.04)";
+    ctx.fillRect(60, 20, 40, 6);
+    ctx.fillRect(200, 20, 40, 6);
+    ctx.fillRect(340, 20, 40, 6);
+  }
+  // Floor 4 — door on left wall
+  if (floorNum === 4) {
+    ctx.strokeStyle = scratching ? "rgba(255,0,0,0.8)" : "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(20, 150, 30, 60);
+    if (scratching) {
+      ctx.fillStyle = "rgba(255,0,0,0.1)";
+      ctx.fillRect(20, 150, 30, 60);
+    }
+  }
+  // Floor 5 — twins silhouettes
+  if (floorNum === 5) {
     ctx.fillStyle = loopFreeze ? "white" : "rgba(255,255,255,0.3)";
     ctx.fillRect(200, 180, 10, 20);
     ctx.fillRect(230, 180, 10, 20);
   }
-
+  // Exit door
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(440, 150, 30, 60);
+  let glow = Math.sin(ghostTimer * 0.1) * 0.1 + 0.2;
+  ctx.fillStyle = `rgba(255,0,0,${glow})`;
+  ctx.fillRect(440, 150, 30, 60);
+  ctx.fillStyle = "rgba(255,255,255,0.2)";
+  ctx.fillRect(448, 160, 14, 8);
+  let ef = (ghostTimer % 20 < 10) ? 1 : 0.4;
+  ctx.fillStyle = `rgba(255,0,0,${ef})`;
+  ctx.font = "10px serif";
+  ctx.textAlign = "center";
+  ctx.fillText("EXIT", 455, 145);
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  ctx.font = "8px serif";
+  ctx.textAlign = "left";
+  ctx.fillText(`FLOOR ${floorNum}`, 10, 15);
 }
-
 /* ============================
-   DRAW EVERYTHING
+   DRAW GHOST / ENEMIES
+   ============================ */
+function drawGhost() {
+  if (currentFloor === 1) {
+    drawCrawler(crawlerX, player.y - 12);
+  } else if (currentFloor === 3 && flickerActive) {
+    ctx.fillStyle = "white";
+    ctx.fillRect(400, 100, 20, 40);
+  } else if (currentFloor === 4) {
+    ctx.strokeStyle = scratching ? "red" : "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(300, 150, 40, 60);
+  } else if (currentFloor === 5) {
+    ctx.fillStyle = loopFreeze ? "white" : "rgba(255,255,255,0.3)";
+    ctx.fillRect(200, 180, 10, 20);
+    ctx.fillRect(230, 180, 10, 20);
+  }
+}
+/* ============================
+   DRAW
    ============================ */
 function draw() {
-  // 1. Clear screen
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // 2. Apply shake
- let shakeX = (deathShake + hallwayShake) || 0;
- let shakeY = (deathShake + hallwayShake) || 0;
-
-
+  let shakeX = deathShake + hallwayShake;
+  let shakeY = deathShake;
   ctx.save();
   ctx.translate(shakeX, shakeY);
-
-  // 3. Draw hallway (per floor)
-if (currentFloor === 1) {
-  drawHallway();            // Floor 1 hallway
-} else if (currentFloor === 2) {
-  drawHallwayFloor2();      // Floor 2 hallway
-} else {
-  drawHallway();            // fallback for floors 3–6 until we upgrade them
-}
-
-
-  // 4. Draw player
+  // Hallway per floor
+  if (currentFloor === 1)      drawHallway();
+  else if (currentFloor === 2) drawHallwayFloor2();
+  else                          drawHallwayGeneric(currentFloor);
   drawPlayer();
-
-  // 5. Draw crawler / ghost
   drawGhost();
-
-  // 6. Flash overlay LAST (on top of everything)
+  // Screen flash
   if (screenFlash > 0) {
     ctx.fillStyle = "rgba(255,0,0,0.4)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     screenFlash--;
   }
-
-  // ============================
-// WHISPER TEXT OVERLAY
-// ============================
-if (whisperOpacity > 0) {
-  ctx.globalAlpha = whisperOpacity;
-  ctx.fillStyle = "rgba(255,255,255,0.8)";
-  ctx.font = "10px serif";
-  ctx.textAlign = "center";
-  ctx.fillText(whisperText, canvas.width / 2, 40);
-
-  whisperOpacity -= 0.01; // fade out
-  if (whisperOpacity < 0) whisperOpacity = 0;
-
-  ctx.globalAlpha = 1;
-}
-
-
-  // 7. Restore ALWAYS (outside the flash block)
+  // Whisper text
+  if (whisperOpacity > 0) {
+    ctx.globalAlpha = whisperOpacity;
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.font = "10px serif";
+    ctx.textAlign = "center";
+    ctx.fillText(whisperText, canvas.width / 2, 40);
+    whisperOpacity = Math.max(0, whisperOpacity - 0.01);
+    ctx.globalAlpha = 1;
+  }
   ctx.restore();
 }
-
-
-
 </script>
+<script>
+  let eggClicks = 0;
 
+  const center = document.getElementById("centerImage");
 
+  center.addEventListener("click", (e) => {
+    e.stopPropagation(); // prevents pigeon spawn from counting
+    eggClicks++;
+
+    if (eggClicks === 10) {
+      eggClicks = 0;
+      launchEasterEgg();
+    }
+  });
+
+  function launchEasterEgg() {
+    alert("🎉 You unlocked the Hidden Gems Easter Egg!");
+    // Replace alert with your secret feature later
+  }
+</script>
 
 </body>
 </html>
