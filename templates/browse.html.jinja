@@ -526,32 +526,127 @@ function triggerDeath() {
 }
 function drawDeath() {
   deathTimer++;
-  deathShake = Math.sin(deathTimer * 0.5) * 4;
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  if (deathTimer < 30 || (deathTimer % 20 < 10)) {
-    ctx.fillStyle = "rgba(255,0,0,0.3)";
+
+  // Phase 1 (0-20): white flash
+  if (deathTimer < 20) {
+    let alpha = 1 - (deathTimer / 20);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    return;
   }
-  if (deathTimer < 40) {
-    ctx.fillStyle = "white";
-    ctx.fillRect(canvas.width / 2 - 20 + deathShake, canvas.height / 2 - 20, 40, 40);
+
+  // Phase 2 (20-80): red vignette closes in, static, text glitches in
+  if (deathTimer < 80) {
+    let prog = (deathTimer - 20) / 60;
+    let vigAlpha = 0.2 + prog * 0.5;
+    let grad = ctx.createRadialGradient(
+      canvas.width / 2, canvas.height / 2, 20,
+      canvas.width / 2, canvas.height / 2, 240
+    );
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(0.5, `rgba(180,0,0,${vigAlpha * 0.4})`);
+    grad.addColorStop(1, `rgba(180,0,0,${vigAlpha})`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y < canvas.height; y += 3) {
+      ctx.fillStyle = "rgba(0,0,0,0.3)";
+      ctx.fillRect(0, y, canvas.width, 1);
+    }
+    for (let i = 0; i < 300; i++) {
+      ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.3})`;
+      ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 1, 1);
+    }
+
+    if (deathTimer > 50) {
+      ctx.globalAlpha = Math.min(1, (deathTimer - 50) / 30);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 28px serif";
+      ctx.textAlign = "center";
+      let glitch = Math.random() < 0.3 ? (Math.random() * 8 - 4) : 0;
+      ctx.fillText("YOU DIED", canvas.width / 2 + glitch, canvas.height / 2);
+      ctx.globalAlpha = 1;
+    }
+    return;
   }
-  if (deathTimer > 40) {
-    ctx.fillStyle = deathTimer % 15 < 7 ? "white" : "red";
-    ctx.font = "20px serif";
+
+  // Phase 3 (80-160): RGB split glitch, corruption, scanlines
+  if (deathTimer < 160) {
+    ctx.fillStyle = "rgba(30,0,0,1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = "bold 28px serif";
     ctx.textAlign = "center";
-    let glitch = Math.random() < 0.2 ? (Math.random() * 10 - 5) : 0;
-    ctx.fillText("THE BUILDING THAT REMEMBERS", canvas.width / 2 + glitch, canvas.height / 2);
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = "red";
+    ctx.fillText("YOU DIED", canvas.width / 2 + 4, canvas.height / 2);
+    ctx.fillStyle = "cyan";
+    ctx.fillText("YOU DIED", canvas.width / 2 - 4, canvas.height / 2);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "white";
+    ctx.fillText("YOU DIED", canvas.width / 2, canvas.height / 2);
+
+    ctx.fillStyle = "rgba(200,50,50,0.9)";
+    ctx.font = "10px serif";
+    ctx.fillText("THE BUILDING REMEMBERS", canvas.width / 2, canvas.height / 2 + 25);
+
+    for (let i = 0; i < 8; i++) {
+      if (Math.random() < 0.4) {
+        let gy = Math.floor(Math.random() * canvas.height);
+        let gh = Math.floor(Math.random() * 6) + 1;
+        let shift = Math.random() * 30 - 15;
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        ctx.drawImage(canvas, 0, gy, canvas.width, gh, shift, gy, canvas.width, gh);
+        ctx.restore();
+      }
+    }
+
+    for (let y = 0; y < canvas.height; y += 2) {
+      ctx.fillStyle = "rgba(0,0,0,0.25)";
+      ctx.fillRect(0, y, canvas.width, 1);
+    }
+    for (let i = 0; i < 150; i++) {
+      ctx.fillStyle = `rgba(255,${Math.random()*50},${Math.random()*50},${Math.random()*0.4})`;
+      ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
+    }
+
+    if (deathTimer > 140 && Math.random() < 0.3) {
+      ctx.fillStyle = "rgba(255,0,0,0.15)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    return;
   }
-  if (deathTimer > 180) {
-    // Restart from floor 1
-    currentFloor = 1;
-    deathActive = false;
-    introActive = true;
-    introOpacity = 0;
-    introTimer = 0;
+
+  // Phase 4 (160-230): fade to black, show restart floor
+  if (deathTimer < 230) {
+    let fadeAlpha = (deathTimer - 160) / 70;
+    ctx.fillStyle = `rgba(0,0,0,${fadeAlpha})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.globalAlpha = Math.max(0, 1 - fadeAlpha * 2);
+    ctx.fillStyle = "white";
+    ctx.font = "bold 28px serif";
+    ctx.textAlign = "center";
+    ctx.fillText("YOU DIED", canvas.width / 2, canvas.height / 2);
+    ctx.globalAlpha = 1;
+
+    if (deathTimer > 190) {
+      ctx.fillStyle = `rgba(150,150,150,${(deathTimer - 190) / 40})`;
+      ctx.font = "9px serif";
+      ctx.fillText("FLOOR 1", canvas.width / 2, canvas.height / 2 + 35);
+    }
+    return;
   }
+
+  // Restart
+  currentFloor = 1;
+  deathActive = false;
+  introActive = true;
+  introOpacity = 0;
+  introTimer = 0;
 }
 /* ============================
    WIN
