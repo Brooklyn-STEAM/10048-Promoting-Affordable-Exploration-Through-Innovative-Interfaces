@@ -63,14 +63,14 @@
 <div class="flex-1 h-full bg-[#ece4d8] overflow-y-auto flex items-center justify-center p-12">
   <div class="w-full max-w-sm">
 
-   
+    <!-- header -->
     <div class="mb-8">
       <p class="text-xs tracking-[0.25em] uppercase text-[#7a6a55] mb-2">Account</p>
       <h2 class="serif text-4xl font-light text-[#2b2b2b]">Your Profile</h2>
       <div class="w-8 h-px bg-[#7a6a55] mt-4 opacity-60"></div>
     </div>
 
-    
+   
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
@@ -79,7 +79,7 @@
       {% endif %}
     {% endwith %}
 
-   
+    
     <form method="POST" action="/profile/update-username" class="mb-6">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Username</label>
       <div class="flex gap-2">
@@ -92,7 +92,7 @@
       </div>
     </form>
 
-   
+    
     <form method="POST" action="/profile/update-password" class="mb-6">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">New Password</label>
       <div class="flex gap-2">
@@ -119,10 +119,53 @@
       </div>
     </form>
 
-   
+    
     <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
 
    
+    <div class="mb-8">
+      <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-4">Achievements</p>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+        {% for a in achievements %}
+        <div style="
+          background: {{ '#f5efe6' if a.earned else 'rgba(0,0,0,0.04)' }};
+          border: 2px solid {{ '#1f1f1f' if a.earned else 'rgba(0,0,0,0.08)' }};
+          border-radius: 14px;
+          padding: 12px 8px;
+          text-align: center;
+          position: relative;
+          transition: all 0.2s;
+          {% if not a.earned %}opacity: 0.4; filter: grayscale(1);{% endif %}
+        ">
+          {% if a.earned %}
+          <div style="
+            position:absolute; top:-6px; right:-6px;
+            background:#5c6b5c; border-radius:999px;
+            width:14px; height:14px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:0.5rem; color:white; border:1.5px solid white;
+          ">✓</div>
+          {% endif %}
+          <img src="/static/images/{{ a.image }}"
+               alt="{{ a.name }}"
+               style="width:256px; height:256px; object-fit:contain; margin:0 auto 10px; display:block;
+               {{ 'filter: grayscale(1); opacity:0.35;' if not a.earned else '' }}">
+          <p style="font-size:0.6rem; font-weight:600; color:#2b2b2b; line-height:1.3;">{{ a.name }}</p>
+          <p style="font-size:0.5rem; color:#6a6a6a; margin-top:3px; line-height:1.4;">{{ a.desc }}</p>
+          {% if a.earned and a.earned_at %}
+          <p style="font-size:0.45rem; color:#9a9a9a; margin-top:4px;">
+            {{ a.earned_at.strftime('%b %d, %Y') if a.earned_at else '' }}
+          </p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    
+    <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
+
+    <!-- Log out -->
     <a href="/logout"
       class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
       Log Out

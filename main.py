@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, abort
+from flask import Flask, render_template, request, redirect, flash, abort, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 import pymysql
 import json
@@ -72,9 +72,67 @@ BOROUGHS = [
     {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
 ]
 
+
+ACHIEVEMENTS = [
+    { "type": "first_post",   "image": "achievements/first_post.png",   "name": "First Gem",        "desc": "Posted your first location" },
+    { "type": "post_50",      "image": "achievements/post_50.png",      "name": "Gem Appreciator",  "desc": "Posted 50 locations" },
+    { "type": "post_100",     "image": "achievements/post_100.png",     "name": "Hidden Gem Master","desc": "Posted 100 locations" },
+    { "type": "first_like",   "image": "achievements/first_like.png",   "name": "Show Some Love",   "desc": "Liked your first location" },
+    { "type": "like_50",      "image": "achievements/like_50.png",      "name": "Super Fan",        "desc": "Liked 50 locations" },
+    { "type": "like_100",     "image": "achievements/like_100.png",     "name": "Obsessed",         "desc": "Liked 100 locations" },
+    { "type": "received_100", "image": "achievements/received_100.png", "name": "Trending",         "desc": "Received 100 likes on a location" },
+    { "type": "all_boroughs", "image": "achievements/all_boroughs.png", "name": "True New Yorker",  "desc": "Posted in all 5 boroughs" },
+]
+
+def check_and_award(user_id, cursor):
+    """Check which achievements the user has earned and award new ones."""
+    cursor.execute("SELECT Type FROM `Achievement` WHERE UserID = %s", (user_id,))
+    earned = {r["Type"] for r in cursor.fetchall()}
+
+    new_achievements = []
+
+    
+    cursor.execute("SELECT COUNT(*) as cnt FROM `Location` WHERE UserID = %s", (user_id,))
+    post_count = cursor.fetchone()["cnt"]
+
+    if post_count >= 1   and "first_post" not in earned: new_achievements.append("first_post")
+    if post_count >= 50  and "post_50"    not in earned: new_achievements.append("post_50")
+    if post_count >= 100 and "post_100"   not in earned: new_achievements.append("post_100")
+
+    # Likes given
+    cursor.execute("SELECT COUNT(*) as cnt FROM `Like` WHERE UserID = %s", (user_id,))
+    like_count = cursor.fetchone()["cnt"]
+
+    if like_count >= 1   and "first_like" not in earned: new_achievements.append("first_like")
+    if like_count >= 50  and "like_50"    not in earned: new_achievements.append("like_50")
+    if like_count >= 100 and "like_100"   not in earned: new_achievements.append("like_100")
+
+    # Likes received on any single location
+    cursor.execute("SELECT MAX(LikeCount) as max_likes FROM `Location` WHERE UserID = %s", (user_id,))
+    row = cursor.fetchone()
+    max_likes = row["max_likes"] or 0
+
+    if max_likes >= 100 and "received_100" not in earned: new_achievements.append("received_100")
+
+    # All 5 boroughs posted in
+    cursor.execute("SELECT COUNT(DISTINCT Borough) as cnt FROM `Location` WHERE UserID = %s", (user_id,))
+    borough_count = cursor.fetchone()["cnt"]
+
+    if borough_count >= 5 and "all_boroughs" not in earned: new_achievements.append("all_boroughs")
+
+    for ach_type in new_achievements:
+        cursor.execute(
+            "INSERT IGNORE INTO `Achievement` (UserID, Type) VALUES (%s, %s)",
+            (user_id, ach_type)
+        )
+
+    return new_achievements
+
+
 @app.route("/")
 def index():
     return render_template("homepage.html.jinja")
+
 
 @app.route("/browse", methods=["GET", "POST"])
 @login_required
@@ -95,7 +153,6 @@ def borough_page(n):
     connection = connect_db()
     cursor = connection.cursor()
 
-
     cursor.execute("""
         SELECT l.*, u.Username,
                COALESCE(l.LikeCount, 0) as LikeCount
@@ -105,7 +162,6 @@ def borough_page(n):
         ORDER BY l.LikeCount DESC, l.DatePosted DESC
     """, (name,))
     locations = cursor.fetchall()
-
 
     loc_ids = [l["ID"] for l in locations]
     liked_ids = set()
@@ -119,50 +175,26 @@ def borough_page(n):
 
     connection.close()
 
-    
     featured = locations[:3]
 
     locations_json = json.dumps([{
-    "ID":          l["ID"],
-    "Name":        l["Name"],
-    "Borough":     l["Borough"],
-
-    # Address + description
-    "Address":     l.get("Address") or "",
-    "Description": l.get("Description") or "",
-
-    # Date
-    "DatePosted":  (
-        l["DatePosted"].strftime("%b %d, %Y")
-        if isinstance(l["DatePosted"], datetime)
-        else str(l["DatePosted"])
-    ),
-
-    # Image
-    "Image":       l.get("Image") or "",
-
-    # Likes
-    "LikeCount":   l.get("LikeCount") or 0,
-    "Liked":       l["ID"] in liked_ids,
-
-    # ⭐️ NEW FIELDS FOR REDESIGNED LIGHTBOX
-    "Type":        l.get("Type") or "Spot",
-    "Category":    l.get("Category") or "General",
-
-    "Latitude":    l.get("Latitude"),
-    "Longitude":   l.get("Longitude"),
-
-    # Tags stored as comma-separated string → convert to list
-    "Tags":        (l.get("Tags").split(",") if l.get("Tags") else []),
-
-    # Hours stored as JSON string → convert to Python list
-    "Hours":       (json.loads(l["Hours"]) if l.get("Hours") else []),
-
-    # ⭐️ Ownership flag for delete button
-    "IsOwner":     (l["UserID"] == current_user.id)
-
-} for l in locations])
-
+        "ID":          l["ID"],
+        "UserID":      l["UserID"],
+        "Name":        l["Name"],
+        "Borough":     l["Borough"],
+        "Address":     l.get("Address") or "",
+        "Description": l.get("Description") or "",
+        "DatePosted":  (
+            l["DatePosted"].strftime("%b %d, %Y")
+            if isinstance(l["DatePosted"], datetime)
+            else str(l["DatePosted"])
+        ),
+        "Image":       l.get("Image") or "",
+        "LikeCount":   l.get("LikeCount") or 0,
+        "Liked":       l["ID"] in liked_ids,
+        "IsOwner":     l["UserID"] == current_user.id,
+        "Hours":       (json.loads(l["Hours"]) if l.get("Hours") else []),
+    } for l in locations])
 
     return render_template(
         "borough.html.jinja",
@@ -174,14 +206,12 @@ def borough_page(n):
     )
 
 
-
 @app.route("/borough/<path:n>/like/<int:loc_id>", methods=["POST"])
 @login_required
 def toggle_like(n, loc_id):
     connection = connect_db()
     cursor = connection.cursor()
 
-    
     cursor.execute(
         "SELECT ID FROM `Like` WHERE UserID = %s AND LocationID = %s",
         (current_user.id, loc_id)
@@ -189,7 +219,6 @@ def toggle_like(n, loc_id):
     existing = cursor.fetchone()
 
     if existing:
-        
         cursor.execute(
             "DELETE FROM `Like` WHERE UserID = %s AND LocationID = %s",
             (current_user.id, loc_id)
@@ -200,7 +229,6 @@ def toggle_like(n, loc_id):
         )
         liked = False
     else:
-       
         cursor.execute(
             "INSERT INTO `Like` (UserID, LocationID) VALUES (%s, %s)",
             (current_user.id, loc_id)
@@ -213,10 +241,35 @@ def toggle_like(n, loc_id):
 
     cursor.execute("SELECT LikeCount FROM `Location` WHERE ID = %s", (loc_id,))
     row = cursor.fetchone()
+    check_and_award(current_user.id, cursor)
     connection.close()
 
-    from flask import jsonify
     return jsonify({"liked": liked, "count": row["LikeCount"] if row else 0})
+
+
+@app.route("/borough/<path:n>/delete/<int:loc_id>", methods=["POST"])
+@login_required
+def delete_location(n, loc_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM `Location` WHERE ID = %s AND UserID = %s", (loc_id, current_user.id))
+    loc = cursor.fetchone()
+
+    if not loc:
+        connection.close()
+        return jsonify({"success": False, "error": "Not found or not allowed"})
+
+    cursor.execute("DELETE FROM `Like` WHERE LocationID = %s", (loc_id,))
+    cursor.execute("DELETE FROM `Location` WHERE ID = %s", (loc_id,))
+
+    if loc.get("Image"):
+        img_path = os.path.join(app.config["UPLOAD_FOLDER"], loc["Image"])
+        if os.path.exists(img_path):
+            os.remove(img_path)
+
+    connection.close()
+    return jsonify({"success": True})
 
 
 @app.route("/borough/<path:n>/add", methods=["POST"])
@@ -235,7 +288,6 @@ def add_location(n):
         flash("Please fill in the name and address")
         return redirect(f"/borough/{n}")
 
-    # 🖼️ Handle image upload
     image = request.files.get("image")
     filename = None
     if image and image.filename and allowed_file(image.filename):
@@ -243,31 +295,28 @@ def add_location(n):
         filename = str(uuid.uuid4()) + "_" + secure_filename(image.filename)
         image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
 
-    # 🕒 Parse hours
-    days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+    # Hours
+    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     hours_list = []
     for d in days:
-        open_t = request.form.get(f"hours_{d}_open")
-        close_t = request.form.get(f"hours_{d}_close")
-        if open_t and close_t:
-            hours_str = f"{open_t} – {close_t}"
-        else:
-            hours_str = "Closed"
-        hours_list.append({"name": d, "hours": hours_str, "today": False})
+        open_t  = request.form.get(f"hours_{d}_open", "").strip()
+        close_t = request.form.get(f"hours_{d}_close", "").strip()
+        hours_str = f"{open_t} – {close_t}" if open_t and close_t else "Closed"
+        hours_list.append({"name": d, "hours": hours_str})
     hours_json = json.dumps(hours_list)
 
-    # 💾 Insert into DB
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("""
         INSERT INTO `Location` (UserID, Name, Address, Description, Borough, Image, Hours)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (current_user.id, loc_name, address, description, borough_name, filename, hours_json))
+
+    check_and_award(current_user.id, cursor)
     connection.close()
 
     flash(f'"{loc_name}" added!')
     return redirect(f"/borough/{n}")
-
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -340,7 +389,23 @@ def login():
 @app.route("/profile")
 @login_required
 def profile():
-    return render_template("profile.html.jinja")
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT Type, EarnedAt FROM `Achievement` WHERE UserID = %s", (current_user.id,))
+    earned_rows = cursor.fetchall()
+    earned_map = {r["Type"]: r["EarnedAt"] for r in earned_rows}
+
+    achievements = []
+    for a in ACHIEVEMENTS:
+        achievements.append({
+            **a,
+            "earned":    a["type"] in earned_map,
+            "earned_at": earned_map.get(a["type"])
+        })
+
+    connection.close()
+    return render_template("profile.html.jinja", achievements=achievements)
 
 
 @app.route("/profile/update-username", methods=["POST"])
@@ -396,30 +461,3 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-@app.route("/borough/<path:n>/delete/<int:loc_id>", methods=["POST"])
-@login_required
-def delete_location(n, loc_id):
-    from flask import jsonify
-    connection = connect_db()
-    cursor = connection.cursor()
-
-    cursor.execute("SELECT UserID FROM `Location` WHERE ID = %s", (loc_id,))
-    row = cursor.fetchone()
-
-    if not row:
-        connection.close()
-        return jsonify({"success": False, "error": "Not found"})
-
-    if row["UserID"] != current_user.id:
-        connection.close()
-        return jsonify({"success": False, "error": "Not allowed"})
-
-    cursor.execute("DELETE FROM `Like` WHERE LocationID = %s", (loc_id,))
-    cursor.execute("DELETE FROM `Location` WHERE ID = %s", (loc_id,))
-    connection.close()
-
-    return jsonify({"success": True})
-
