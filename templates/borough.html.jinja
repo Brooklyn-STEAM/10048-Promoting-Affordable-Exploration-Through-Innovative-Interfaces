@@ -369,8 +369,9 @@
 
 
 <div id="lightbox" 
-     class="hidden fixed inset-0 z-[400] flex flex-col items-center justify-center 
-            bg-black/50 backdrop-blur-2xl">
+     class="fixed inset-0 z-[400] flex-col items-center justify-center 
+            bg-black/50 backdrop-blur-2xl"
+     style="display:none;">
 
   <!-- Close -->
   <button onclick="closeLightbox()" style="
@@ -388,17 +389,28 @@
   "></p>
 
   <!-- Main content row -->
-  <div style="display:flex; align-items:center; gap:24px; width:100%; max-width:860px; padding:0 20px;">
+<div style="display:flex; align-items:center; gap:16px; width:100%; max-width:960px; padding:0 24px; box-sizing:border-box;">
 
-    <!-- Prev arrow -->
-    <button id="lb-prev" onclick="lbStep(-1)" style="
-      flex-shrink:0; width:44px; height:44px; border-radius:50%;
-      background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
-      color:#e8ded0; font-size:1.3rem; cursor:pointer;
-    ">‹</button>
+  <button id="lb-prev" onclick="lbStep(-1)" style="
+  position:absolute; left:16px; top:50%; transform:translateY(-50%);
+  width:40px; height:40px; border-radius:50%;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
+  color:#e8ded0; font-size:1.3rem; cursor:pointer; z-index:10;
+  display:flex; align-items:center; justify-content:center;
+">‹</button>
 
-    <!-- Card -->
-<div id="lb-card" class="rounded-[20px] overflow-hidden bg-black/30 border border-white/10 w-full">
+<!-- Next arrow — absolutely positioned -->
+<button id="lb-next" onclick="lbStep(1)" style="
+  position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  width:40px; height:40px; border-radius:50%;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
+  color:#e8ded0; font-size:1.3rem; cursor:pointer; z-index:10;
+  display:flex; align-items:center; justify-content:center;
+">›</button>
+
+  
+<!-- Centered card wrapper -->
+<div id="lb-card" style="width:100%; max-width:780px; padding:0 64px; box-sizing:border-box; margin:auto;">
 
   <!-- Map area -->
   <div id="lb-map-area"
@@ -431,6 +443,7 @@
               hover:bg-[#e8ded0]/[.15] transition-colors">
       Open in Maps ↗
     </a>
+  
   </div>
 
   <!-- Accent bar -->
@@ -505,11 +518,7 @@
     </div>
 
     
-    <button id="lb-next" onclick="lbStep(1)" style="
-      flex-shrink:0; width:44px; height:44px; border-radius:50%;
-      background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
-      color:#e8ded0; font-size:1.3rem; cursor:pointer;
-    ">›</button>
+    
 
   </div>
 
@@ -831,6 +840,7 @@ async function confirmDelete() {
   const card = document.getElementById('lb-card');
 
   lb.classList.remove('hidden');
+  lb.style.display = 'flex';           // ← add this line
   lb.classList.add('lb-open', 'lb-animating-in');
   card.classList.add('lb-animating-in');
 
@@ -1063,12 +1073,50 @@ delBtn.style.display = loc.IsOwner ? 'flex' : 'none';
 }
 
 
-  function lbStep(dir) {
-    const next = lbIndex + dir;
-    if (next >= 0 && next < lbTotal) { lbIndex = next; renderLightbox(); }
-  }
+let lbAnimating = false;
 
-  function closeLightbox() {
+function lbStep(dir) {
+  if (lbAnimating) return;
+  const next = lbIndex + dir;
+  if (next < 0 || next >= lbTotal) return;
+  lbAnimating = true;
+
+  const card = document.getElementById('lb-card');
+  const slideOut = dir > 0 ? 'translateX(-60px)' : 'translateX(60px)';
+  const slideIn  = dir > 0 ? 'translateX(60px)'  : 'translateX(-60px)';
+
+  // Slide out
+  card.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
+  card.style.opacity    = '0';
+  card.style.transform  = slideOut;
+
+  setTimeout(() => {
+    lbIndex = next;
+    renderLightbox();
+
+    // Position for slide-in (instant, no transition)
+    card.style.transition = 'none';
+    card.style.transform  = slideIn;
+    card.style.opacity    = '0';
+
+    // Force reflow so the browser registers the starting position
+    card.getBoundingClientRect();
+
+    // Slide in
+   // Slide in
+    card.style.transition = 'opacity 0.22s ease, transform 0.22s cubic-bezier(0.23,1,0.32,1)';
+    card.style.opacity    = '1';
+    card.style.transform  = 'translateX(0)';
+
+    // Re-enable interactions after animation completes
+  setTimeout(() => {
+      card.style.pointerEvents = '';
+      lbAnimating = false;
+    }, 220);
+  }, 180);
+}
+
+ function closeLightbox() {
   const lb = document.getElementById('lightbox');
   const card = document.getElementById('lb-card');
 
@@ -1079,6 +1127,7 @@ delBtn.style.display = loc.IsOwner ? 'flex' : 'none';
     lb.classList.remove('lb-open', 'lb-animating-out');
     card.classList.remove('lb-animating-out');
     lb.classList.add('hidden');
+    lb.style.display = '';             // ← add this line
     document.body.style.overflow = '';
     document.removeEventListener('keydown', lbKeyHandler);
   }, { once: true });
