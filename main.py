@@ -91,7 +91,7 @@ def check_and_award(user_id, cursor):
 
     new_achievements = []
 
-    
+    # Post counts
     cursor.execute("SELECT COUNT(*) as cnt FROM `Location` WHERE UserID = %s", (user_id,))
     post_count = cursor.fetchone()["cnt"]
 
@@ -450,6 +450,46 @@ def update_picture():
     current_user.profile_picture = picture_url or None
     flash("Profile picture updated!")
     return redirect("/profile")
+
+
+@app.route("/liked")
+@login_required
+def liked_page():
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT l.*, u.Username,
+               COALESCE(l.LikeCount, 0) as LikeCount
+        FROM `Location` l
+        JOIN `Like` lk ON lk.LocationID = l.ID
+        JOIN `User` u ON l.UserID = u.ID
+        WHERE lk.UserID = %s
+        ORDER BY lk.ID DESC
+    """, (current_user.id,))
+    locations = cursor.fetchall()
+    connection.close()
+
+    locations_json = json.dumps([{
+        "ID":          l["ID"],
+        "UserID":      l["UserID"],
+        "Name":        l["Name"],
+        "Borough":     l["Borough"],
+        "Address":     l.get("Address") or "",
+        "Description": l.get("Description") or "",
+        "DatePosted":  (
+            l["DatePosted"].strftime("%b %d, %Y")
+            if isinstance(l["DatePosted"], datetime)
+            else str(l["DatePosted"])
+        ),
+        "Image":       l.get("Image") or "",
+        "LikeCount":   l.get("LikeCount") or 0,
+        "Liked":       True,
+        "IsOwner":     l["UserID"] == current_user.id,
+        "Hours":       (json.loads(l["Hours"]) if l.get("Hours") else []),
+    } for l in locations])
+
+    return render_template("liked.html.jinja", locations=locations, locations_json=locations_json)
 
 
 @app.route("/logout")

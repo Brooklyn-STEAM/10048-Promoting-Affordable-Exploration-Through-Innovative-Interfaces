@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liked Locations — Hidden Gems</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
+  {% include 'icon.html.jinja' %}
+
+  <style>
+    body { font-family: 'Archivo', sans-serif; background: #1a1a1a; color: #e8ded0; min-height: 100vh; }
+    .serif { font-family: 'Cormorant Garamond', serif; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.15); border-radius: 2px; }
+
+    .gem-card {
+      border-radius: 16px; overflow: hidden;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(232,222,208,0.1);
+      transition: all 0.25s ease; cursor: pointer;
+    }
+    .gem-card:hover {
+      border-color: rgba(232,222,208,0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    }
+    .gem-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+    .no-img { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0.2; background: rgba(0,0,0,0.2); }
+    .gem-info { padding: 14px 16px; }
+    .gem-title { font-size: 0.9rem; font-weight: 500; }
+    .gem-meta  { font-size: 0.6rem; opacity: 0.4; margin-top: 3px; letter-spacing: 0.08em; }
+    .gem-borough {
+      display: inline-block; font-size: 0.5rem; letter-spacing: 0.18em;
+      text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
+      background: rgba(232,222,208,0.08); border: 1px solid rgba(232,222,208,0.15);
+      margin-top: 6px;
+    }
+
+    
+    .unlike-btn {
+      background: none; border: none; cursor: pointer;
+      color: #e8ded0; font-size: 0.75rem;
+      display: flex; align-items: center; gap: 4px;
+      opacity: 0.5; transition: opacity 0.2s;
+      font-family: inherit; padding: 0;
+    }
+    .unlike-btn:hover { opacity: 1; }
+    .unlike-btn.liked { color: #e87070; opacity: 1; }
+
+    
+    .lb-backdrop {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,0.88); backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .lb-backdrop.open { display: flex; }
+    .lb-card {
+      background: #2a2520; border-radius: 20px;
+      border: 1px solid rgba(232,222,208,0.15);
+      width: 100%; max-width: 480px; overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+    .lb-map-area {
+      height: 280px; background: #0d0d0d;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+      position: relative;
+    }
+    .lb-map-grid {
+      position: absolute; inset: 0; opacity: 0.07;
+      background-image: linear-gradient(rgba(232,222,208,0.5) 1px,transparent 1px),
+                        linear-gradient(90deg,rgba(232,222,208,0.5) 1px,transparent 1px);
+      background-size: 40px 40px;
+    }
+    .lb-info { padding: 22px 26px; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease both; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.12s; }
+  </style>
+</head>
+
+<body class="p-8">
+
+{% include '_nav.html.jinja' %}
+
+
+<div class="flex items-end justify-between mb-10 fade-up">
+  <div>
+    <a href="/browse" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
+    <h1 class="serif text-5xl font-light mt-2 leading-none">Liked Places</h1>
+    <div class="w-8 h-px mt-4 opacity-50" style="background:#e8ded0;"></div>
+    <p class="text-xs opacity-30 tracking-widest uppercase mt-3">
+      {{ locations | length }} location{{ 's' if locations | length != 1 else '' }}
+    </p>
+  </div>
+</div>
+
+{% if locations %}
+
+
+<div class="flex flex-wrap gap-2 mb-8 fade-up d1" id="filter-bar">
+  <button class="filter-pill active" data-borough="all" onclick="filterBy('all', this)">All</button>
+  {% set seen = [] %}
+  {% for loc in locations %}
+    {% if loc.Borough not in seen %}
+      {% set _ = seen.append(loc.Borough) %}
+      <button class="filter-pill" data-borough="{{ loc.Borough }}" onclick="filterBy('{{ loc.Borough }}', this)">
+        {{ loc.Borough | capitalize }}
+      </button>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<style>
+  .filter-pill {
+    padding: 6px 16px; border-radius: 999px; font-size: 0.6rem;
+    letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+    background: rgba(232,222,208,0.06); border: 1px solid rgba(232,222,208,0.15);
+    color: rgba(232,222,208,0.5); transition: all 0.2s; font-family: inherit;
+  }
+  .filter-pill:hover, .filter-pill.active {
+    background: rgba(232,222,208,0.12); border-color: rgba(232,222,208,0.35);
+    color: #e8ded0;
+  }
+</style>
+
+
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 fade-up d2" id="locations-grid">
+  {% for loc in locations %}
+  <div class="gem-card" data-borough="{{ loc.Borough }}" onclick="openDetail({{ loop.index0 }})">
+    {% if loc.Image %}
+      <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+    {% else %}
+      <div class="no-img">No image</div>
+    {% endif %}
+    <div class="gem-info">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <p class="gem-title">{{ loc.Name }}</p>
+          <p class="gem-meta">{{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}</p>
+          <span class="gem-borough">{{ loc.Borough | capitalize }}</span>
+        </div>
+        <button class="unlike-btn liked"
+          data-id="{{ loc.ID }}"
+          data-borough="{{ loc.Borough | replace(' ', '-') }}"
+          onclick="event.stopPropagation(); unlikeCard(this)">
+          ♥ <span class="like-count">{{ loc.LikeCount or 0 }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+
+<div class="flex flex-col items-center justify-center py-40 opacity-25">
+  <p class="serif text-4xl font-light mb-3">No liked places yet</p>
+  <p class="text-xs tracking-widest uppercase">Explore boroughs and heart the ones you love</p>
+  <a href="/browse" class="mt-6 text-xs tracking-widest uppercase underline opacity-60 hover:opacity-100">Browse Boroughs →</a>
+</div>
+{% endif %}
+
+
+
+<div class="lb-backdrop" id="lightbox" onclick="closeLbBackdrop(event)">
+  <div class="lb-card">
+    <div class="lb-map-area">
+      <div class="lb-map-grid"></div>
+      <div style="font-size:2rem; z-index:1;">📍</div>
+      <p id="lb-addr" style="font-size:0.8rem; color:rgba(232,222,208,0.6); z-index:1; text-align:center; max-width:260px; line-height:1.5;"></p>
+      <a id="lb-map-link" href="#" target="_blank" style="
+        z-index:1; display:inline-flex; align-items:center; gap:6px;
+        padding:7px 18px; border-radius:999px;
+        background:rgba(232,222,208,0.08); border:1px solid rgba(232,222,208,0.2);
+        color:#e8ded0; font-size:0.6rem; letter-spacing:0.2em;
+        text-transform:uppercase; text-decoration:none;
+      ">Open in Maps ↗</a>
+    </div>
+    <div class="lb-info">
+      <p id="lb-badge" style="
+        display:inline-block; font-size:0.5rem; letter-spacing:0.2em;
+        text-transform:uppercase; padding:3px 10px; border-radius:999px;
+        background:rgba(232,222,208,0.1); color:#e8ded0; margin-bottom:10px;
+      "></p>
+      <h2 id="lb-title" class="serif" style="font-size:1.8rem; font-weight:300; color:#e8ded0; margin-bottom:6px;"></h2>
+      <p id="lb-meta" style="font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(232,222,208,0.35); margin-bottom:10px;"></p>
+      <p id="lb-desc" style="font-size:0.85rem; color:rgba(232,222,208,0.65); line-height:1.7; margin-bottom:16px;"></p>
+
+      
+      <div id="lb-hours" style="display:none; margin-bottom:16px;">
+        <p style="font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(232,222,208,0.35); margin-bottom:8px;">Hours</p>
+        <div id="lb-hours-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center;"></div>
+      </div>
+
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="lb-unlike-btn" onclick="unlikeFromLightbox()" style="
+          background:rgba(232,70,70,0.1); border:1px solid rgba(232,70,70,0.3);
+          border-radius:999px; padding:7px 18px; cursor:pointer;
+          display:flex; align-items:center; gap:6px;
+          color:#e8ded0; font-size:0.75rem; font-family:inherit;
+        ">♥ <span id="lb-like-count">0</span> likes</button>
+        <button onclick="closeLightbox()" style="
+          background:rgba(232,222,208,0.06); border:1px solid rgba(232,222,208,0.15);
+          border-radius:999px; padding:7px 18px; cursor:pointer;
+          color:rgba(232,222,208,0.5); font-size:0.75rem; font-family:inherit;
+        ">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const locations = {{ locations_json | safe }};
+  let lbIndex = 0;
+
+  
+  function filterBy(borough, btn) {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.gem-card').forEach(card => {
+      card.style.display = (borough === 'all' || card.dataset.borough === borough) ? '' : 'none';
+    });
+  }
+
+  
+  function openDetail(index) {
+    lbIndex = index;
+    const loc = locations[index];
+    if (!loc) return;
+
+    document.getElementById('lb-title').textContent = loc.Name;
+    document.getElementById('lb-meta').textContent  = loc.Borough + ' · ' + loc.DatePosted;
+    document.getElementById('lb-desc').textContent  = loc.Description || 'No description provided.';
+    document.getElementById('lb-badge').textContent = loc.Borough;
+    document.getElementById('lb-like-count').textContent = loc.LikeCount || 0;
+
+    
+    const addrEl   = document.getElementById('lb-addr');
+    const mapLink  = document.getElementById('lb-map-link');
+    if (loc.Address) {
+      const q = encodeURIComponent(loc.Address + ', New York City');
+      addrEl.textContent = loc.Address;
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    } else {
+      addrEl.textContent = 'No address provided';
+      mapLink.style.display = 'none';
+    }
+
+    
+    const hoursWrap = document.getElementById('lb-hours');
+    const hoursGrid = document.getElementById('lb-hours-grid');
+    if (loc.Hours && loc.Hours.length) {
+      hoursWrap.style.display = 'block';
+      hoursGrid.innerHTML = loc.Hours.map(h => `
+        <div style="background:rgba(232,222,208,0.06);border-radius:8px;padding:5px 3px;">
+          <div style="font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;opacity:0.35;margin-bottom:3px;">${h.name}</div>
+          <div style="font-size:0.5rem;color:${h.hours === 'Closed' ? 'rgba(232,222,208,0.25)' : 'rgba(232,222,208,0.7)'};">${h.hours}</div>
+        </div>`).join('');
+    } else {
+      hoursWrap.style.display = 'none';
+    }
+
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeLbBackdrop(e) { if (e.target.id === 'lightbox') closeLightbox(); }
+
+  
+  async function unlikeCard(btn) {
+    const id      = btn.dataset.id;
+    const borough = btn.dataset.borough;
+    const res     = await fetch(`/borough/${borough}/like/${id}`, { method: 'POST' });
+    const data    = await res.json();
+
+    if (!data.liked) {
+      // Remove card from page with fade
+      const card = btn.closest('.gem-card');
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(() => card.remove(), 300);
+    }
+  }
+
+  
+  async function unlikeFromLightbox() {
+    const loc     = locations[lbIndex];
+    const borough = loc.Borough.replace(' ', '-');
+    const res     = await fetch(`/borough/${borough}/like/${loc.ID}`, { method: 'POST' });
+    const data    = await res.json();
+
+    if (!data.liked) {
+      closeLightbox();
+      const card = document.querySelector(`.gem-card [data-id="${loc.ID}"]`)?.closest('.gem-card');
+      if (card) {
+        card.style.transition = 'opacity 0.3s';
+        card.style.opacity = '0';
+        setTimeout(() => card.remove(), 300);
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
