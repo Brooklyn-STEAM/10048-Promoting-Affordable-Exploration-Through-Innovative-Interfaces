@@ -24,7 +24,7 @@
   <div class="absolute w-[280px] h-[280px] rounded-full border border-white/5"></div>
   <div class="absolute w-[160px] h-[160px] rounded-full border border-white/5"></div>
 
- 
+
   <div class="z-10 flex flex-col items-center gap-4">
     {% if current_user.profile_picture %}
       <img src="{{ current_user.profile_picture }}"
@@ -56,6 +56,18 @@
        onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
       ← Browse Boroughs
     </a>
+    <a href="/liked" style="
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 20px; border-radius:999px;
+      border:1px solid rgba(232,222,208,0.2);
+      color:rgba(232,222,208,0.5); font-size:0.6rem;
+      letter-spacing:0.2em; text-transform:uppercase;
+      text-decoration:none; transition:all 0.2s;
+      margin-top:8px;
+    " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
+       onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
+      ♥ Liked Places
+    </a>
   </div>
 </div>
 
@@ -63,14 +75,14 @@
 <div class="flex-1 h-full bg-[#ece4d8] overflow-y-auto flex items-center justify-center p-12">
   <div class="w-full max-w-sm">
 
-    <!-- header -->
+  
     <div class="mb-8">
       <p class="text-xs tracking-[0.25em] uppercase text-[#7a6a55] mb-2">Account</p>
       <h2 class="serif text-4xl font-light text-[#2b2b2b]">Your Profile</h2>
       <div class="w-8 h-px bg-[#7a6a55] mt-4 opacity-60"></div>
     </div>
 
-   
+    <!-- flash messages -->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
@@ -79,7 +91,7 @@
       {% endif %}
     {% endwith %}
 
-    
+
     <form method="POST" action="/profile/update-username" class="mb-6">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Username</label>
       <div class="flex gap-2">
@@ -92,7 +104,7 @@
       </div>
     </form>
 
-    
+  
     <form method="POST" action="/profile/update-password" class="mb-6">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">New Password</label>
       <div class="flex gap-2">
@@ -105,7 +117,7 @@
       </div>
     </form>
 
-   
+  
     <form method="POST" action="/profile/update-picture" class="mb-8">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Profile Picture URL</label>
       <div class="flex gap-2">
@@ -119,10 +131,10 @@
       </div>
     </form>
 
-    
+  
     <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
 
-   
+    <!-- Achievements -->
     <div class="mb-8">
       <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-4">Achievements</p>
       <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
@@ -165,7 +177,7 @@
     
     <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
 
-    <!-- Log out -->
+
     <a href="/logout"
       class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
       Log Out
