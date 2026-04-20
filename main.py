@@ -59,7 +59,6 @@ def load_user(user_id):
         return None
     return User(result)
 
-
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -525,7 +524,7 @@ def logout():
     return redirect("/login")
 
 
-
+# ── CHAT SOCKET EVENTS ──────────────────────────────────────
 @socketio.on("join")
 def on_join(data):
     room     = data.get("room")
@@ -537,7 +536,7 @@ def on_join(data):
     emit("message", {
         "user": "system",
         "text": f"{username} joined the chat",
-        "time": datetime.now().strftime("%I:%M %p")
+        "time": ""
     }, to=room)
     emit("online_count", {"count": len(room_users[room]), "users": list(room_users[room])}, to=room)
 
@@ -552,7 +551,7 @@ def on_leave(data):
     emit("message", {
         "user": "system",
         "text": f"{username} left the chat",
-        "time": datetime.now().strftime("%I:%M %p")
+        "time": ""
     }, to=room)
     emit("online_count", {"count": len(room_users.get(room, set())), "users": list(room_users.get(room, set()))}, to=room)
 
@@ -585,7 +584,7 @@ def on_message(data):
     emit("message", {
         "user": username,
         "text": text,
-        "time": datetime.now().strftime("%I:%M %p"),
+        "time": "",
         "room": room
     }, to=room)
 

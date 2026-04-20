@@ -26,7 +26,7 @@
       position: relative;
     }
 
-    
+
     #bg-overlay {
       position: fixed; inset: 0;
       pointer-events: none;
@@ -81,7 +81,7 @@
     }
     .borough-img-wrap:hover { transform: scale(1.03); }
 
-    
+   
     .borough-img-wrap img {
       position: absolute;
       inset: 0;
@@ -196,6 +196,8 @@
 </head>
 
 <body>
+  <p id="transition-sub" style="font-size:0.6rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(232,222,208,0.4);opacity:0;transition:opacity 0.5s ease 0.35s;">Finding your next NYC adventure</p>
+</div>
 
 {% include '_nav.html.jinja' %}
 
@@ -206,13 +208,15 @@
   <h1 class="fade-up">Borough Directory</h1>
 </div>
 
-
+<!-- Borough panel -->
 <div class="borough-panel fade-left" id="borough-panel">
   <p class="name" id="borough-name">{{ selected.name }}</p>
-  <a href="/borough/{{ selected.name | replace(' ', '-') }}" class="visit-btn" id="visit-btn">
+  <a href="/borough/{{ selected.name | replace(' ', '-') }}" class="visit-btn" id="visit-btn"
+>
     Explore {{ selected.name }} &rarr;
   </a>
 </div>
+
 
 <div class="radial-container spin-in">
   <div class="arc-ring"></div>
@@ -251,7 +255,7 @@
 </div>
 
 <script>
-  
+
   document.querySelectorAll('.borough-form').forEach(form => {
     const idx    = parseInt(form.dataset.index);
     const total  = parseInt(form.dataset.total);
@@ -265,7 +269,7 @@
     form.style.transform = 'translate(-50%, -50%)';
   });
 
- 
+
   let currentBorough = '{{ selected.name }}';
   let isTransitioning = false;
 
@@ -318,7 +322,7 @@
     document.documentElement.style.setProperty('--accent', accent);
     document.documentElement.style.setProperty('--borough-color', color);
 
-    
+    // Slide out panel text
     const nameEl    = document.getElementById('borough-name');
     const visitBtn  = document.getElementById('visit-btn');
     nameEl.style.opacity   = '0';
@@ -326,7 +330,8 @@
 
     setTimeout(() => {
       nameEl.textContent    = name;
-      visitBtn.href         = `/borough/${name.replace(/ /g, '-')}`;
+      const slug = name.replace(/ /g, '-');
+      visitBtn.href         = `/borough/${slug}`;
       visitBtn.innerHTML    = `Explore ${name} &rarr;`;
       nameEl.style.transform = 'translateY(-4px)';
       requestAnimationFrame(() => {
@@ -336,7 +341,7 @@
       });
     }, 200);
 
-    // Update server state silently via fetch (no page reload)
+    
     fetch('/browse', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -656,6 +661,7 @@ function drawGhost(){if(currentFloor===1)drawCrawler(crawlerX,player.y-12);else 
 
 function draw(){ctx.fillStyle="black";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(deathShake+hallwayShake,deathShake);if(currentFloor===1)drawHallway();else if(currentFloor===2)drawHallwayFloor2();else drawHallwayGeneric(currentFloor);drawPlayer();drawGhost();if(screenFlash>0){ctx.fillStyle="rgba(255,0,0,0.4)";ctx.fillRect(0,0,canvas.width,canvas.height);screenFlash--;}if(whisperOpacity>0){ctx.globalAlpha=whisperOpacity;ctx.fillStyle="rgba(255,255,255,0.8)";ctx.font="10px serif";ctx.textAlign="center";ctx.fillText(whisperText,canvas.width/2,40);whisperOpacity=Math.max(0,whisperOpacity-0.01);ctx.globalAlpha=1;}ctx.restore();}
 </script>
+
 
 </body>
 </html>
