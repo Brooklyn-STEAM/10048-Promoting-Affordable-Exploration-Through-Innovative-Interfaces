@@ -29,149 +29,53 @@
     ::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.2); border-radius: 2px; }
 
     .featured-card {
-      position: relative;
-      border-radius: 18px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(232,222,208,0.12);
+      position: relative; border-radius: 18px; overflow: hidden;
+      cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: rgba(0,0,0,0.25); border: 1px solid rgba(232,222,208,0.12);
     }
-    .featured-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 24px 50px rgba(0,0,0,0.5);
-      border-color: rgba(232,222,208,0.3);
-    }
-    .featured-card img {
-      width: 100%; height: 100%; object-fit: cover;
-      display: block;
-    }
-    .featured-card .overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 55%);
-    }
-    .featured-card .info {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 16px 18px;
-    }
-    .featured-card .badge {
-      display: inline-block;
-      font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
-      padding: 3px 8px; border-radius: 999px;
-      background: var(--accent); color: #fff;
-      margin-bottom: 6px; opacity: 0.9;
-    }
-    .featured-card .card-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.25rem; font-weight: 300; line-height: 1.2;
-      color: #fff;
-    }
-    .featured-card .card-sub {
-      font-size: 0.6rem; letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.5); margin-top: 4px;
-    }
-    .featured-card .no-img {
-      display: flex; align-items: center; justify-content: center;
-      height: 100%; font-size: 0.7rem; opacity: 0.2;
-    }
+    .featured-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px rgba(0,0,0,0.5); border-color: rgba(232,222,208,0.3); }
+    .featured-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .featured-card .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 55%); }
+    .featured-card .info { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 18px; }
+    .featured-card .badge { display: inline-block; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: var(--accent); color: #fff; margin-bottom: 6px; opacity: 0.9; }
+    .featured-card .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 300; line-height: 1.2; color: #fff; }
+    .featured-card .card-sub { font-size: 0.6rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 4px; }
+    .featured-card .no-img { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.7rem; opacity: 0.2; }
 
-    .gem-card {
-      border-radius: 14px; overflow: hidden;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid rgba(232,222,208,0.1);
-      transition: all 0.25s ease;
-      cursor: pointer;
-    }
-    .gem-card:hover {
-      border-color: rgba(232,222,208,0.25);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
-    }
+    .gem-card { border-radius: 14px; overflow: hidden; background: rgba(0,0,0,0.2); border: 1px solid rgba(232,222,208,0.1); transition: all 0.25s ease; cursor: pointer; }
+    .gem-card:hover { border-color: rgba(232,222,208,0.25); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
     .gem-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
     .gem-card .gem-info { padding: 12px 14px; }
     .gem-card .gem-title { font-size: 0.85rem; font-weight: 500; }
     .gem-card .gem-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 3px; letter-spacing: 0.08em; }
     .gem-card .no-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0.2; }
 
-    .add-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 9px 22px; border-radius: 999px;
-      border: 1px solid rgba(232,222,208,0.35);
-      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
-      cursor: pointer; background: transparent; color: #e8ded0;
-      transition: background 0.2s;
-    }
+    .add-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: 999px; border: 1px solid rgba(232,222,208,0.35); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; background: transparent; color: #e8ded0; transition: background 0.2s; }
     .add-btn:hover { background: rgba(232,222,208,0.08); }
     .add-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
-    .section-label {
-      font-size: 0.55rem; letter-spacing: 0.3em;
-      text-transform: uppercase; opacity: 0.4;
-    }
+    .section-label { font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.4; }
 
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 300;
-      background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
-      display: none; align-items: center; justify-content: center; padding: 24px;
-    }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 24px; }
     .modal-backdrop.open { display: flex; }
-    .modal {
-      background: #ece4d8; border-radius: 20px;
-      border: 2px solid #1f1f1f; box-shadow: 6px 6px 0 #1f1f1f;
-      padding: 28px; width: 100%; max-width: 400px; color: #2b2b2b;
-    }
-    .modal label {
-      display: block; font-size: 0.6rem; font-weight: 500;
-      letter-spacing: 0.15em; text-transform: uppercase; color: #4a4a4a; margin-bottom: 5px;
-    }
-    .modal input, .modal textarea {
-      width: 100%; padding: 10px 14px; border-radius: 12px;
-      border: 2px solid #1f1f1f; background: #f5efe6;
-      font-size: 0.85rem; outline: none; box-shadow: 3px 3px 0 #1f1f1f;
-      color: #2b2b2b; font-family: inherit; margin-bottom: 14px;
-    }
+    .modal { background: #ece4d8; border-radius: 20px; border: 2px solid #1f1f1f; box-shadow: 6px 6px 0 #1f1f1f; padding: 28px; width: 100%; max-width: 400px; color: #2b2b2b; }
+    .modal label { display: block; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: #4a4a4a; margin-bottom: 5px; }
+    .modal input, .modal textarea { width: 100%; padding: 10px 14px; border-radius: 12px; border: 2px solid #1f1f1f; background: #f5efe6; font-size: 0.85rem; outline: none; box-shadow: 3px 3px 0 #1f1f1f; color: #2b2b2b; font-family: inherit; margin-bottom: 14px; }
     .modal textarea { resize: none; height: 75px; }
     .modal input[type="file"] { box-shadow: none; padding: 8px; }
-    .modal-submit {
-      width: 100%; padding: 12px; border-radius: 12px;
-      background: #2b2b2b; color: white; font-weight: 600;
-      border: 2px solid #1f1f1f; box-shadow: 4px 4px 0 #1f1f1f;
-      cursor: pointer; font-family: inherit; font-size: 0.85rem; transition: all 0.15s;
-    }
+    .modal-submit { width: 100%; padding: 12px; border-radius: 12px; background: #2b2b2b; color: white; font-weight: 600; border: 2px solid #1f1f1f; box-shadow: 4px 4px 0 #1f1f1f; cursor: pointer; font-family: inherit; font-size: 0.85rem; transition: all 0.15s; }
     .modal-submit:hover { transform: translate(2px,2px); box-shadow: none; }
-    .modal-cancel {
-      width: 100%; padding: 9px; margin-top: 6px;
-      background: transparent; border: none;
-      color: #4a4a4a; cursor: pointer; font-size: 0.78rem; font-family: inherit;
-    }
+    .modal-cancel { width: 100%; padding: 9px; margin-top: 6px; background: transparent; border: none; color: #4a4a4a; cursor: pointer; font-size: 0.78rem; font-family: inherit; }
     .modal-cancel:hover { color: #2b2b2b; }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     .fade-up { animation: fadeUp 0.5s ease both; }
-    .d1 { animation-delay: 0.05s; }
-    .d2 { animation-delay: 0.12s; }
-    .d3 { animation-delay: 0.2s; }
-    .d4 { animation-delay: 0.28s; }
+    .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.12s; } .d3 { animation-delay: 0.2s; } .d4 { animation-delay: 0.28s; }
 
-    @keyframes lbBackdropIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes lbBackdropOut {
-      from { opacity: 1; }
-      to   { opacity: 0; }
-    }
-    @keyframes lbCardIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.96); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes lbCardOut {
-      from { opacity: 1; transform: translateY(0) scale(1); }
-      to   { opacity: 0; transform: translateY(24px) scale(0.96); }
-    }
+    @keyframes lbBackdropIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes lbBackdropOut { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes lbCardIn  { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes lbCardOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(24px) scale(0.96); } }
 
     #lightbox { pointer-events: none; }
     #lightbox.lb-open { pointer-events: all; }
@@ -180,43 +84,26 @@
     #lb-card.lb-animating-in  { animation: lbCardIn  0.3s cubic-bezier(0.23,1,0.32,1) forwards; }
     #lb-card.lb-animating-out { animation: lbCardOut 0.22s ease forwards; }
 
-    #add-modal input[type="text"],
-    #add-modal input[type="time"],
-    #add-modal textarea,
-    #add-modal select {
-      background-color: rgba(101, 75, 55, 0.25) !important;
-      color: #e8ded0 !important;
-      border-color: rgba(232, 222, 208, 0.15) !important;
-      color-scheme: dark;
+    #add-modal input[type="text"], #add-modal input[type="time"], #add-modal textarea, #add-modal select {
+      background-color: rgba(101,75,55,0.25) !important; color: #e8ded0 !important;
+      border-color: rgba(232,222,208,0.15) !important; color-scheme: dark;
     }
-    #add-modal input::placeholder,
-    #add-modal textarea::placeholder {
-      color: rgba(232, 222, 208, 0.25) !important;
+    #add-modal input::placeholder, #add-modal textarea::placeholder { color: rgba(232,222,208,0.25) !important; }
+    #add-modal input[type="text"]:focus, #add-modal input[type="time"]:focus, #add-modal textarea:focus, #add-modal select:focus {
+      background-color: rgba(101,75,55,0.35) !important; border-color: rgba(232,222,208,0.35) !important; outline: none;
     }
-    #add-modal input[type="text"]:focus,
-    #add-modal input[type="time"]:focus,
-    #add-modal textarea:focus,
-    #add-modal select:focus {
-      background-color: rgba(101, 75, 55, 0.35) !important;
-      border-color: rgba(232, 222, 208, 0.35) !important;
-      outline: none;
-    }
-    #add-modal select option {
-      background-color: #2a1f18;
-      color: #e8ded0;
-    }
+    #add-modal select option { background-color: #2a1f18; color: #e8ded0; }
 
-   
+    #chat-messages { scrollbar-width: thin; }
     #chat-messages::-webkit-scrollbar { width: 3px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.1); border-radius: 2px; }
+
+    .chat-msg { opacity: 0; transform: translateY(6px); animation: chatIn 0.25s ease forwards; }
+    @keyframes chatIn { to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 
 <body>
-<div id="page-transition" class="fixed inset-0 z-[9999] pointer-events-none opacity-0 flex flex-col items-center justify-center gap-4"
-     style="background:radial-gradient(ellipse at 60% 50%, #3a2a1a 0%, #1a1210 60%, #0d0a08 100%);transition:opacity 0.55s cubic-bezier(0.4,0,0.2,1);">
-  <p id="transition-text" style="font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:300;color:#e8ded0;line-height:1.1;text-align:center;opacity:0;transition:opacity 0.5s ease 0.15s;">Hidden<br>Gems</p>
-  <div id="transition-divider" style="width:40px;height:1px;background:rgba(232,222,208,0.3);opacity:0;transition:opacity 0.5s ease 0.25s;"></div>
   <p id="transition-sub" style="font-size:0.6rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(232,222,208,0.4);opacity:0;transition:opacity 0.5s ease 0.35s;">Finding your next NYC adventure</p>
 </div>
 
@@ -226,8 +113,7 @@
   {% if messages %}
     <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
       {% for message in messages %}
-        <div class="px-5 py-3 rounded-xl text-white text-sm border border-white/20 shadow-lg"
-             style="background:var(--accent);">{{ message }}</div>
+        <div class="px-5 py-3 rounded-xl text-white text-sm border border-white/20 shadow-lg" style="background:var(--accent);">{{ message }}</div>
       {% endfor %}
     </div>
   {% endif %}
@@ -237,7 +123,7 @@
 
   <div class="flex items-end justify-between mb-10 fade-up">
     <div>
-      <a href="/browse" onclick="navigateTo(event, '/browse')" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
+      <a href="/browse" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
       <h1 class="serif text-6xl font-light mt-2 leading-none">{{ borough.name | capitalize }}</h1>
       <div class="w-10 h-px mt-4 opacity-50" style="background:var(--accent);"></div>
       <p class="text-xs opacity-30 tracking-widest uppercase mt-3">New York City</p>
@@ -250,30 +136,22 @@
 
   {% if locations %}
   <div class="fade-up d1">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <p class="section-label">Featured</p>
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex;gap:8px;">
         <button onclick="featStep(-1)" id="feat-prev" style="width:32px;height:32px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;">‹</button>
         <button onclick="featStep(1)"  id="feat-next" style="width:32px;height:32px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;">›</button>
       </div>
     </div>
-
-    <div style="overflow:hidden; border-radius:18px;">
+    <div style="overflow:hidden;border-radius:18px;">
       <div id="feat-track" class="flex gap-4 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
         {% for loc in locations %}
         <div class="featured-card shrink-0 basis-1/3 h-[340px]" onclick="openDetail({{ loop.index0 }})">
-          {% if loc.Image %}
-            <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
-          {% else %}
-            <div class="no-img">No image</div>
-          {% endif %}
-         
+          {% if loc.Image %}<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+          {% else %}<div class="no-img">No image</div>{% endif %}
+          <div class="overlay"></div>
           <div class="info">
-            <span class="badge">
-              {% if loop.index0 == 0 %}Featured
-              {% elif loop.index0 == 1 %}Hidden gem
-              {% else %}Local pick{% endif %}
-            </span>
+            <span class="badge">{% if loop.index0 == 0 %}Featured{% elif loop.index0 == 1 %}Hidden gem{% else %}Local pick{% endif %}</span>
             <p class="card-title">{{ loc.Name }}</p>
             <p class="card-sub">{{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}</p>
           </div>
@@ -290,11 +168,8 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       {% for loc in locations[3:] %}
       <div class="gem-card" onclick="openDetail({{ loop.index0 + 3 }})">
-        {% if loc.Image %}
-          <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
-        {% else %}
-          <div class="no-img"></div>
-        {% endif %}
+        {% if loc.Image %}<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+        {% else %}<div class="no-img"></div>{% endif %}
         <div class="gem-info" style="display:flex;align-items:flex-start;justify-content:space-between;">
           <div>
             <p class="gem-title">{{ loc.Name }}</p>
@@ -325,102 +200,39 @@
 
 </div>
 
-
 <div class="max-w-5xl mx-auto px-8 pb-16 mt-12 fade-up">
-  <div style="
-    background: rgba(0,0,0,0.25);
-    border: 1px solid rgba(232,222,208,0.1);
-    border-radius: 24px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 500px;
-  ">
-
-   
-    <div style="
-      padding: 16px 22px;
-      border-bottom: 1px solid rgba(232,222,208,0.08);
-      display: flex; align-items: center; justify-content: space-between;
-    ">
-      <div style="display:flex; align-items:center; gap:10px;">
+  <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,222,208,0.1);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;height:500px;">
+    <div style="padding:16px 22px;border-bottom:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
         <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
-        <p style="font-size:0.7rem; font-weight:500; color:#e8ded0; letter-spacing:0.05em;">
-          {{ borough.name | capitalize }} Community Chat
-        </p>
+        <p style="font-size:0.7rem;font-weight:500;color:#e8ded0;letter-spacing:0.05em;">{{ borough.name | capitalize }} Community Chat</p>
       </div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span id="online-count" style="font-size:0.6rem; color:rgba(232,222,208,0.4); letter-spacing:0.1em;">0 online</span>
-        <div id="online-dot" style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="online-count" style="font-size:0.6rem;color:rgba(232,222,208,0.4);letter-spacing:0.1em;">0 online</span>
+        <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;"></div>
       </div>
     </div>
-
-   
-    <div id="chat-messages" style="
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      scrollbar-width: thin;
-    "></div>
-
-    
-    <div style="
-      padding: 14px 16px;
-      border-top: 1px solid rgba(232,222,208,0.08);
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(0,0,0,0.15);
-    ">
-      <input id="chat-input"
-        type="text"
-        placeholder="Type your message here..."
-        maxlength="300"
+    <div id="chat-messages" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 20px;display:flex;flex-direction:column;gap:4px;min-height:0;"></div>
+    <div style="padding:14px 16px;border-top:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15);">
+      <input id="chat-input" type="text" placeholder="Type your message here..." maxlength="300"
         onkeydown="if(event.key==='Enter') sendMessage()"
-        style="
-          flex: 1;
-          background: rgba(232,222,208,0.06);
-          border: 1px solid rgba(232,222,208,0.12);
-          border-radius: 999px;
-          padding: 11px 18px;
-          color: #e8ded0;
-          font-size: 0.82rem;
-          font-family: inherit;
-          outline: none;
-          transition: border-color 0.2s;
-        "
+        style="flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);border-radius:999px;padding:11px 18px;color:#e8ded0;font-size:0.82rem;font-family:inherit;outline:none;transition:border-color 0.2s;"
         onfocus="this.style.borderColor='rgba(232,222,208,0.3)'"
         onblur="this.style.borderColor='rgba(232,222,208,0.12)'">
-      <button onclick="sendMessage()" style="
-        width: 42px; height: 42px;
-        border-radius: 50%;
-        background: var(--accent);
-        border: none;
-        cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0;
-        transition: opacity 0.2s;
-        font-size: 1rem;
-      " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-        ➤
-      </button>
+      <button onclick="sendMessage()" style="width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s, transform 0.15s;font-size:1rem;"
+        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'"
+        onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='scale(1)'">➤</button>
     </div>
-
   </div>
 </div>
 
-
-<div id="lightbox"
-     class="fixed inset-0 z-[400] flex-col items-center justify-center bg-black/50 backdrop-blur-2xl"
-     style="display:none;">
-
+<div id="lightbox" class="fixed inset-0 z-[400] flex-col items-center justify-center bg-black/50 backdrop-blur-2xl" style="display:none;">
   <button onclick="closeLightbox()" style="position:absolute;top:24px;right:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.1rem;width:38px;height:38px;border-radius:50%;cursor:pointer;line-height:1;">✕</button>
   <p id="lb-counter" style="position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.35);"></p>
 
   <div style="display:flex;align-items:center;gap:16px;width:100%;max-width:960px;padding:0 24px;box-sizing:border-box;">
-    <button id="lb-prev" onclick="lbStep(-1)" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">‹</button>
-    <button id="lb-next" onclick="lbStep(1)"  style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">›</button>
+    <button id="lb-prev" onclick="lbStep(-1)" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">‹</button>
+    <button id="lb-next" onclick="lbStep(1)"  style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">›</button>
 
     <div id="lb-card" style="width:100%;max-width:780px;padding:0 64px;box-sizing:border-box;margin:auto;">
       <div id="lb-map-area" class="relative h-[220px] bg-black/40 flex items-end justify-between p-4 gap-2">
@@ -432,9 +244,7 @@
         <span id="lb-coords" class="z-10 text-[10px] tracking-[.12em] uppercase text-[#e8ded0]/25 font-mono"></span>
         <a id="lb-map-link" href="#" target="_blank" class="z-10 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 bg-[#e8ded0]/[.08] border border-[#e8ded0]/20 text-[#e8ded0] text-[10px] font-bold tracking-[.18em] uppercase no-underline hover:bg-[#e8ded0]/[.15] transition-colors">Open in Maps ↗</a>
       </div>
-
       <div class="h-[3px] w-full" style="background:var(--accent)"></div>
-
       <div class="px-6 pt-5">
         <div class="flex items-center gap-2 mb-3">
           <span id="lb-type" class="text-[9px] font-bold tracking-[.22em] uppercase px-2.5 py-0.5 rounded-sm text-white" style="background:var(--accent)"></span>
@@ -447,36 +257,25 @@
         <p id="lb-desc" class="text-[13px] text-[#e8ded0]/60 leading-relaxed mb-4"></p>
         <div id="lb-tags" class="flex flex-wrap gap-1.5 mb-5"></div>
       </div>
-
       <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-6 py-4">
         <p class="text-[9px] font-bold tracking-[.24em] uppercase text-[#e8ded0]/35 mb-3">Hours</p>
         <div id="lb-hours" class="grid grid-cols-2 gap-x-4 gap-y-0"></div>
       </div>
-
       <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-6 py-4">
         <p id="lb-addr-text" class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed"></p>
         <button id="lb-like-btn" onclick="toggleLikeById()" class="flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#e8ded0]/15 bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px] tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors cursor-pointer">
-          <span id="lb-heart">♡</span>
-          <span id="lb-like-count">0</span>
+          <span id="lb-heart">♡</span><span id="lb-like-count">0</span>
           <span class="text-[8px] opacity-50 tracking-[.15em]">likes</span>
         </button>
       </div>
-
-      <button id="lb-delete-btn" onclick="openDeleteModal()" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">
-        Remove location
-      </button>
-
+      <button id="lb-delete-btn" onclick="openDeleteModal()" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">Remove location</button>
     </div>
   </div>
-
   <div id="lb-dots" style="display:flex;gap:8px;margin-top:28px;"></div>
 </div>
 
-<div id="add-modal"
-     class="modal-backdrop fixed inset-0 z-[500] bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 hidden"
-     onclick="closeAddBackdrop(event)">
-  <div class="w-full max-w-md flex flex-col rounded-2xl overflow-hidden border border-[#f5efe6]/10 shadow-2xl"
-       style="background:#231a13;max-height:90vh;" onclick="event.stopPropagation()">
+<div id="add-modal" class="modal-backdrop fixed inset-0 z-[500] bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 hidden" onclick="closeAddBackdrop(event)">
+  <div class="w-full max-w-md flex flex-col rounded-2xl overflow-hidden border border-[#f5efe6]/10 shadow-2xl" style="background:#231a13;max-height:90vh;" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between px-5 py-4 border-b border-[#f5efe6]/8 flex-shrink-0">
       <div>
         <h2 class="serif text-xl font-light text-[#f5efe6]">Add a location</h2>
@@ -484,7 +283,6 @@
       </div>
       <button onclick="closeAddModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-[#f5efe6]/40 hover:text-[#f5efe6]/80 hover:bg-[#f5efe6]/5 text-sm transition-all border border-[#f5efe6]/10">✕</button>
     </div>
-
     <div class="flex-1 overflow-y-auto">
       <form id="add-location-form" method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add" enctype="multipart/form-data">
         <div class="px-5 py-4 space-y-3 border-b border-[#f5efe6]/8">
@@ -509,7 +307,6 @@
             </label>
           </div>
         </div>
-
         <div class="px-5 py-4">
           <div class="flex items-center justify-between mb-3">
             <span class="text-[10px] tracking-widest uppercase text-[#f5efe6]/35">Hours</span>
@@ -543,14 +340,12 @@
         </div>
       </form>
     </div>
-
     <div class="px-5 py-4 border-t border-[#f5efe6]/8 flex gap-2 flex-shrink-0">
       <button type="submit" form="add-location-form" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold tracking-widest uppercase transition-all" style="background:var(--accent);color:#fff;">Post location</button>
       <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 rounded-xl text-[11px] tracking-widest uppercase text-[#f5efe6]/40 bg-[#f5efe6]/4 border border-[#f5efe6]/10 hover:text-[#f5efe6]/70 hover:border-[#f5efe6]/20 transition-all">Cancel</button>
     </div>
   </div>
 </div>
-
 
 <div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;">
   <div style="background:#111;border:1px solid rgba(232,222,208,0.12);border-radius:20px;padding:32px 28px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;">
@@ -566,15 +361,43 @@
   </div>
 </div>
 
+<div id="borough-switcher" style="position:fixed;bottom:24px;left:32px;z-index:50;">
+  <button onclick="toggleSwitcher()"
+    style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(0,0,0,0.35);border:1px solid rgba(232,222,208,0.15);color:rgba(232,222,208,0.5);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-family:inherit;"
+    onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.3)'"
+    onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.15)'">
+    <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
+    {{ borough.name }}
+    <span id="switcher-arrow" style="transition:transform 0.25s;opacity:0.4;">▴</span>
+  </button>
+  <div id="switcher-menu" style="position:absolute;bottom:calc(100% + 8px);left:0;background:rgba(10,10,10,0.85);border:1px solid rgba(232,222,208,0.1);border-radius:14px;overflow:hidden;backdrop-filter:blur(12px);min-width:160px;transform-origin:bottom left;transform:scale(0.92) translateY(6px);opacity:0;pointer-events:none;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);">
+    {% set all_boroughs = [
+      {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
+      {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
+      {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
+      {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
+      {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
+    ] %}
+    {% for b in all_boroughs %}
+    <a href="/borough/{{ b.name | replace(' ', '-') }}"
+       style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;transition:background 0.15s;color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
+       onmouseover="this.style.background='rgba(232,222,208,0.08)';this.style.color='#e8ded0'"
+       onmouseout="this.style.background='{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }}';this.style.color='{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }}'">
+      <span style="width:4px;height:4px;border-radius:50%;flex-shrink:0;background:{{ 'var(--accent)' if b.name == borough.name else 'rgba(232,222,208,0.2)' }};"></span>
+      {{ b.name }}
+      {% if b.name == borough.name %}<span style="margin-left:auto;font-size:0.5rem;opacity:0.4;">current</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
 <script>
   const locations = {{ locations_json | safe }};
 
-
   async function toggleLike(btn) {
-    const id      = btn.dataset.id;
-    const borough = btn.dataset.borough;
-    const res     = await fetch(`/borough/${borough}/like/${id}`, { method: 'POST' });
-    const data    = await res.json();
+    const id = btn.dataset.id, borough = btn.dataset.borough;
+    const res = await fetch(`/borough/${borough}/like/${id}`, { method: 'POST' });
+    const data = await res.json();
     btn.dataset.liked = data.liked ? 'true' : 'false';
     btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡';
     btn.querySelector('.like-count').textContent = data.count;
@@ -582,8 +405,7 @@
     if (document.getElementById('lightbox').style.display === 'flex') {
       const loc = locations[lbIndex];
       if (loc && String(loc.ID) === String(id)) {
-        loc.LikeCount = data.count;
-        loc.Liked = data.liked;
+        loc.LikeCount = data.count; loc.Liked = data.liked;
         document.getElementById('lb-like-count').textContent = data.count;
         document.getElementById('lb-heart').textContent = data.liked ? '♥' : '♡';
         document.getElementById('lb-like-btn').style.color = data.liked ? 'var(--accent)' : '#e8ded0';
@@ -592,33 +414,24 @@
   }
 
   async function toggleLikeById() {
-    const loc = locations[lbIndex];
-    if (!loc) return;
+    const loc = locations[lbIndex]; if (!loc) return;
     const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
-    const res  = await fetch(`/borough/${boroughSlug}/like/${loc.ID}`, { method: 'POST' });
+    const res = await fetch(`/borough/${boroughSlug}/like/${loc.ID}`, { method: 'POST' });
     const data = await res.json();
-    loc.Liked = data.liked;
-    loc.LikeCount = data.count;
+    loc.Liked = data.liked; loc.LikeCount = data.count;
     document.getElementById('lb-like-count').textContent = data.count;
     document.getElementById('lb-heart').textContent = data.liked ? '♥' : '♡';
     document.getElementById('lb-like-btn').style.color = data.liked ? 'var(--accent)' : '#e8ded0';
     const btn = document.querySelector(`.like-btn[data-id="${loc.ID}"]`);
-    if (btn) {
-      btn.dataset.liked = data.liked ? 'true' : 'false';
-      btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡';
-      btn.querySelector('.like-count').textContent = data.count;
-      btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)';
-    }
+    if (btn) { btn.dataset.liked = data.liked ? 'true' : 'false'; btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡'; btn.querySelector('.like-count').textContent = data.count; btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)'; }
   }
 
- 
   let featIndex = 0;
   const featTotal = locations.length;
   const VISIBLE = 3;
 
   function buildFeatDots() {
-    const dotsEl = document.getElementById('feat-dots');
-    if (!dotsEl) return;
+    const dotsEl = document.getElementById('feat-dots'); if (!dotsEl) return;
     dotsEl.innerHTML = '';
     const pages = Math.max(1, featTotal - VISIBLE + 1);
     for (let i = 0; i < pages; i++) {
@@ -630,10 +443,8 @@
   }
 
   function updateFeatSlide() {
-    const track = document.getElementById('feat-track');
-    if (!track) return;
-    const shiftPercent = (100 / VISIBLE) * featIndex;
-    track.style.transform = `translateX(-${shiftPercent}%)`;
+    const track = document.getElementById('feat-track'); if (!track) return;
+    track.style.transform = `translateX(-${(100/VISIBLE)*featIndex}%)`;
     const maxIndex = Math.max(0, featTotal - VISIBLE);
     document.getElementById('feat-prev').style.opacity = featIndex > 0 ? '1' : '0.25';
     document.getElementById('feat-next').style.opacity = featIndex < maxIndex ? '1' : '0.25';
@@ -641,27 +452,21 @@
   }
 
   function featStep(dir) {
-    const maxIndex = Math.max(0, featTotal - VISIBLE);
-    featIndex = Math.max(0, Math.min(featIndex + dir, maxIndex));
+    featIndex = Math.max(0, Math.min(featIndex + dir, Math.max(0, featTotal - VISIBLE)));
     updateFeatSlide();
   }
 
   window.addEventListener('load', () => { buildFeatDots(); updateFeatSlide(); });
-
 
   let lbIndex = 0;
   const lbTotal = locations.length;
   let lbAnimating = false;
 
   function openDetail(index) {
-    lbIndex = index;
-    renderLightbox();
-    const lb   = document.getElementById('lightbox');
-    const card = document.getElementById('lb-card');
-    lb.classList.remove('hidden');
-    lb.style.display = 'flex';
-    lb.classList.add('lb-open', 'lb-animating-in');
-    card.classList.add('lb-animating-in');
+    lbIndex = index; renderLightbox();
+    const lb = document.getElementById('lightbox'), card = document.getElementById('lb-card');
+    lb.classList.remove('hidden'); lb.style.display = 'flex';
+    lb.classList.add('lb-open','lb-animating-in'); card.classList.add('lb-animating-in');
     lb.addEventListener('animationend',   () => lb.classList.remove('lb-animating-in'),   { once: true });
     card.addEventListener('animationend', () => card.classList.remove('lb-animating-in'), { once: true });
     document.body.style.overflow = 'hidden';
@@ -669,435 +474,191 @@
   }
 
   function renderLightbox() {
-    const loc = locations[lbIndex];
-    if (!loc) return;
-
-   
+    const loc = locations[lbIndex]; if (!loc) return;
     const openStatus = document.getElementById('lb-open-status');
     let isOpen = false;
     if (loc.Hours && Array.isArray(loc.Hours)) {
-      const jsDay = new Date().getDay();
-      const map = [6,0,1,2,3,4,5];
-      const today = loc.Hours[map[jsDay]];
+      const today = loc.Hours[[6,0,1,2,3,4,5][new Date().getDay()]];
       if (today && today.hours && today.hours !== "Closed") {
-        const [openStr, closeStr] = today.hours.split(" – ");
+        const [os, cs] = today.hours.split(" – ");
         const now = new Date();
-        const [openH, openM]   = openStr.split(":").map(Number);
-        const [closeH, closeM] = closeStr.split(":").map(Number);
-        const openTime  = new Date(); openTime.setHours(openH, openM, 0);
-        const closeTime = new Date(); closeTime.setHours(closeH, closeM, 0);
-        if (now >= openTime && now <= closeTime) isOpen = true;
+        const ot = new Date(); ot.setHours(...os.split(":").map(Number), 0);
+        const ct = new Date(); ct.setHours(...cs.split(":").map(Number), 0);
+        if (now >= ot && now <= ct) isOpen = true;
       }
     }
-    if (isOpen) {
-      openStatus.style.cssText = "display:inline-flex;color:rgb(74,222,128);border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);";
-      openStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>Open now`;
-    } else {
-      openStatus.style.cssText = "display:inline-flex;color:rgb(239,68,68);border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);";
-      openStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>Closed`;
-    }
+    openStatus.style.cssText = isOpen
+      ? "display:inline-flex;align-items:center;gap:4px;color:rgb(74,222,128);border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);border-radius:2px;padding:2px 10px;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;"
+      : "display:inline-flex;align-items:center;gap:4px;color:rgb(239,68,68);border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);border-radius:2px;padding:2px 10px;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;";
+    openStatus.innerHTML = isOpen
+      ? `<span style="width:6px;height:6px;border-radius:50%;background:rgb(74,222,128);flex-shrink:0;"></span>Open now`
+      : `<span style="width:6px;height:6px;border-radius:50%;background:rgb(239,68,68);flex-shrink:0;"></span>Closed`;
 
-    document.getElementById('lb-counter').textContent = `${lbIndex + 1} / ${lbTotal}`;
-    const badges = ['Featured', 'Hidden gem', 'Local pick'];
-    document.getElementById('lb-badge').textContent = loc.Type || badges[lbIndex] || 'Gem';
+    document.getElementById('lb-counter').textContent = `${lbIndex+1} / ${lbTotal}`;
+    document.getElementById('lb-badge').textContent = loc.Type || ['Featured','Hidden gem','Local pick'][lbIndex] || 'Gem';
     document.getElementById('lb-type').textContent  = loc.Category || 'Location';
+    document.getElementById('lb-coords').textContent = (loc.Latitude && loc.Longitude) ? `${loc.Latitude}° N · ${loc.Longitude}° W` : '';
 
-    const coordsEl = document.getElementById('lb-coords');
-    coordsEl.textContent = (loc.Latitude && loc.Longitude) ? `${loc.Latitude}° N · ${loc.Longitude}° W` : '';
-
-    const addrText = document.getElementById('lb-addr-text');
-    const mapLink  = document.getElementById('lb-map-link');
+    const addrText = document.getElementById('lb-addr-text'), mapLink = document.getElementById('lb-map-link');
     if (loc.Address) {
       addrText.textContent = loc.Address;
-      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.Address + ', New York City')}`;
-      addrText.style.display = 'block';
-      mapLink.style.display  = 'inline-flex';
-    } else {
-      addrText.style.display = 'none';
-      mapLink.style.display  = 'none';
-    }
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.Address+', New York City')}`;
+      addrText.style.display = 'block'; mapLink.style.display = 'inline-flex';
+    } else { addrText.style.display = 'none'; mapLink.style.display = 'none'; }
 
     document.getElementById('lb-title').textContent = loc.Name;
-    document.getElementById('lb-meta').textContent  = `${loc.Borough || ''} · ${loc.DatePosted || ''}`;
+    document.getElementById('lb-meta').textContent  = `${loc.Borough||''} · ${loc.DatePosted||''}`;
     document.getElementById('lb-desc').textContent  = loc.Description || 'No description provided.';
 
-    const tagsEl = document.getElementById('lb-tags');
-    tagsEl.innerHTML = '';
-    if (loc.Tags && Array.isArray(loc.Tags)) {
-      loc.Tags.forEach(tag => {
-        const el = document.createElement('span');
-        el.className = "text-[9px] font-semibold tracking-[.14em] uppercase px-2.5 py-1 rounded-sm border border-[#e8ded0]/15 text-[#e8ded0]/50 bg-[#e8ded0]/[.04]";
-        el.textContent = tag;
-        tagsEl.appendChild(el);
-      });
-    }
+    const tagsEl = document.getElementById('lb-tags'); tagsEl.innerHTML = '';
+    (loc.Tags||[]).forEach(tag => { const el = document.createElement('span'); el.className="text-[9px] font-semibold tracking-[.14em] uppercase px-2.5 py-1 rounded-sm border border-[#e8ded0]/15 text-[#e8ded0]/50 bg-[#e8ded0]/[.04]"; el.textContent=tag; tagsEl.appendChild(el); });
 
-    const hoursEl = document.getElementById('lb-hours');
-    hoursEl.innerHTML = '';
-    if (loc.Hours && Array.isArray(loc.Hours)) {
-      loc.Hours.forEach(day => {
-        const row = document.createElement('div');
-        row.className = `flex justify-between py-1 border-b border-[#e8ded0]/[.05] ${day.today ? 'text-[#e8ded0]' : 'text-[#e8ded0]/40'}`;
-        row.innerHTML = `
-          <span class="text-[11px] tracking-[.08em] uppercase font-mono">${day.name}</span>
-          <span class="text-[11px] font-mono ${day.today ? 'font-bold' : ''}" style="${day.today ? 'color:var(--accent)' : ''}">${formatHours(day.hours)}</span>`;
-        hoursEl.appendChild(row);
-      });
-    }
-
-    document.getElementById('lb-like-count').textContent = loc.LikeCount || 0;
-    document.getElementById('lb-heart').textContent = loc.Liked ? '♥' : '♡';
-    document.getElementById('lb-like-btn').style.color = loc.Liked ? 'var(--accent)' : '#e8ded0';
-
-    const delBtn = document.getElementById('lb-delete-btn');
-    delBtn.style.display = loc.IsOwner ? 'flex' : 'none';
-
-    document.getElementById('lb-prev').style.visibility = lbIndex > 0 ? 'visible' : 'hidden';
-    document.getElementById('lb-next').style.visibility = lbIndex < lbTotal - 1 ? 'visible' : 'hidden';
-
-    const dotsEl = document.getElementById('lb-dots');
-    dotsEl.innerHTML = '';
-    locations.forEach((_, i) => {
-      const d = document.createElement('div');
-      d.style.cssText = `width:6px;height:6px;border-radius:50%;cursor:pointer;background:${i===lbIndex?'var(--accent)':'rgba(232,222,208,0.25)'};transition:background 0.2s;`;
-      d.onclick = () => { lbIndex = i; renderLightbox(); };
-      dotsEl.appendChild(d);
+    const hoursEl = document.getElementById('lb-hours'); hoursEl.innerHTML = '';
+    (loc.Hours||[]).forEach(day => {
+      const row = document.createElement('div');
+      row.className = `flex justify-between py-1 border-b border-[#e8ded0]/[.05] ${day.today?'text-[#e8ded0]':'text-[#e8ded0]/40'}`;
+      row.innerHTML = `<span class="text-[11px] tracking-[.08em] uppercase font-mono">${day.name}</span><span class="text-[11px] font-mono ${day.today?'font-bold':''}" style="${day.today?'color:var(--accent)':''}">${formatHours(day.hours)}</span>`;
+      hoursEl.appendChild(row);
     });
+
+    document.getElementById('lb-like-count').textContent = loc.LikeCount||0;
+    document.getElementById('lb-heart').textContent = loc.Liked?'♥':'♡';
+    document.getElementById('lb-like-btn').style.color = loc.Liked?'var(--accent)':'#e8ded0';
+    document.getElementById('lb-delete-btn').style.display = loc.IsOwner?'flex':'none';
+    document.getElementById('lb-prev').style.visibility = lbIndex>0?'visible':'hidden';
+    document.getElementById('lb-next').style.visibility = lbIndex<lbTotal-1?'visible':'hidden';
+
+    const dotsEl = document.getElementById('lb-dots'); dotsEl.innerHTML = '';
+    locations.forEach((_,i) => { const d=document.createElement('div'); d.style.cssText=`width:6px;height:6px;border-radius:50%;cursor:pointer;background:${i===lbIndex?'var(--accent)':'rgba(232,222,208,0.25)'};transition:background 0.2s;`; d.onclick=()=>{lbIndex=i;renderLightbox();}; dotsEl.appendChild(d); });
   }
 
-  function formatHours(hoursStr) {
-    if (!hoursStr || hoursStr === "Closed") return "Closed";
-    const parts = hoursStr.split(" – ");
-    if (parts.length !== 2) return hoursStr;
-    return `${to12Hour(parts[0])} – ${to12Hour(parts[1])}`;
+  function formatHours(s) {
+    if (!s||s==="Closed") return "Closed";
+    const p=s.split(" – "); return p.length!==2?s:`${to12Hour(p[0])} – ${to12Hour(p[1])}`;
   }
-
-  function to12Hour(timeStr) {
-    if (!timeStr || !timeStr.includes(":")) return timeStr;
-    let [h, m] = timeStr.split(":").map(Number);
-    const suffix = h >= 12 ? "PM" : "AM";
-    h = (h % 12) || 12;
-    return `${h}:${m.toString().padStart(2, "0")} ${suffix}`;
+  function to12Hour(t) {
+    if (!t||!t.includes(":")) return t;
+    let [h,m]=t.split(":").map(Number); const suf=h>=12?"PM":"AM"; h=(h%12)||12;
+    return `${h}:${m.toString().padStart(2,"0")} ${suf}`;
   }
 
   function lbStep(dir) {
     if (lbAnimating) return;
-    const next = lbIndex + dir;
-    if (next < 0 || next >= lbTotal) return;
+    const next = lbIndex+dir; if (next<0||next>=lbTotal) return;
     lbAnimating = true;
     const card = document.getElementById('lb-card');
-    const slideOut = dir > 0 ? 'translateX(-60px)' : 'translateX(60px)';
-    const slideIn  = dir > 0 ? 'translateX(60px)'  : 'translateX(-60px)';
+    const out = dir>0?'translateX(-60px)':'translateX(60px)', into = dir>0?'translateX(60px)':'translateX(-60px)';
     card.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
-    card.style.opacity    = '0';
-    card.style.transform  = slideOut;
+    card.style.opacity = '0'; card.style.transform = out;
     setTimeout(() => {
-      lbIndex = next;
-      renderLightbox();
-      card.style.transition = 'none';
-      card.style.transform  = slideIn;
-      card.style.opacity    = '0';
+      lbIndex=next; renderLightbox();
+      card.style.transition='none'; card.style.transform=into; card.style.opacity='0';
       card.getBoundingClientRect();
-      card.style.transition = 'opacity 0.22s ease, transform 0.22s cubic-bezier(0.23,1,0.32,1)';
-      card.style.opacity    = '1';
-      card.style.transform  = 'translateX(0)';
-      setTimeout(() => { card.style.pointerEvents = ''; lbAnimating = false; }, 220);
+      card.style.transition='opacity 0.22s ease, transform 0.22s cubic-bezier(0.23,1,0.32,1)';
+      card.style.opacity='1'; card.style.transform='translateX(0)';
+      setTimeout(()=>{card.style.pointerEvents='';lbAnimating=false;},220);
     }, 180);
   }
 
   function closeLightbox() {
-    const lb   = document.getElementById('lightbox');
-    const card = document.getElementById('lb-card');
-    lb.classList.add('lb-animating-out');
-    card.classList.add('lb-animating-out');
-    lb.addEventListener('animationend', () => {
-      lb.classList.remove('lb-open', 'lb-animating-out');
-      card.classList.remove('lb-animating-out');
-      lb.classList.add('hidden');
-      lb.style.display = '';
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', lbKeyHandler);
-    }, { once: true });
+    const lb=document.getElementById('lightbox'), card=document.getElementById('lb-card');
+    lb.classList.add('lb-animating-out'); card.classList.add('lb-animating-out');
+    lb.addEventListener('animationend',()=>{
+      lb.classList.remove('lb-open','lb-animating-out'); card.classList.remove('lb-animating-out');
+      lb.classList.add('hidden'); lb.style.display='';
+      document.body.style.overflow=''; document.removeEventListener('keydown',lbKeyHandler);
+    },{once:true});
   }
 
-  function lbKeyHandler(e) {
-    if (e.key === 'ArrowRight') lbStep(1);
-    if (e.key === 'ArrowLeft')  lbStep(-1);
-    if (e.key === 'Escape')     closeLightbox();
-  }
+  function lbKeyHandler(e) { if(e.key==='ArrowRight')lbStep(1); if(e.key==='ArrowLeft')lbStep(-1); if(e.key==='Escape')closeLightbox(); }
+  document.getElementById('lightbox').addEventListener('click',function(e){if(e.target===this)closeLightbox();});
 
-  document.getElementById('lightbox').addEventListener('click', function(e) {
-    if (e.target === this) closeLightbox();
-  });
-
-  function openDeleteModal() {
-    const modal = document.getElementById('delete-modal');
-    modal.style.display = 'flex';
-    document.getElementById('delete-confirm-btn').onclick = confirmDelete;
-  }
-
-  function closeDeleteModal() {
-    document.getElementById('delete-modal').style.display = 'none';
-  }
-
+  function openDeleteModal() { document.getElementById('delete-modal').style.display='flex'; document.getElementById('delete-confirm-btn').onclick=confirmDelete; }
+  function closeDeleteModal() { document.getElementById('delete-modal').style.display='none'; }
   async function confirmDelete() {
-    const loc = locations[lbIndex];
-    if (!loc) return;
-    closeDeleteModal();
-    const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
-    const res  = await fetch(`/borough/${boroughSlug}/delete/${loc.ID}`, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) {
-      locations.splice(lbIndex, 1);
-      closeLightbox();
-      location.reload();
-    } else {
-      alert("Failed to delete location.");
-    }
+    const loc=locations[lbIndex]; if(!loc) return; closeDeleteModal();
+    const res=await fetch(`/borough/{{ borough.name | replace(" ", "-") }}/delete/${loc.ID}`,{method:'POST'});
+    const data=await res.json();
+    if(data.success){locations.splice(lbIndex,1);closeLightbox();location.reload();}
+    else alert("Failed to delete location.");
   }
 
+  function openModal() { document.getElementById('add-modal').classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); document.body.style.overflow=''; }
+  function closeAddBackdrop(e) { if(e.target.id==='add-modal')closeAddModal(); }
 
-  function openModal() {
-    document.getElementById('add-modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeAddModal() {
-    document.getElementById('add-modal').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  function closeAddBackdrop(e) { if (e.target.id === 'add-modal') closeAddModal(); }
-
-  function toggleClosed(day) {
-    const row      = document.getElementById(`hours-row-${day}`);
-    const checkbox = document.querySelector(`input[name="hours_${day}_closed"]`);
-    row.style.display = checkbox.checked ? 'none' : 'flex';
-  }
-
+  function toggleClosed(day) { const row=document.getElementById(`hours-row-${day}`), cb=document.querySelector(`input[name="hours_${day}_closed"]`); row.style.display=cb.checked?'none':'flex'; }
   function applyPreset() {
-    const preset = document.getElementById("hours-preset").value;
-    const days   = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-    days.forEach(d => {
-      const closed = document.querySelector(`input[name="hours_${d}_closed"]`);
-      const open   = document.querySelector(`input[name="hours_${d}_open"]`);
-      const close  = document.querySelector(`input[name="hours_${d}_close"]`);
-      if (preset === "9-5") {
-        if (["Sat","Sun"].includes(d)) { closed.checked = true;  toggleClosed(d); }
-        else { closed.checked = false; toggleClosed(d); open.value = "09:00"; close.value = "17:00"; }
-      }
-      if (preset === "24-7")  { closed.checked = false; toggleClosed(d); open.value = "00:00"; close.value = "23:59"; }
-      if (preset === "closed") { closed.checked = true;  toggleClosed(d); }
+    const preset=document.getElementById("hours-preset").value, days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    days.forEach(d=>{
+      const cl=document.querySelector(`input[name="hours_${d}_closed"]`), op=document.querySelector(`input[name="hours_${d}_open"]`), cl2=document.querySelector(`input[name="hours_${d}_close"]`);
+      if(preset==="9-5"){if(["Sat","Sun"].includes(d)){cl.checked=true;toggleClosed(d);}else{cl.checked=false;toggleClosed(d);op.value="09:00";cl2.value="17:00";}}
+      if(preset==="24-7"){cl.checked=false;toggleClosed(d);op.value="00:00";cl2.value="23:59";}
+      if(preset==="closed"){cl.checked=true;toggleClosed(d);}
     });
   }
 
- 
   const USERNAME  = '{{ current_user.name }}';
   const CHAT_ROOM = '{{ borough.name | replace(" ", "-") }}';
   const socket    = io();
 
   socket.emit('join', { room: CHAT_ROOM, username: USERNAME });
-
-  socket.on('message', (data) => { appendMessage(data); });
-
-  // Online users
-  socket.on('online_count', (data) => {
-    const el = document.getElementById('online-count');
-    if (el) el.textContent = `${data.count} online`;
-  });
+  socket.on('message', data => appendMessage(data));
+  socket.on('online_count', data => { const el=document.getElementById('online-count'); if(el) el.textContent=`${data.count} online`; });
 
   async function loadHistory() {
-    try {
-      const res  = await fetch(`/chat/${CHAT_ROOM}/history`);
-      const msgs = await res.json();
-      msgs.forEach(m => appendMessage(m));
-    } catch(e) {}
+    try { const res=await fetch(`/chat/${CHAT_ROOM}/history`); const msgs=await res.json(); msgs.forEach(m=>appendMessage(m,true)); } catch(e){}
   }
   loadHistory();
 
-  function appendMessage(data) {
-    const wrap     = document.getElementById('chat-messages');
-    if (!wrap) return;
-    const isSystem = data.user === 'system';
-    const isMe     = data.user === USERNAME;
-    const div      = document.createElement('div');
-    div.style.cssText = `display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : isSystem ? 'center' : 'flex-start'}; margin-bottom:2px;`;
-    if (isSystem) {
-      div.innerHTML = `<p style="font-size:0.6rem;color:rgba(232,222,208,0.25);text-align:center;padding:4px 0;">${data.text}</p>`;
+  function getLocalTime() {
+    const now=new Date(); let h=now.getHours(); const m=now.getMinutes().toString().padStart(2,'0'), ampm=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${m} ${ampm}`;
+  }
+
+  function appendMessage(data, isHistory=false) {
+    const wrap=document.getElementById('chat-messages'); if(!wrap) return;
+    const isSystem=data.user==='system', isMe=data.user===USERNAME;
+    const time = data.time || getLocalTime();
+    const div=document.createElement('div');
+    div.className = 'chat-msg';
+    div.style.cssText=`display:flex;flex-direction:column;align-items:${isMe?'flex-end':isSystem?'center':'flex-start'};margin-bottom:4px;flex-shrink:0;`;
+    if(isSystem){
+      div.innerHTML=`<p style="font-size:0.6rem;color:rgba(232,222,208,0.2);text-align:center;padding:4px 0;">${data.text}</p>`;
     } else {
-      div.innerHTML = `
-        ${!isMe ? `<p style="font-size:0.6rem;color:rgba(232,222,208,0.4);margin-bottom:3px;padding-left:4px;">${data.user}</p>` : ''}
-        <div style="
-          max-width:65%; padding:10px 14px;
-          border-radius:${isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};
-          background:${isMe ? 'var(--accent)' : 'rgba(232,222,208,0.1)'};
-          color:#e8ded0; font-size:0.82rem; line-height:1.5; word-break:break-word;
-        ">${data.text}</div>
-        <p style="font-size:0.55rem;color:rgba(232,222,208,0.2);margin-top:3px;padding:0 4px;">${data.time}</p>`;
+      div.innerHTML=`
+        ${!isMe?`<p style="font-size:0.6rem;color:rgba(232,222,208,0.4);margin-bottom:3px;padding-left:4px;">${data.user}</p>`:''}
+        <div style="max-width:65%;padding:10px 14px;border-radius:${isMe?'18px 18px 4px 18px':'18px 18px 18px 4px'};background:${isMe?'var(--accent)':'rgba(232,222,208,0.1)'};color:#e8ded0;font-size:0.82rem;line-height:1.5;word-break:break-word;">${data.text}</div>
+        <p style="font-size:0.55rem;color:rgba(232,222,208,0.2);margin-top:3px;padding:0 4px;">${time}</p>`;
     }
     wrap.appendChild(div);
-    wrap.scrollTop = wrap.scrollHeight;
+    requestAnimationFrame(() => { wrap.scrollTop = wrap.scrollHeight; });
   }
 
   function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const text  = input.value.trim();
-    if (!text) return;
-    socket.emit('send_message', { room: CHAT_ROOM, username: USERNAME, text });
-    input.value = '';
+    const input=document.getElementById('chat-input'), text=input.value.trim(); if(!text) return;
+    socket.emit('send_message',{room:CHAT_ROOM,username:USERNAME,text}); input.value='';
   }
 
-  window.addEventListener('beforeunload', () => {
-    socket.emit('leave', { room: CHAT_ROOM, username: USERNAME });
-  });
-</script>
-<!-- Borough quick-switch -->
-<div id="borough-switcher" style="position:fixed;bottom:24px;left:32px;z-index:50;">
-  <button onclick="toggleSwitcher()"
-    style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;
-           background:rgba(0,0,0,0.35);border:1px solid rgba(232,222,208,0.15);
-           color:rgba(232,222,208,0.5);font-size:0.55rem;letter-spacing:0.25em;
-           text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);
-           transition:all 0.2s;font-family:inherit;"
-    onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.3)'"
-    onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.15)'">
-    <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
-    {{ borough.name }}
-    <span id="switcher-arrow" style="transition:transform 0.25s;opacity:0.4;">▴</span>
-  </button>
+  window.addEventListener('beforeunload',()=>socket.emit('leave',{room:CHAT_ROOM,username:USERNAME}));
 
-  <div id="switcher-menu"
-    style="position:absolute;bottom:calc(100% + 8px);left:0;
-           background:rgba(10,10,10,0.85);border:1px solid rgba(232,222,208,0.1);
-           border-radius:14px;overflow:hidden;backdrop-filter:blur(12px);
-           min-width:160px;transform-origin:bottom left;
-           transform:scale(0.92) translateY(6px);opacity:0;
-           pointer-events:none;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);">
-    {% set all_boroughs = [
-    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
-    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
-    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
-    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
-    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
-] %}
-    {% for b in all_boroughs %}
-<a href="/borough/{{ b.name | replace(' ', '-') }}"
-   onclick="navigateTo(event, '/borough/{{ b.name | replace(' ', '-') }}')"
-   style="display:flex;align-items:center;gap:10px;padding:10px 16px;
-          text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;
-          text-transform:uppercase;transition:background 0.15s;
-          color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};
-          background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
-   onmouseover="this.style.background='rgba(232,222,208,0.08)';this.style.color='#e8ded0'"
-   onmouseout="this.style.background='{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }}';this.style.color='{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }}'">
-  <span style="width:4px;height:4px;border-radius:50%;flex-shrink:0;
-               background:{{ 'var(--accent)' if b.name == borough.name else 'rgba(232,222,208,0.2)' }};"></span>
-  {{ b.name }}
-  {% if b.name == borough.name %}
-    <span style="margin-left:auto;font-size:0.5rem;opacity:0.4;">current</span>
-  {% endif %}
-</a>
-{% endfor %}
-  </div>
-</div>
-
-<script>
-  let switcherOpen = false;
+  let switcherOpen=false;
   function toggleSwitcher() {
-    switcherOpen = !switcherOpen;
-    const menu  = document.getElementById('switcher-menu');
-    const arrow = document.getElementById('switcher-arrow');
-    if (switcherOpen) {
-      menu.style.opacity       = '1';
-      menu.style.transform     = 'scale(1) translateY(0)';
-      menu.style.pointerEvents = 'all';
-      arrow.style.transform    = 'rotate(180deg)';
-    } else {
-      menu.style.opacity       = '0';
-      menu.style.transform     = 'scale(0.92) translateY(6px)';
-      menu.style.pointerEvents = 'none';
-      arrow.style.transform    = 'rotate(0deg)';
-    }
+    switcherOpen=!switcherOpen;
+    const menu=document.getElementById('switcher-menu'), arrow=document.getElementById('switcher-arrow');
+    menu.style.opacity=switcherOpen?'1':'0';
+    menu.style.transform=switcherOpen?'scale(1) translateY(0)':'scale(0.92) translateY(6px)';
+    menu.style.pointerEvents=switcherOpen?'all':'none';
+    arrow.style.transform=switcherOpen?'rotate(180deg)':'rotate(0deg)';
   }
 
   document.addEventListener('click', e => {
-    if (switcherOpen && !document.getElementById('borough-switcher').contains(e.target)) {
-      switcherOpen = false;
-      toggleSwitcher(); toggleSwitcher();
+    if(switcherOpen && !document.getElementById('borough-switcher').contains(e.target)){
+      switcherOpen=true; toggleSwitcher();
     }
   });
 
-  function navigateTo(e, url) {
-    e.preventDefault();
-    if (window._navigating) return;
-    window._navigating = true;
 
-    const overlay = document.getElementById('page-transition');
-
-    document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
-      el.style.transition = 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.4,0,0.2,1)';
-      el.style.opacity    = '0';
-      el.style.transform  = 'translateY(10px)';
-    });
-
-    setTimeout(() => {
-      overlay.style.pointerEvents = 'all';
-      overlay.style.opacity = '1';
-      document.getElementById('transition-text').style.opacity     = '1';
-      document.getElementById('transition-divider').style.opacity  = '1';
-      document.getElementById('transition-sub').style.opacity      = '1';
-    }, 200);
-
-    setTimeout(() => {
-      window.location.href = url;
-    }, 620);
-  }
-
-  window.addEventListener('pageshow', () => {
-    window._navigating = false;
-    const overlay = document.getElementById('page-transition');
-
-    // Start fully visible, then fade out
-    overlay.style.transition    = 'none';
-    overlay.style.opacity       = '1';
-    overlay.style.pointerEvents = 'all';
-
-    // Reset text elements to hidden
-    document.getElementById('transition-text').style.opacity    = '0';
-    document.getElementById('transition-divider').style.opacity = '0';
-    document.getElementById('transition-sub').style.opacity     = '0';
-
-    // Start page content hidden
-    document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
-      el.style.transition = 'none';
-      el.style.opacity    = '0';
-      el.style.transform  = 'translateY(12px)';
-    });
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        // Fade out overlay
-        overlay.style.transition = 'opacity 0.6s cubic-bezier(0.4,0,0.2,1)';
-        overlay.style.opacity    = '0';
-
-        // Fade in page content
-        document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
-          el.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1)';
-          el.style.opacity    = '1';
-          el.style.transform  = 'translateY(0)';
-        });
-
-        setTimeout(() => {
-          overlay.style.pointerEvents = 'none';
-          document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
-            el.style.transition = '';
-            el.style.transform  = '';
-          });
-        }, 700);
-      });
-    });
-  });
 </script>
 
 </body>
-
-
 </html>
