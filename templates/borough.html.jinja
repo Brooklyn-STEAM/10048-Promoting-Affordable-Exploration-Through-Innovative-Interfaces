@@ -380,6 +380,11 @@
     ] %}
     {% for b in all_boroughs %}
     <a href="/borough/{{ b.name | replace(' ', '-') }}"
+   onclick="event.preventDefault(); navigateWithTransition(
+     '/borough/{{ b.name | replace(' ', '-') }}',
+     '{{ b.color }}',
+     '{{ b.accent }}'
+   )"
        style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;transition:background 0.15s;color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
        onmouseover="this.style.background='rgba(232,222,208,0.08)';this.style.color='#e8ded0'"
        onmouseout="this.style.background='{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }}';this.style.color='{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }}'">
@@ -657,7 +662,30 @@
     }
   });
 
+function navigateWithTransition(url, color, accent) {
+  if (document.body._transitioning) return;
+  document.body._transitioning = true;
 
+  // Slide out the page heading
+  const heading = document.querySelector('h1.serif');
+  if (heading) {
+    heading.style.transition = 'opacity 0.2s ease, transform 0.25s ease';
+    heading.style.opacity = '0';
+    heading.style.transform = 'translateY(8px)';
+  }
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `position:fixed;inset:0;z-index:9999;background:${color};opacity:0;pointer-events:none;transition:opacity 0.45s cubic-bezier(0.4,0,0.2,1);`;
+  document.body.appendChild(overlay);
+
+  document.documentElement.style.setProperty('--accent', accent);
+  document.documentElement.style.setProperty('--borough-color', color);
+
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    setTimeout(() => { window.location.href = url; }, 420);
+  });
+}
 </script>
 
 </body>
