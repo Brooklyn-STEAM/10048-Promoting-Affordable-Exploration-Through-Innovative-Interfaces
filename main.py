@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, flash, abort, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
+from flask_socketio import SocketIO, join_room, leave_room, emit
 import pymysql
 import json
 from datetime import datetime
@@ -11,6 +12,10 @@ import uuid
 app = Flask(__name__)
 config = Dynaconf(settings_file=["settings.toml"])
 app.secret_key = config.secret_key
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Track users per room
+room_users = {}  # { room: set(usernames) }
 
 UPLOAD_FOLDER = "static/uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
@@ -492,6 +497,27 @@ def liked_page():
     return render_template("liked.html.jinja", locations=locations, locations_json=locations_json)
 
 
+@app.route("/chat/<room>/history")
+@login_required
+def chat_history(room):
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT Username, Message, SentAt
+        FROM `ChatMessage`
+        WHERE Room = %s
+        ORDER BY SentAt ASC
+        LIMIT 50
+    """, (room,))
+    messages = cursor.fetchall()
+    connection.close()
+    return jsonify([{
+        "user": m["Username"],
+        "text": m["Message"],
+        "time": m["SentAt"].strftime("%I:%M %p") if m["SentAt"] else ""
+    } for m in messages])
+
+
 @app.route("/logout")
 @login_required
 def logout():
@@ -499,5 +525,70 @@ def logout():
     return redirect("/login")
 
 
+
+@socketio.on("join")
+def on_join(data):
+    room     = data.get("room")
+    username = data.get("username", "Anonymous")
+    join_room(room)
+    if room not in room_users:
+        room_users[room] = set()
+    room_users[room].add(username)
+    emit("message", {
+        "user": "system",
+        "text": f"{username} joined the chat",
+        "time": datetime.now().strftime("%I:%M %p")
+    }, to=room)
+    emit("online_count", {"count": len(room_users[room]), "users": list(room_users[room])}, to=room)
+
+
+@socketio.on("leave")
+def on_leave(data):
+    room     = data.get("room")
+    username = data.get("username", "Anonymous")
+    leave_room(room)
+    if room in room_users:
+        room_users[room].discard(username)
+    emit("message", {
+        "user": "system",
+        "text": f"{username} left the chat",
+        "time": datetime.now().strftime("%I:%M %p")
+    }, to=room)
+    emit("online_count", {"count": len(room_users.get(room, set())), "users": list(room_users.get(room, set()))}, to=room)
+
+
+@socketio.on("send_message")
+def on_message(data):
+    room     = data.get("room")
+    username = data.get("username", "Anonymous")
+    text     = data.get("text", "").strip()
+    if not text:
+        return
+
+    # Save to DB
+    try:
+        connection = connect_db()
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT ID FROM `User` WHERE Username = %s", (username,)
+        )
+        user_row = cursor.fetchone()
+        if user_row:
+            cursor.execute(
+                "INSERT INTO `ChatMessage` (Room, UserID, Username, Message) VALUES (%s, %s, %s, %s)",
+                (room, user_row["ID"], username, text)
+            )
+        connection.close()
+    except Exception:
+        pass
+
+    emit("message", {
+        "user": username,
+        "text": text,
+        "time": datetime.now().strftime("%I:%M %p"),
+        "room": room
+    }, to=room)
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)

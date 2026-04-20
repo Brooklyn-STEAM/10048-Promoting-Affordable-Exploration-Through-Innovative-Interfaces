@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ borough.name | capitalize }} — Hidden Gems</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   {% include 'icon.html.jinja'%}
   <style>
     :root {
@@ -23,12 +24,10 @@
 
     .serif { font-family: 'Cormorant Garamond', serif; }
 
-    
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.2); border-radius: 2px; }
 
-    
     .featured-card {
       position: relative;
       border-radius: 18px;
@@ -76,7 +75,6 @@
       height: 100%; font-size: 0.7rem; opacity: 0.2;
     }
 
-    
     .gem-card {
       border-radius: 14px; overflow: hidden;
       background: rgba(0,0,0,0.2);
@@ -95,7 +93,6 @@
     .gem-card .gem-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 3px; letter-spacing: 0.08em; }
     .gem-card .no-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0.2; }
 
-    
     .add-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 9px 22px; border-radius: 999px;
@@ -112,7 +109,6 @@
       text-transform: uppercase; opacity: 0.4;
     }
 
-    
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 300;
       background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
@@ -160,68 +156,65 @@
     .d3 { animation-delay: 0.2s; }
     .d4 { animation-delay: 0.28s; }
 
-
     @keyframes lbBackdropIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes lbBackdropOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-@keyframes lbCardIn {
-  from { opacity: 0; transform: translateY(24px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes lbCardOut {
-  from { opacity: 1; transform: translateY(0) scale(1); }
-  to   { opacity: 0; transform: translateY(24px) scale(0.96); }
-}
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes lbBackdropOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    @keyframes lbCardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes lbCardOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(24px) scale(0.96); }
+    }
 
-#lightbox { pointer-events: none; }
-#lightbox.lb-open { pointer-events: all; }
-#lightbox.lb-animating-in  { animation: lbBackdropIn  0.25s ease forwards; }
-#lightbox.lb-animating-out { animation: lbBackdropOut 0.25s ease forwards; }
+    #lightbox { pointer-events: none; }
+    #lightbox.lb-open { pointer-events: all; }
+    #lightbox.lb-animating-in  { animation: lbBackdropIn  0.25s ease forwards; }
+    #lightbox.lb-animating-out { animation: lbBackdropOut 0.25s ease forwards; }
+    #lb-card.lb-animating-in  { animation: lbCardIn  0.3s cubic-bezier(0.23,1,0.32,1) forwards; }
+    #lb-card.lb-animating-out { animation: lbCardOut 0.22s ease forwards; }
 
-#lb-card.lb-animating-in  { animation: lbCardIn  0.3s cubic-bezier(0.23,1,0.32,1) forwards; }
-#lb-card.lb-animating-out { animation: lbCardOut 0.22s ease forwards; }
+    #add-modal input[type="text"],
+    #add-modal input[type="time"],
+    #add-modal textarea,
+    #add-modal select {
+      background-color: rgba(101, 75, 55, 0.25) !important;
+      color: #e8ded0 !important;
+      border-color: rgba(232, 222, 208, 0.15) !important;
+      color-scheme: dark;
+    }
+    #add-modal input::placeholder,
+    #add-modal textarea::placeholder {
+      color: rgba(232, 222, 208, 0.25) !important;
+    }
+    #add-modal input[type="text"]:focus,
+    #add-modal input[type="time"]:focus,
+    #add-modal textarea:focus,
+    #add-modal select:focus {
+      background-color: rgba(101, 75, 55, 0.35) !important;
+      border-color: rgba(232, 222, 208, 0.35) !important;
+      outline: none;
+    }
+    #add-modal select option {
+      background-color: #2a1f18;
+      color: #e8ded0;
+    }
 
-
-#add-modal input[type="text"],
-#add-modal input[type="time"],
-#add-modal textarea,
-#add-modal select {
-  background-color: rgba(101, 75, 55, 0.25) !important;
-  color: #e8ded0 !important;
-  border-color: rgba(232, 222, 208, 0.15) !important;
-  color-scheme: dark;
-}
-
-#add-modal input::placeholder,
-#add-modal textarea::placeholder {
-  color: rgba(232, 222, 208, 0.25) !important;
-}
-
-#add-modal input[type="text"]:focus,
-#add-modal input[type="time"]:focus,
-#add-modal textarea:focus,
-#add-modal select:focus {
-  background-color: rgba(101, 75, 55, 0.35) !important;
-  border-color: rgba(232, 222, 208, 0.35) !important;
-  outline: none;
-}
-
-#add-modal select option {
-  background-color: #2a1f18;
-  color: #e8ded0;
-}
+   
+    #chat-messages::-webkit-scrollbar { width: 3px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.1); border-radius: 2px; }
   </style>
 </head>
 
 <body>
 
 {% include '_nav.html.jinja' %}
-
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -236,7 +229,6 @@
 
 <div class="max-w-5xl mx-auto px-8 py-10">
 
-
   <div class="flex items-end justify-between mb-10 fade-up">
     <div>
       <a href="/browse" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
@@ -250,73 +242,41 @@
     </button>
   </div>
 
-
- 
   {% if locations %}
   <div class="fade-up d1">
-
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
       <p class="section-label">Featured</p>
-      <!-- Slideshow arrows -->
       <div style="display:flex; gap:8px;">
-        <button onclick="featStep(-1)" id="feat-prev" style="
-          width:32px; height:32px; border-radius:50%;
-          background:rgba(232,222,208,0.08); border:1px solid rgba(232,222,208,0.2);
-          color:#e8ded0; font-size:1rem; cursor:pointer; transition:background 0.2s;
-          display:flex; align-items:center; justify-content:center;
-        ">‹</button>
-        <button onclick="featStep(1)" id="feat-next" style="
-          width:32px; height:32px; border-radius:50%;
-          background:rgba(232,222,208,0.08); border:1px solid rgba(232,222,208,0.2);
-          color:#e8ded0; font-size:1rem; cursor:pointer; transition:background 0.2s;
-          display:flex; align-items:center; justify-content:center;
-        ">›</button>
+        <button onclick="featStep(-1)" id="feat-prev" style="width:32px;height:32px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;">‹</button>
+        <button onclick="featStep(1)"  id="feat-next" style="width:32px;height:32px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;">›</button>
       </div>
     </div>
 
-    <!-- Slide container — shows 3 at a time -->
-    <!-- Slide container — shows 3 at a time -->
-<div style="overflow:hidden; border-radius:18px;">
-  
-  <div id="feat-track"
-       class="flex gap-4 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
-
-    {% for loc in locations %}
-    <div class="featured-card shrink-0 basis-1/3 h-[340px]"
-         onclick="openDetail({{ loop.index0 }})">
-
-      {% if loc.Image %}
-        <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
-      {% else %}
-        <div class="no-img">No image</div>
-      {% endif %}
-
-      <div class="overlay"></div>
-
-      <div class="info">
-        <span class="badge">
-          {% if loop.index0 == 0 %}Featured
-          {% elif loop.index0 == 1 %}Hidden gem
-          {% else %}Local pick{% endif %}
-        </span>
-
-        <p class="card-title">{{ loc.Name }}</p>
-        <p class="card-sub">
-          {{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}
-        </p>
+    <div style="overflow:hidden; border-radius:18px;">
+      <div id="feat-track" class="flex gap-4 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
+        {% for loc in locations %}
+        <div class="featured-card shrink-0 basis-1/3 h-[340px]" onclick="openDetail({{ loop.index0 }})">
+          {% if loc.Image %}
+            <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+          {% else %}
+            <div class="no-img">No image</div>
+          {% endif %}
+          <div class="overlay"></div>
+          <div class="info">
+            <span class="badge">
+              {% if loop.index0 == 0 %}Featured
+              {% elif loop.index0 == 1 %}Hidden gem
+              {% else %}Local pick{% endif %}
+            </span>
+            <p class="card-title">{{ loc.Name }}</p>
+            <p class="card-sub">{{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}</p>
+          </div>
+        </div>
+        {% endfor %}
       </div>
-
     </div>
-    {% endfor %}
-
+    <div id="feat-dots" style="display:flex;gap:6px;margin-top:14px;justify-content:center;"></div>
   </div>
-</div>
-
-    <!-- Dot indicators -->
-    <div id="feat-dots" style="display:flex; gap:6px; margin-top:14px; justify-content:center;"></div>
-
-  </div>
-
 
   {% if locations | length > 3 %}
   <div class="mt-12 fade-up d2">
@@ -329,23 +289,17 @@
         {% else %}
           <div class="no-img"></div>
         {% endif %}
-        <div class="gem-info" style="display:flex; align-items:flex-start; justify-content:space-between;">
+        <div class="gem-info" style="display:flex;align-items:flex-start;justify-content:space-between;">
           <div>
             <p class="gem-title">{{ loc.Name }}</p>
             <p class="gem-meta">{{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}</p>
           </div>
-          <button
-            class="like-btn"
+          <button class="like-btn"
             data-id="{{ loc.ID }}"
             data-borough="{{ borough.name | replace(' ', '-') }}"
             data-liked="{{ 'true' if loc.ID in liked_ids else 'false' }}"
             onclick="event.stopPropagation(); toggleLike(this)"
-            style="
-              background:none; border:none; cursor:pointer;
-              display:flex; align-items:center; gap:4px;
-              color:{{ 'var(--accent)' if loc.ID in liked_ids else 'rgba(232,222,208,0.3)' }};
-              font-size:0.7rem; padding:2px 0; flex-shrink:0;
-            ">
+            style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;color:{{ 'var(--accent)' if loc.ID in liked_ids else 'rgba(232,222,208,0.3)' }};font-size:0.7rem;padding:2px 0;flex-shrink:0;">
             <span class="like-heart">{{ '♥' if loc.ID in liked_ids else '♡' }}</span>
             <span class="like-count">{{ loc.LikeCount or 0 }}</span>
           </button>
@@ -357,7 +311,6 @@
   {% endif %}
 
   {% else %}
-
   <div class="fade-up d1 flex flex-col items-center justify-center py-32 opacity-30">
     <p class="serif text-3xl font-light mb-2">No gems yet</p>
     <p class="text-xs tracking-widest uppercase">Be the first to add a location</p>
@@ -367,344 +320,245 @@
 </div>
 
 
+<div class="max-w-5xl mx-auto px-8 pb-16 mt-12 fade-up">
+  <div style="
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(232,222,208,0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+  ">
 
-<div id="lightbox" 
-     class="fixed inset-0 z-[400] flex-col items-center justify-center 
-            bg-black/50 backdrop-blur-2xl"
+   
+    <div style="
+      padding: 16px 22px;
+      border-bottom: 1px solid rgba(232,222,208,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    ">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
+        <p style="font-size:0.7rem; font-weight:500; color:#e8ded0; letter-spacing:0.05em;">
+          {{ borough.name | capitalize }} Community Chat
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="online-count" style="font-size:0.6rem; color:rgba(232,222,208,0.4); letter-spacing:0.1em;">0 online</span>
+        <div id="online-dot" style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;"></div>
+      </div>
+    </div>
+
+   
+    <div id="chat-messages" style="
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scrollbar-width: thin;
+    "></div>
+
+    
+    <div style="
+      padding: 14px 16px;
+      border-top: 1px solid rgba(232,222,208,0.08);
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(0,0,0,0.15);
+    ">
+      <input id="chat-input"
+        type="text"
+        placeholder="Type your message here..."
+        maxlength="300"
+        onkeydown="if(event.key==='Enter') sendMessage()"
+        style="
+          flex: 1;
+          background: rgba(232,222,208,0.06);
+          border: 1px solid rgba(232,222,208,0.12);
+          border-radius: 999px;
+          padding: 11px 18px;
+          color: #e8ded0;
+          font-size: 0.82rem;
+          font-family: inherit;
+          outline: none;
+          transition: border-color 0.2s;
+        "
+        onfocus="this.style.borderColor='rgba(232,222,208,0.3)'"
+        onblur="this.style.borderColor='rgba(232,222,208,0.12)'">
+      <button onclick="sendMessage()" style="
+        width: 42px; height: 42px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: none;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        transition: opacity 0.2s;
+        font-size: 1rem;
+      " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+        ➤
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="lightbox"
+     class="fixed inset-0 z-[400] flex-col items-center justify-center bg-black/50 backdrop-blur-2xl"
      style="display:none;">
 
-  <!-- Close -->
-  <button onclick="closeLightbox()" style="
-    position:absolute; top:24px; right:28px;
-    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
-    color:#e8ded0; font-size:1.1rem; width:38px; height:38px;
-    border-radius:50%; cursor:pointer; line-height:1;
-  ">✕</button>
+  <button onclick="closeLightbox()" style="position:absolute;top:24px;right:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.1rem;width:38px;height:38px;border-radius:50%;cursor:pointer;line-height:1;">✕</button>
+  <p id="lb-counter" style="position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.35);"></p>
 
-  <!-- Counter -->
-  <p id="lb-counter" style="
-    position:absolute; top:28px; left:50%; transform:translateX(-50%);
-    font-size:0.55rem; letter-spacing:0.3em; text-transform:uppercase;
-    color:rgba(232,222,208,0.35);
-  "></p>
+  <div style="display:flex;align-items:center;gap:16px;width:100%;max-width:960px;padding:0 24px;box-sizing:border-box;">
+    <button id="lb-prev" onclick="lbStep(-1)" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">‹</button>
+    <button id="lb-next" onclick="lbStep(1)"  style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">›</button>
 
-  <!-- Main content row -->
-<div style="display:flex; align-items:center; gap:16px; width:100%; max-width:960px; padding:0 24px; box-sizing:border-box;">
+    <div id="lb-card" style="width:100%;max-width:780px;padding:0 64px;box-sizing:border-box;margin:auto;">
+      <div id="lb-map-area" class="relative h-[220px] bg-black/40 flex items-end justify-between p-4 gap-2">
+        <div class="absolute inset-0 opacity-[0.06]" style="background-image:linear-gradient(rgba(232,222,208,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(232,222,208,.8) 1px,transparent 1px);background-size:30px 30px"></div>
+        <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-full px-3 py-1" style="background:var(--accent)">
+          <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+          <span id="lb-badge" class="text-[10px] font-bold tracking-[.2em] uppercase text-white"></span>
+        </div>
+        <span id="lb-coords" class="z-10 text-[10px] tracking-[.12em] uppercase text-[#e8ded0]/25 font-mono"></span>
+        <a id="lb-map-link" href="#" target="_blank" class="z-10 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 bg-[#e8ded0]/[.08] border border-[#e8ded0]/20 text-[#e8ded0] text-[10px] font-bold tracking-[.18em] uppercase no-underline hover:bg-[#e8ded0]/[.15] transition-colors">Open in Maps ↗</a>
+      </div>
 
-  <button id="lb-prev" onclick="lbStep(-1)" style="
-  position:absolute; left:16px; top:50%; transform:translateY(-50%);
-  width:40px; height:40px; border-radius:50%;
-  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
-  color:#e8ded0; font-size:1.3rem; cursor:pointer; z-index:10;
-  display:flex; align-items:center; justify-content:center;
-">‹</button>
+      <div class="h-[3px] w-full" style="background:var(--accent)"></div>
 
-<!-- Next arrow — absolutely positioned -->
-<button id="lb-next" onclick="lbStep(1)" style="
-  position:absolute; right:16px; top:50%; transform:translateY(-50%);
-  width:40px; height:40px; border-radius:50%;
-  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
-  color:#e8ded0; font-size:1.3rem; cursor:pointer; z-index:10;
-  display:flex; align-items:center; justify-content:center;
-">›</button>
+      <div class="px-6 pt-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span id="lb-type" class="text-[9px] font-bold tracking-[.22em] uppercase px-2.5 py-0.5 rounded-sm text-white" style="background:var(--accent)"></span>
+          <span id="lb-open-status" class="inline-flex items-center gap-1 text-[9px] font-bold tracking-[.16em] uppercase text-green-400 bg-green-400/10 border border-green-400/20 rounded-sm px-2.5 py-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>Open now
+          </span>
+        </div>
+        <h2 id="lb-title" class="font-['Cormorant_Garamond'] font-light text-[2rem] leading-none text-[#e8ded0] mb-1"></h2>
+        <p id="lb-meta" class="text-[10px] tracking-[.18em] uppercase text-[#e8ded0]/35 mb-3"></p>
+        <p id="lb-desc" class="text-[13px] text-[#e8ded0]/60 leading-relaxed mb-4"></p>
+        <div id="lb-tags" class="flex flex-wrap gap-1.5 mb-5"></div>
+      </div>
 
-  
-<!-- Centered card wrapper -->
-<div id="lb-card" style="width:100%; max-width:780px; padding:0 64px; box-sizing:border-box; margin:auto;">
+      <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-6 py-4">
+        <p class="text-[9px] font-bold tracking-[.24em] uppercase text-[#e8ded0]/35 mb-3">Hours</p>
+        <div id="lb-hours" class="grid grid-cols-2 gap-x-4 gap-y-0"></div>
+      </div>
 
-  <!-- Map area -->
-  <div id="lb-map-area"
-       class="relative h-[220px] bg-black/40 flex items-end justify-between p-4 gap-2">
+      <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-6 py-4">
+        <p id="lb-addr-text" class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed"></p>
+        <button id="lb-like-btn" onclick="toggleLikeById()" class="flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#e8ded0]/15 bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px] tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors cursor-pointer">
+          <span id="lb-heart">♡</span>
+          <span id="lb-like-count">0</span>
+          <span class="text-[8px] opacity-50 tracking-[.15em]">likes</span>
+        </button>
+      </div>
 
-    <div class="absolute inset-0 opacity-[0.06]"
-         style="background-image: linear-gradient(rgba(232,222,208,.8) 1px,transparent 1px),
-                                  linear-gradient(90deg,rgba(232,222,208,.8) 1px,transparent 1px);
-                background-size:30px 30px"></div>
+      <button id="lb-delete-btn" onclick="openDeleteModal()" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">
+        Remove location
+      </button>
 
-    <!-- Type badge -->
-    <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-full px-3 py-1"
-         style="background: var(--accent)">
-      <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-      <span id="lb-badge"
-            class="text-[10px] font-bold tracking-[.2em] uppercase text-white"></span>
     </div>
-
-    <!-- Coordinates -->
-    <span id="lb-coords"
-          class="z-10 text-[10px] tracking-[.12em] uppercase text-[#e8ded0]/25 font-mono"></span>
-
-    <!-- Maps button -->
-    <a id="lb-map-link"
-       href="#"
-       target="_blank"
-       class="z-10 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5
-              bg-[#e8ded0]/[.08] border border-[#e8ded0]/20 text-[#e8ded0]
-              text-[10px] font-bold tracking-[.18em] uppercase no-underline
-              hover:bg-[#e8ded0]/[.15] transition-colors">
-      Open in Maps ↗
-    </a>
-  
   </div>
 
-  <!-- Accent bar -->
-  <div class="h-[3px] w-full" style="background: var(--accent)"></div>
-
-  <!-- Body -->
-  <div class="px-6 pt-5">
-
-    <div class="flex items-center gap-2 mb-3">
-      <span id="lb-type"
-            class="text-[9px] font-bold tracking-[.22em] uppercase px-2.5 py-0.5
-                   rounded-sm text-white"
-            style="background: var(--accent)"></span>
-
-      <span id="lb-open-status"
-            class="inline-flex items-center gap-1 text-[9px] font-bold tracking-[.16em]
-                   uppercase text-green-400 bg-green-400/10 border border-green-400/20
-                   rounded-sm px-2.5 py-0.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-        Open now
-      </span>
-    </div>
-
-    <h2 id="lb-title"
-        class="font-['Cormorant_Garamond'] font-light text-[2rem] leading-none
-               text-[#e8ded0] mb-1"></h2>
-
-    <p id="lb-meta"
-       class="text-[10px] tracking-[.18em] uppercase text-[#e8ded0]/35 mb-3"></p>
-
-    <p id="lb-desc"
-       class="text-[13px] text-[#e8ded0]/60 leading-relaxed mb-4"></p>
-
-    <!-- Tags -->
-    <div id="lb-tags" class="flex flex-wrap gap-1.5 mb-5"></div>
-  </div>
-
-  <!-- Hours -->
-  <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-6 py-4">
-    <p class="text-[9px] font-bold tracking-[.24em] uppercase text-[#e8ded0]/35 mb-3">Hours</p>
-    <div id="lb-hours" class="grid grid-cols-2 gap-x-4 gap-y-0"></div>
-  </div>
-
-  <!-- Footer -->
-  <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-6 py-4">
-    <p id="lb-addr-text"
-       class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed"></p>
-
-    <button id="lb-like-btn"
-            onclick="toggleLikeById()"
-            class="flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#e8ded0]/15
-                   bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px]
-                   tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors
-                   cursor-pointer">
-      <span id="lb-heart">♡</span>
-      <span id="lb-like-count">0</span>
-      <span class="text-[8px] opacity-50 tracking-[.15em]">likes</span>
-    </button>
-  </div>
-
-  <button id="lb-delete-btn"
-        onclick="openDeleteModal()"
-        class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">
-  Remove location
-</button>
-
-  
-
-
+  <div id="lb-dots" style="display:flex;gap:8px;margin-top:28px;"></div>
 </div>
-
-    </div>
-
-    
-    
-
-  </div>
-
-  
-  <div id="lb-dots" style="display:flex; gap:8px; margin-top:28px;"></div>
-</div>
-
-
 
 <div id="add-modal"
-     class="modal-backdrop fixed inset-0 z-[500] bg-black/60 backdrop-blur-xl
-            flex items-center justify-center p-4 hidden"
+     class="modal-backdrop fixed inset-0 z-[500] bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 hidden"
      onclick="closeAddBackdrop(event)">
-
-  <div class="w-full max-w-md flex flex-col rounded-2xl overflow-hidden
-              border border-[#f5efe6]/10 shadow-2xl"
-       style="background: #231a13; max-height: 90vh;"
-       onclick="event.stopPropagation()">
-
-    <!-- HEADER -->
+  <div class="w-full max-w-md flex flex-col rounded-2xl overflow-hidden border border-[#f5efe6]/10 shadow-2xl"
+       style="background:#231a13;max-height:90vh;" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between px-5 py-4 border-b border-[#f5efe6]/8 flex-shrink-0">
       <div>
         <h2 class="serif text-xl font-light text-[#f5efe6]">Add a location</h2>
         <p class="text-[10px] tracking-widest uppercase text-[#f5efe6]/30 mt-0.5">New York City</p>
       </div>
-      <button onclick="closeAddModal()"
-              class="w-8 h-8 rounded-full flex items-center justify-center
-                     text-[#f5efe6]/40 hover:text-[#f5efe6]/80 hover:bg-[#f5efe6]/5
-                     text-sm transition-all border border-[#f5efe6]/10">✕</button>
+      <button onclick="closeAddModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-[#f5efe6]/40 hover:text-[#f5efe6]/80 hover:bg-[#f5efe6]/5 text-sm transition-all border border-[#f5efe6]/10">✕</button>
     </div>
 
-    <!-- SCROLLABLE BODY -->
     <div class="flex-1 overflow-y-auto">
-      <form id="add-location-form"
-            method="POST"
-            action="/borough/{{ borough.name | replace(' ', '-') }}/add"
-            enctype="multipart/form-data">
-
-        <!-- BASIC INFO SECTION -->
+      <form id="add-location-form" method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add" enctype="multipart/form-data">
         <div class="px-5 py-4 space-y-3 border-b border-[#f5efe6]/8">
-
           <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">
-              Location name
-            </label>
-            <input type="text" name="name" required
-                   placeholder="e.g. Domino Park"
-                   class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5
-                          text-sm text-[#f5efe6] placeholder-[#f5efe6]/20
-                          focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6
-                          transition-all">
+            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Location name</label>
+            <input type="text" name="name" required placeholder="e.g. Domino Park" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all">
           </div>
-
           <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">
-              Address
-            </label>
-            <input type="text" name="address" required
-                   placeholder="e.g. 15 River St, Brooklyn"
-                   class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5
-                          text-sm text-[#f5efe6] placeholder-[#f5efe6]/20
-                          focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6
-                          transition-all">
+            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Address</label>
+            <input type="text" name="address" required placeholder="e.g. 15 River St, Brooklyn" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all">
           </div>
-
           <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">
-              Description
-            </label>
-            <textarea name="description"
-                      placeholder="What makes this place special?"
-                      rows="3"
-                      class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5
-                             text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 resize-none
-                             focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6
-                             transition-all"></textarea>
+            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Description</label>
+            <textarea name="description" placeholder="What makes this place special?" rows="3" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 resize-none focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all"></textarea>
           </div>
-
-          <!-- PHOTO UPLOAD -->
           <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">
-              Photo
-            </label>
-            <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer
-                          bg-[#f5efe6]/4 border border-dashed border-[#f5efe6]/15
-                          hover:border-[#f5efe6]/30 hover:bg-[#f5efe6]/6 transition-all">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M2 12l3.5-4.5 2.5 3 2-2.5L14 12H2z" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1" stroke-linejoin="round"/>
-                <circle cx="5.5" cy="5.5" r="1.5" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1"/>
-                <rect x="1" y="1" width="14" height="14" rx="2" stroke="#f5efe6" stroke-opacity="0.2" stroke-width="1"/>
-              </svg>
+            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Photo</label>
+            <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer bg-[#f5efe6]/4 border border-dashed border-[#f5efe6]/15 hover:border-[#f5efe6]/30 hover:bg-[#f5efe6]/6 transition-all">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4.5 2.5 3 2-2.5L14 12H2z" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1.5" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1"/><rect x="1" y="1" width="14" height="14" rx="2" stroke="#f5efe6" stroke-opacity="0.2" stroke-width="1"/></svg>
               <span class="text-xs text-[#f5efe6]/30" id="photo-label">Choose a photo…</span>
-              <input type="file" name="image" accept="image/*" class="hidden"
-                     onchange="document.getElementById('photo-label').textContent = this.files[0]?.name || 'Choose a photo…'">
+              <input type="file" name="image" accept="image/*" class="hidden" onchange="document.getElementById('photo-label').textContent = this.files[0]?.name || 'Choose a photo…'">
             </label>
           </div>
-
         </div>
 
-        <!-- HOURS SECTION -->
         <div class="px-5 py-4">
-
           <div class="flex items-center justify-between mb-3">
             <span class="text-[10px] tracking-widest uppercase text-[#f5efe6]/35">Hours</span>
             <div class="flex items-center gap-1.5">
-              <select id="hours-preset"
-                      class="bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[10px]
-                             tracking-wider text-[#f5efe6]/50 px-2 py-1 rounded-md
-                             focus:outline-none focus:border-[#f5efe6]/25">
+              <select id="hours-preset" class="bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[10px] tracking-wider text-[#f5efe6]/50 px-2 py-1 rounded-md focus:outline-none focus:border-[#f5efe6]/25">
                 <option value="">Preset…</option>
                 <option value="9-5">Weekdays 9–5</option>
                 <option value="24-7">Open 24/7</option>
                 <option value="closed">Closed all week</option>
               </select>
-              <button type="button" onclick="applyPreset()"
-                      class="text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-md
-                             bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[#f5efe6]/50
-                             hover:text-[#f5efe6]/80 hover:border-[#f5efe6]/25 transition-all">
-                Apply
-              </button>
+              <button type="button" onclick="applyPreset()" class="text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-md bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[#f5efe6]/50 hover:text-[#f5efe6]/80 hover:border-[#f5efe6]/25 transition-all">Apply</button>
             </div>
           </div>
-
-          <!-- HOURS ROWS -->
           <div class="space-y-1">
             {% set days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
             {% for d in days %}
             <div class="flex items-center gap-3 py-1.5 border-b border-[#f5efe6]/5 last:border-0">
-
-              <span class="w-7 text-[10px] tracking-widest uppercase text-[#f5efe6]/30 flex-shrink-0">
-                {{ d }}
-              </span>
-
+              <span class="w-7 text-[10px] tracking-widest uppercase text-[#f5efe6]/30 flex-shrink-0">{{ d }}</span>
               <div id="hours-row-{{ d }}" class="flex items-center gap-1.5 flex-1">
-                <input type="time" name="hours_{{ d }}_open"
-                       class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1
-                              text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25
-                              transition-all min-w-0">
+                <input type="time" name="hours_{{ d }}_open" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
                 <span class="text-[#f5efe6]/20 text-xs flex-shrink-0">–</span>
-                <input type="time" name="hours_{{ d }}_close"
-                       class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1
-                              text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25
-                              transition-all min-w-0">
+                <input type="time" name="hours_{{ d }}_close" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
               </div>
-
               <label class="flex items-center gap-1.5 flex-shrink-0 cursor-pointer">
-                <input type="checkbox"
-                       name="hours_{{ d }}_closed"
-                       class="accent-[var(--accent)] w-3 h-3"
-                       onchange="toggleClosed('{{ d }}')">
+                <input type="checkbox" name="hours_{{ d }}_closed" class="accent-[var(--accent)] w-3 h-3" onchange="toggleClosed('{{ d }}')">
                 <span class="text-[10px] text-[#f5efe6]/25 tracking-wide">Closed</span>
               </label>
-
             </div>
             {% endfor %}
           </div>
-
         </div>
-
       </form>
     </div>
 
-   <!-- FOOTER -->
-<div class="px-5 py-4 border-t border-[#f5efe6]/8 flex gap-2 flex-shrink-0">
-  <button type="submit" form="add-location-form"
-          class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold tracking-widest
-                 uppercase transition-all"
-          style="background: var(--accent); color: #fff;">
-    Post location
-  </button>
-  <button type="button" onclick="closeAddModal()"
-          class="px-5 py-2.5 rounded-xl text-[11px] tracking-widest uppercase
-                 text-[#f5efe6]/40 bg-[#f5efe6]/4 border border-[#f5efe6]/10
-                 hover:text-[#f5efe6]/70 hover:border-[#f5efe6]/20 transition-all">
-    Cancel
-  </button>
-</div>
-
+    <div class="px-5 py-4 border-t border-[#f5efe6]/8 flex gap-2 flex-shrink-0">
+      <button type="submit" form="add-location-form" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold tracking-widest uppercase transition-all" style="background:var(--accent);color:#fff;">Post location</button>
+      <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 rounded-xl text-[11px] tracking-widest uppercase text-[#f5efe6]/40 bg-[#f5efe6]/4 border border-[#f5efe6]/10 hover:text-[#f5efe6]/70 hover:border-[#f5efe6]/20 transition-all">Cancel</button>
+    </div>
   </div>
 </div>
 
 
-
-
-
-
+<div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#111;border:1px solid rgba(232,222,208,0.12);border-radius:20px;padding:32px 28px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;">
+    <div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 4h4M3 6h14M5 6l1 10a2 2 0 002 2h4a2 2 0 002-2l1-10" stroke="rgba(239,68,68,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="serif" style="font-size:1.4rem;font-weight:300;color:#e8ded0;margin-bottom:8px;text-align:center;line-height:1.2;">Remove this location?</p>
+    <p style="font-size:0.75rem;color:rgba(232,222,208,0.4);text-align:center;line-height:1.6;margin-bottom:28px;">This can't be undone. The location and all its data will be permanently deleted.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
+      <button id="delete-confirm-btn" style="width:100%;padding:11px;border-radius:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:rgb(239,68,68);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Yes, remove it</button>
+      <button onclick="closeDeleteModal()" style="width:100%;padding:11px;border-radius:10px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.5);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script>
   const locations = {{ locations_json | safe }};
@@ -719,7 +573,6 @@
     btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡';
     btn.querySelector('.like-count').textContent = data.count;
     btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)';
-    // sync lightbox if open
     if (document.getElementById('lightbox').style.display === 'flex') {
       const loc = locations[lbIndex];
       if (loc && String(loc.ID) === String(id)) {
@@ -731,10 +584,9 @@
       }
     }
   }
-  
 
   async function toggleLikeById() {
-    const loc     = locations[lbIndex];
+    const loc = locations[lbIndex];
     if (!loc) return;
     const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
     const res  = await fetch(`/borough/${boroughSlug}/like/${loc.ID}`, { method: 'POST' });
@@ -744,7 +596,6 @@
     document.getElementById('lb-like-count').textContent = data.count;
     document.getElementById('lb-heart').textContent = data.liked ? '♥' : '♡';
     document.getElementById('lb-like-btn').style.color = data.liked ? 'var(--accent)' : '#e8ded0';
-   
     const btn = document.querySelector(`.like-btn[data-id="${loc.ID}"]`);
     if (btn) {
       btn.dataset.liked = data.liked ? 'true' : 'false';
@@ -754,41 +605,10 @@
     }
   }
 
+ 
   let featIndex = 0;
   const featTotal = locations.length;
   const VISIBLE = 3;
-
-
-  function openDeleteModal() {
-  const modal = document.getElementById('delete-modal');
-  modal.style.display = 'flex';
-  document.getElementById('delete-confirm-btn').onclick = confirmDelete;
-}
-
-function closeDeleteModal() {
-  document.getElementById('delete-modal').style.display = 'none';
-}
-
-async function confirmDelete() {
-  const loc = locations[lbIndex];
-  if (!loc) return;
-
-  closeDeleteModal();
-
-  const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
-  const res = await fetch(`/borough/${boroughSlug}/delete/${loc.ID}`, { method: 'POST' });
-  const data = await res.json();
-
-  if (data.success) {
-    locations.splice(lbIndex, 1);
-    closeLightbox();
-    location.reload();
-  } else {
-    alert("Failed to delete location.");
-  }
-}
-
-
 
   function buildFeatDots() {
     const dotsEl = document.getElementById('feat-dots');
@@ -797,27 +617,22 @@ async function confirmDelete() {
     const pages = Math.max(1, featTotal - VISIBLE + 1);
     for (let i = 0; i < pages; i++) {
       const d = document.createElement('div');
-      d.style.cssText = `width:5px;height:5px;border-radius:50%;cursor:pointer;
-        background:${i === featIndex ? 'var(--accent)' : 'rgba(232,222,208,0.2)'};
-        transition:background 0.2s;`;
+      d.style.cssText = `width:5px;height:5px;border-radius:50%;cursor:pointer;background:${i===featIndex?'var(--accent)':'rgba(232,222,208,0.2)'};transition:background 0.2s;`;
       d.onclick = () => { featIndex = i; updateFeatSlide(); };
       dotsEl.appendChild(d);
     }
   }
 
   function updateFeatSlide() {
-  const track = document.getElementById('feat-track');
-  if (!track) return;
-
-  const shiftPercent = (100 / VISIBLE) * featIndex;
-  track.style.transform = `translateX(-${shiftPercent}%)`;
-
-  const maxIndex = Math.max(0, featTotal - VISIBLE);
-  document.getElementById('feat-prev').style.opacity = featIndex > 0 ? '1' : '0.25';
-  document.getElementById('feat-next').style.opacity = featIndex < maxIndex ? '1' : '0.25';
-
-  buildFeatDots();
-}
+    const track = document.getElementById('feat-track');
+    if (!track) return;
+    const shiftPercent = (100 / VISIBLE) * featIndex;
+    track.style.transform = `translateX(-${shiftPercent}%)`;
+    const maxIndex = Math.max(0, featTotal - VISIBLE);
+    document.getElementById('feat-prev').style.opacity = featIndex > 0 ? '1' : '0.25';
+    document.getElementById('feat-next').style.opacity = featIndex < maxIndex ? '1' : '0.25';
+    buildFeatDots();
+  }
 
   function featStep(dir) {
     const maxIndex = Math.max(0, featTotal - VISIBLE);
@@ -825,313 +640,179 @@ async function confirmDelete() {
     updateFeatSlide();
   }
 
- 
   window.addEventListener('load', () => { buildFeatDots(); updateFeatSlide(); });
 
-  
+
   let lbIndex = 0;
   const lbTotal = locations.length;
+  let lbAnimating = false;
 
   function openDetail(index) {
-  lbIndex = index;
-  renderLightbox();
-
-  const lb = document.getElementById('lightbox');
-  const card = document.getElementById('lb-card');
-
-  lb.classList.remove('hidden');
-  lb.style.display = 'flex';           // ← add this line
-  lb.classList.add('lb-open', 'lb-animating-in');
-  card.classList.add('lb-animating-in');
-
-  lb.addEventListener('animationend', () => {
-    lb.classList.remove('lb-animating-in');
-  }, { once: true });
-
-  card.addEventListener('animationend', () => {
-    card.classList.remove('lb-animating-in');
-  }, { once: true });
-
-  document.body.style.overflow = 'hidden';
-  document.addEventListener('keydown', lbKeyHandler);
-}
+    lbIndex = index;
+    renderLightbox();
+    const lb   = document.getElementById('lightbox');
+    const card = document.getElementById('lb-card');
+    lb.classList.remove('hidden');
+    lb.style.display = 'flex';
+    lb.classList.add('lb-open', 'lb-animating-in');
+    card.classList.add('lb-animating-in');
+    lb.addEventListener('animationend',   () => lb.classList.remove('lb-animating-in'),   { once: true });
+    card.addEventListener('animationend', () => card.classList.remove('lb-animating-in'), { once: true });
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', lbKeyHandler);
+  }
 
   function renderLightbox() {
-  const loc = locations[lbIndex];
-  if (!loc) return;
+    const loc = locations[lbIndex];
+    if (!loc) return;
 
- // Determine open/closed
-const openStatus = document.getElementById('lb-open-status');
-let isOpen = false;
-
-if (loc.Hours && Array.isArray(loc.Hours)) {
-  const jsDay = new Date().getDay(); // 0=Sun
-  const map = [6,0,1,2,3,4,5];       // convert JS → Mon–Sun order
-  const today = loc.Hours[map[jsDay]];
-
-  if (today && today.hours && today.hours !== "Closed") {
-    const [openStr, closeStr] = today.hours.split(" – ");
-
-    const now = new Date();
-
-    const [openH, openM] = openStr.split(":").map(Number);
-    const [closeH, closeM] = closeStr.split(":").map(Number);
-
-    const openTime = new Date();
-    openTime.setHours(openH, openM, 0);
-
-    const closeTime = new Date();
-    closeTime.setHours(closeH, closeM, 0);
-
-    if (now >= openTime && now <= closeTime) {
-      isOpen = true;
+   
+    const openStatus = document.getElementById('lb-open-status');
+    let isOpen = false;
+    if (loc.Hours && Array.isArray(loc.Hours)) {
+      const jsDay = new Date().getDay();
+      const map = [6,0,1,2,3,4,5];
+      const today = loc.Hours[map[jsDay]];
+      if (today && today.hours && today.hours !== "Closed") {
+        const [openStr, closeStr] = today.hours.split(" – ");
+        const now = new Date();
+        const [openH, openM]   = openStr.split(":").map(Number);
+        const [closeH, closeM] = closeStr.split(":").map(Number);
+        const openTime  = new Date(); openTime.setHours(openH, openM, 0);
+        const closeTime = new Date(); closeTime.setHours(closeH, closeM, 0);
+        if (now >= openTime && now <= closeTime) isOpen = true;
+      }
     }
-  }
-}
+    if (isOpen) {
+      openStatus.style.cssText = "display:inline-flex;color:rgb(74,222,128);border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);";
+      openStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>Open now`;
+    } else {
+      openStatus.style.cssText = "display:inline-flex;color:rgb(239,68,68);border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);";
+      openStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>Closed`;
+    }
 
-// Apply styles
-if (isOpen) {
-  openStatus.innerHTML = `
-    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-    Open now
-  `;
-  openStatus.style.color = "rgb(74,222,128)";
-  openStatus.style.borderColor = "rgba(74,222,128,0.3)";
-  openStatus.style.background = "rgba(74,222,128,0.1)";
-} else {
-  openStatus.innerHTML = `
-    <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-    Closed
-  `;
-  openStatus.style.color = "rgb(239,68,68)";
-  openStatus.style.borderColor = "rgba(239,68,68,0.3)";
-  openStatus.style.background = "rgba(239,68,68,0.1)";
-}
+    document.getElementById('lb-counter').textContent = `${lbIndex + 1} / ${lbTotal}`;
+    const badges = ['Featured', 'Hidden gem', 'Local pick'];
+    document.getElementById('lb-badge').textContent = loc.Type || badges[lbIndex] || 'Gem';
+    document.getElementById('lb-type').textContent  = loc.Category || 'Location';
 
+    const coordsEl = document.getElementById('lb-coords');
+    coordsEl.textContent = (loc.Latitude && loc.Longitude) ? `${loc.Latitude}° N · ${loc.Longitude}° W` : '';
 
+    const addrText = document.getElementById('lb-addr-text');
+    const mapLink  = document.getElementById('lb-map-link');
+    if (loc.Address) {
+      addrText.textContent = loc.Address;
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.Address + ', New York City')}`;
+      addrText.style.display = 'block';
+      mapLink.style.display  = 'inline-flex';
+    } else {
+      addrText.style.display = 'none';
+      mapLink.style.display  = 'none';
+    }
 
-// Update badge
-if (isOpen) {
-  openStatus.style.display = "inline-flex";
-  openStatus.innerHTML = `
-    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-    Open now
-  `;
-} else {
-  openStatus.style.display = "inline-flex";
-  openStatus.innerHTML = `
-    <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-    Closed
-  `;
-  openStatus.style.color = "rgb(239,68,68)";
-  openStatus.style.borderColor = "rgba(239,68,68,0.3)";
-  openStatus.style.background = "rgba(239,68,68,0.1)";
-}
+    document.getElementById('lb-title').textContent = loc.Name;
+    document.getElementById('lb-meta').textContent  = `${loc.Borough || ''} · ${loc.DatePosted || ''}`;
+    document.getElementById('lb-desc').textContent  = loc.Description || 'No description provided.';
 
+    const tagsEl = document.getElementById('lb-tags');
+    tagsEl.innerHTML = '';
+    if (loc.Tags && Array.isArray(loc.Tags)) {
+      loc.Tags.forEach(tag => {
+        const el = document.createElement('span');
+        el.className = "text-[9px] font-semibold tracking-[.14em] uppercase px-2.5 py-1 rounded-sm border border-[#e8ded0]/15 text-[#e8ded0]/50 bg-[#e8ded0]/[.04]";
+        el.textContent = tag;
+        tagsEl.appendChild(el);
+      });
+    }
 
-  // Counter
-  document.getElementById('lb-counter').textContent =
-    `${lbIndex + 1} / ${lbTotal}`;
+    const hoursEl = document.getElementById('lb-hours');
+    hoursEl.innerHTML = '';
+    if (loc.Hours && Array.isArray(loc.Hours)) {
+      loc.Hours.forEach(day => {
+        const row = document.createElement('div');
+        row.className = `flex justify-between py-1 border-b border-[#e8ded0]/[.05] ${day.today ? 'text-[#e8ded0]' : 'text-[#e8ded0]/40'}`;
+        row.innerHTML = `
+          <span class="text-[11px] tracking-[.08em] uppercase font-mono">${day.name}</span>
+          <span class="text-[11px] font-mono ${day.today ? 'font-bold' : ''}" style="${day.today ? 'color:var(--accent)' : ''}">${formatHours(day.hours)}</span>`;
+        hoursEl.appendChild(row);
+      });
+    }
 
-  // Badge (Featured / Hidden Gem / Local Pick)
-  const badges = ['Featured', 'Hidden gem', 'Local pick'];
-  document.getElementById('lb-badge').textContent =
-    loc.Type || badges[lbIndex] || 'Gem';
+    document.getElementById('lb-like-count').textContent = loc.LikeCount || 0;
+    document.getElementById('lb-heart').textContent = loc.Liked ? '♥' : '♡';
+    document.getElementById('lb-like-btn').style.color = loc.Liked ? 'var(--accent)' : '#e8ded0';
 
-  // Category / Type
-  document.getElementById('lb-type').textContent =
-    loc.Category || 'Location';
+    const delBtn = document.getElementById('lb-delete-btn');
+    delBtn.style.display = loc.IsOwner ? 'flex' : 'none';
 
-  // Coordinates
-  const coordsEl = document.getElementById('lb-coords');
-  if (loc.Latitude && loc.Longitude) {
-    coordsEl.textContent = `${loc.Latitude}° N · ${loc.Longitude}° W`;
-  } else {
-    coordsEl.textContent = '';
-  }
+    document.getElementById('lb-prev').style.visibility = lbIndex > 0 ? 'visible' : 'hidden';
+    document.getElementById('lb-next').style.visibility = lbIndex < lbTotal - 1 ? 'visible' : 'hidden';
 
-  // Address + Maps link
-  const addrText = document.getElementById('lb-addr-text');
-  const mapLink = document.getElementById('lb-map-link');
-  const noAddr = document.getElementById('lb-no-addr');
-
-  if (loc.Address) {
-    addrText.textContent = loc.Address;
-    const q = encodeURIComponent(loc.Address + ', New York City');
-    mapLink.href = `https://www.google.com/maps/search/?api=1&query=${q}`;
-    addrText.style.display = 'block';
-    mapLink.style.display = 'inline-flex';
-    if (noAddr) noAddr.style.display = 'none';
-  } else {
-    addrText.style.display = 'none';
-    mapLink.style.display = 'none';
-    if (noAddr) noAddr.style.display = 'block';
-  }
-
-  // Title
-  document.getElementById('lb-title').textContent = loc.Name;
-
-  // Meta (borough + date)
-  document.getElementById('lb-meta').textContent =
-    `${loc.Borough || ''} · ${loc.DatePosted || ''}`;
-
-  // Description
-  document.getElementById('lb-desc').textContent =
-    loc.Description || 'No description provided.';
-
-  // Tags
-  const tagsEl = document.getElementById('lb-tags');
-  tagsEl.innerHTML = '';
-  if (loc.Tags && Array.isArray(loc.Tags)) {
-    loc.Tags.forEach(tag => {
-      const el = document.createElement('span');
-      el.className =
-        "text-[9px] font-semibold tracking-[.14em] uppercase px-2.5 py-1 rounded-sm border border-[#e8ded0]/15 text-[#e8ded0]/50 bg-[#e8ded0]/[.04]";
-      el.textContent = tag;
-      tagsEl.appendChild(el);
-    });
-  }
-
-  // Hours
-  const hoursEl = document.getElementById('lb-hours');
-  hoursEl.innerHTML = '';
-  if (loc.Hours && Array.isArray(loc.Hours)) {
-    loc.Hours.forEach(day => {
-      const row = document.createElement('div');
-      row.className =
-        `flex justify-between py-1 border-b border-[#e8ded0]/[.05] ${
-          day.today ? 'text-[#e8ded0]' : 'text-[#e8ded0]/40'
-        }`;
-
-      row.innerHTML = `
-        <span class="text-[11px] tracking-[.08em] uppercase font-mono">${day.name}</span>
-        <span class="text-[11px] font-mono ${day.today ? 'font-bold' : ''}"
-              style="${day.today ? 'color: var(--accent)' : ''}">
-          ${formatHours(day.hours)}
-        </span>
-      `;
-
-      hoursEl.appendChild(row);
+    const dotsEl = document.getElementById('lb-dots');
+    dotsEl.innerHTML = '';
+    locations.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.style.cssText = `width:6px;height:6px;border-radius:50%;cursor:pointer;background:${i===lbIndex?'var(--accent)':'rgba(232,222,208,0.25)'};transition:background 0.2s;`;
+      d.onclick = () => { lbIndex = i; renderLightbox(); };
+      dotsEl.appendChild(d);
     });
   }
 
   function formatHours(hoursStr) {
-  if (!hoursStr || hoursStr === "Closed") return "Closed";
+    if (!hoursStr || hoursStr === "Closed") return "Closed";
+    const parts = hoursStr.split(" – ");
+    if (parts.length !== 2) return hoursStr;
+    return `${to12Hour(parts[0])} – ${to12Hour(parts[1])}`;
+  }
 
-  const parts = hoursStr.split(" – ");
-  if (parts.length !== 2) return hoursStr; // fallback
+  function to12Hour(timeStr) {
+    if (!timeStr || !timeStr.includes(":")) return timeStr;
+    let [h, m] = timeStr.split(":").map(Number);
+    const suffix = h >= 12 ? "PM" : "AM";
+    h = (h % 12) || 12;
+    return `${h}:${m.toString().padStart(2, "0")} ${suffix}`;
+  }
 
-  const [open, close] = parts;
-
-  return `${to12Hour(open)} – ${to12Hour(close)}`;
-}
-
-function to12Hour(timeStr) {
-  if (!timeStr || !timeStr.includes(":")) return timeStr;
-
-  let [h, m] = timeStr.split(":").map(Number);
-  const suffix = h >= 12 ? "PM" : "AM";
-  h = (h % 12) || 12;
-
-  return `${h}:${m.toString().padStart(2, "0")} ${suffix}`;
-}
-
-
-
-  // Likes
-  document.getElementById('lb-like-count').textContent =
-    loc.LikeCount || 0;
-  document.getElementById('lb-heart').textContent =
-    loc.Liked ? '♥' : '♡';
-  document.getElementById('lb-like-btn').style.color =
-    loc.Liked ? 'var(--accent)' : '#e8ded0';
-
-  // Delete button visibility
-const delBtn = document.getElementById('lb-delete-btn');
-delBtn.style.display = loc.IsOwner ? 'flex' : 'none';
-
-
-  // Prev / Next visibility
-  document.getElementById('lb-prev').style.visibility =
-    lbIndex > 0 ? 'visible' : 'hidden';
-  document.getElementById('lb-next').style.visibility =
-    lbIndex < lbTotal - 1 ? 'visible' : 'hidden';
-
-  // Dots
-  const dotsEl = document.getElementById('lb-dots');
-  dotsEl.innerHTML = '';
-  locations.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.style.cssText = `
-      width:6px; height:6px; border-radius:50%; cursor:pointer;
-      background: ${i === lbIndex ? 'var(--accent)' : 'rgba(232,222,208,0.25)'};
-      transition: background 0.2s;
-    `;
-    d.onclick = () => { lbIndex = i; renderLightbox(); };
-    dotsEl.appendChild(d);
-  });
-}
-
-
-let lbAnimating = false;
-
-function lbStep(dir) {
-  if (lbAnimating) return;
-  const next = lbIndex + dir;
-  if (next < 0 || next >= lbTotal) return;
-  lbAnimating = true;
-
-  const card = document.getElementById('lb-card');
-  const slideOut = dir > 0 ? 'translateX(-60px)' : 'translateX(60px)';
-  const slideIn  = dir > 0 ? 'translateX(60px)'  : 'translateX(-60px)';
-
-  // Slide out
-  card.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
-  card.style.opacity    = '0';
-  card.style.transform  = slideOut;
-
-  setTimeout(() => {
-    lbIndex = next;
-    renderLightbox();
-
-    // Position for slide-in (instant, no transition)
-    card.style.transition = 'none';
-    card.style.transform  = slideIn;
+  function lbStep(dir) {
+    if (lbAnimating) return;
+    const next = lbIndex + dir;
+    if (next < 0 || next >= lbTotal) return;
+    lbAnimating = true;
+    const card = document.getElementById('lb-card');
+    const slideOut = dir > 0 ? 'translateX(-60px)' : 'translateX(60px)';
+    const slideIn  = dir > 0 ? 'translateX(60px)'  : 'translateX(-60px)';
+    card.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
     card.style.opacity    = '0';
+    card.style.transform  = slideOut;
+    setTimeout(() => {
+      lbIndex = next;
+      renderLightbox();
+      card.style.transition = 'none';
+      card.style.transform  = slideIn;
+      card.style.opacity    = '0';
+      card.getBoundingClientRect();
+      card.style.transition = 'opacity 0.22s ease, transform 0.22s cubic-bezier(0.23,1,0.32,1)';
+      card.style.opacity    = '1';
+      card.style.transform  = 'translateX(0)';
+      setTimeout(() => { card.style.pointerEvents = ''; lbAnimating = false; }, 220);
+    }, 180);
+  }
 
-    // Force reflow so the browser registers the starting position
-    card.getBoundingClientRect();
-
-    // Slide in
-   // Slide in
-    card.style.transition = 'opacity 0.22s ease, transform 0.22s cubic-bezier(0.23,1,0.32,1)';
-    card.style.opacity    = '1';
-    card.style.transform  = 'translateX(0)';
-
-    // Re-enable interactions after animation completes
-  setTimeout(() => {
-      card.style.pointerEvents = '';
-      lbAnimating = false;
-    }, 220);
-  }, 180);
-}
-
- function closeLightbox() {
-  const lb = document.getElementById('lightbox');
-  const card = document.getElementById('lb-card');
-
-  lb.classList.add('lb-animating-out');
-  card.classList.add('lb-animating-out');
-
-  lb.addEventListener('animationend', () => {
-    lb.classList.remove('lb-open', 'lb-animating-out');
-    card.classList.remove('lb-animating-out');
-    lb.classList.add('hidden');
-    lb.style.display = '';             // ← add this line
-    document.body.style.overflow = '';
-    document.removeEventListener('keydown', lbKeyHandler);
-  }, { once: true });
-}
+  function closeLightbox() {
+    const lb   = document.getElementById('lightbox');
+    const card = document.getElementById('lb-card');
+    lb.classList.add('lb-animating-out');
+    card.classList.add('lb-animating-out');
+    lb.addEventListener('animationend', () => {
+      lb.classList.remove('lb-open', 'lb-animating-out');
+      card.classList.remove('lb-animating-out');
+      lb.classList.add('hidden');
+      lb.style.display = '';
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', lbKeyHandler);
+    }, { once: true });
+  }
 
   function lbKeyHandler(e) {
     if (e.key === 'ArrowRight') lbStep(1);
@@ -1143,7 +824,33 @@ function lbStep(dir) {
     if (e.target === this) closeLightbox();
   });
 
-  
+  function openDeleteModal() {
+    const modal = document.getElementById('delete-modal');
+    modal.style.display = 'flex';
+    document.getElementById('delete-confirm-btn').onclick = confirmDelete;
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('delete-modal').style.display = 'none';
+  }
+
+  async function confirmDelete() {
+    const loc = locations[lbIndex];
+    if (!loc) return;
+    closeDeleteModal();
+    const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
+    const res  = await fetch(`/borough/${boroughSlug}/delete/${loc.ID}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      locations.splice(lbIndex, 1);
+      closeLightbox();
+      location.reload();
+    } else {
+      alert("Failed to delete location.");
+    }
+  }
+
+
   function openModal() {
     document.getElementById('add-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1154,78 +861,88 @@ function lbStep(dir) {
   }
   function closeAddBackdrop(e) { if (e.target.id === 'add-modal') closeAddModal(); }
 
-
   function toggleClosed(day) {
-  const row = document.getElementById(`hours-row-${day}`);
-  const checkbox = document.querySelector(`input[name="hours_${day}_closed"]`);
-
-  if (checkbox.checked) {
-    row.style.display = "none";
-  } else {
-    row.style.display = "flex";
+    const row      = document.getElementById(`hours-row-${day}`);
+    const checkbox = document.querySelector(`input[name="hours_${day}_closed"]`);
+    row.style.display = checkbox.checked ? 'none' : 'flex';
   }
-}
 
-function applyPreset() {
-  const preset = document.getElementById("hours-preset").value;
-
-  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-
-  if (preset === "9-5") {
+  function applyPreset() {
+    const preset = document.getElementById("hours-preset").value;
+    const days   = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
     days.forEach(d => {
       const closed = document.querySelector(`input[name="hours_${d}_closed"]`);
-      const open = document.querySelector(`input[name="hours_${d}_open"]`);
-      const close = document.querySelector(`input[name="hours_${d}_close"]`);
-
-      if (["Sat","Sun"].includes(d)) {
-        closed.checked = true;
-        toggleClosed(d);
-      } else {
-        closed.checked = false;
-        toggleClosed(d);
-        open.value = "09:00";
-        close.value = "17:00";
+      const open   = document.querySelector(`input[name="hours_${d}_open"]`);
+      const close  = document.querySelector(`input[name="hours_${d}_close"]`);
+      if (preset === "9-5") {
+        if (["Sat","Sun"].includes(d)) { closed.checked = true;  toggleClosed(d); }
+        else { closed.checked = false; toggleClosed(d); open.value = "09:00"; close.value = "17:00"; }
       }
+      if (preset === "24-7")  { closed.checked = false; toggleClosed(d); open.value = "00:00"; close.value = "23:59"; }
+      if (preset === "closed") { closed.checked = true;  toggleClosed(d); }
     });
   }
 
-  if (preset === "24-7") {
-    days.forEach(d => {
-      const closed = document.querySelector(`input[name="hours_${d}_closed"]`);
-      const open = document.querySelector(`input[name="hours_${d}_open"]`);
-      const close = document.querySelector(`input[name="hours_${d}_close"]`);
+ 
+  const USERNAME  = '{{ current_user.name }}';
+  const CHAT_ROOM = '{{ borough.name | replace(" ", "-") }}';
+  const socket    = io();
 
-      closed.checked = false;
-      toggleClosed(d);
-      open.value = "00:00";
-      close.value = "23:59";
-    });
+  socket.emit('join', { room: CHAT_ROOM, username: USERNAME });
+
+  socket.on('message', (data) => { appendMessage(data); });
+
+  // Online users
+  socket.on('online_count', (data) => {
+    const el = document.getElementById('online-count');
+    if (el) el.textContent = `${data.count} online`;
+  });
+
+  async function loadHistory() {
+    try {
+      const res  = await fetch(`/chat/${CHAT_ROOM}/history`);
+      const msgs = await res.json();
+      msgs.forEach(m => appendMessage(m));
+    } catch(e) {}
+  }
+  loadHistory();
+
+  function appendMessage(data) {
+    const wrap     = document.getElementById('chat-messages');
+    if (!wrap) return;
+    const isSystem = data.user === 'system';
+    const isMe     = data.user === USERNAME;
+    const div      = document.createElement('div');
+    div.style.cssText = `display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : isSystem ? 'center' : 'flex-start'}; margin-bottom:2px;`;
+    if (isSystem) {
+      div.innerHTML = `<p style="font-size:0.6rem;color:rgba(232,222,208,0.25);text-align:center;padding:4px 0;">${data.text}</p>`;
+    } else {
+      div.innerHTML = `
+        ${!isMe ? `<p style="font-size:0.6rem;color:rgba(232,222,208,0.4);margin-bottom:3px;padding-left:4px;">${data.user}</p>` : ''}
+        <div style="
+          max-width:65%; padding:10px 14px;
+          border-radius:${isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};
+          background:${isMe ? 'var(--accent)' : 'rgba(232,222,208,0.1)'};
+          color:#e8ded0; font-size:0.82rem; line-height:1.5; word-break:break-word;
+        ">${data.text}</div>
+        <p style="font-size:0.55rem;color:rgba(232,222,208,0.2);margin-top:3px;padding:0 4px;">${data.time}</p>`;
+    }
+    wrap.appendChild(div);
+    wrap.scrollTop = wrap.scrollHeight;
   }
 
-  if (preset === "closed") {
-    days.forEach(d => {
-      const closed = document.querySelector(`input[name="hours_${d}_closed"]`);
-      closed.checked = true;
-      toggleClosed(d);
-    });
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text  = input.value.trim();
+    if (!text) return;
+    socket.emit('send_message', { room: CHAT_ROOM, username: USERNAME, text });
+    input.value = '';
   }
-}
 
-
-  
+  window.addEventListener('beforeunload', () => {
+    socket.emit('leave', { room: CHAT_ROOM, username: USERNAME });
+  });
 </script>
-<div id="delete-modal" style="display:none; position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:24px;">
-  <div style="background:#111; border:1px solid rgba(232,222,208,0.12); border-radius:20px; padding:32px 28px; width:100%; max-width:360px; display:flex; flex-direction:column; align-items:center;">
-    <div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 4h4M3 6h14M5 6l1 10a2 2 0 002 2h4a2 2 0 002-2l1-10" stroke="rgba(239,68,68,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <p class="serif" style="font-size:1.4rem;font-weight:300;color:#e8ded0;margin-bottom:8px;text-align:center;line-height:1.2;">Remove this location?</p>
-    <p style="font-size:0.75rem;color:rgba(232,222,208,0.4);text-align:center;line-height:1.6;margin-bottom:28px;">This can't be undone. The location and all its data will be permanently deleted.</p>
-    <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
-      <button id="delete-confirm-btn" style="width:100%;padding:11px;border-radius:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:rgb(239,68,68);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Yes, remove it</button>
-      <button onclick="closeDeleteModal()" style="width:100%;padding:11px;border-radius:10px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.5);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Cancel</button>
-    </div>
-  </div>
-</div>
+
 </body>
 </html>

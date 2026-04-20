@@ -24,7 +24,15 @@
       min-height: 100vh;
       overflow: hidden;
       position: relative;
-      transition: background-color 0.6s ease;
+    }
+
+    
+    #bg-overlay {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.5s ease;
     }
 
     body::before {
@@ -57,6 +65,7 @@
       inset: 0;
       border-radius: 50%;
       border: 1px solid rgba(232, 222, 208, 0.1);
+      transition: border-color 0.6s ease;
     }
     .arc-ring:nth-child(1) { inset: 10%; }
     .arc-ring:nth-child(2) { inset: 22%; }
@@ -72,12 +81,23 @@
     }
     .borough-img-wrap:hover { transform: scale(1.03); }
 
+    
+    .borough-img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: opacity 0.5s ease;
+    }
+    .borough-img-wrap .img-current { opacity: 1; }
+    .borough-img-wrap .img-next    { opacity: 0; }
+
     .borough-label {
       font-size: 0.6rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
       color: rgba(232,222,208,0.45);
-      transition: color 0.3s;
+      transition: color 0.3s, transform 0.2s;
       white-space: nowrap;
       cursor: pointer;
       background: none;
@@ -86,13 +106,14 @@
       align-items: center;
       gap: 6px;
     }
+    .borough-label:hover { transform: scale(1.05); }
     .borough-label.active { color: #e8ded0; }
 
     .borough-label .dot {
       width: 5px; height: 5px;
       border-radius: 50%;
       background: rgba(232,222,208,0.3);
-      transition: background 0.3s;
+      transition: background 0.4s, box-shadow 0.4s;
       flex-shrink: 0;
     }
     .borough-label.active .dot {
@@ -114,6 +135,7 @@
       line-height: 1.1;
       text-transform: capitalize;
       margin-bottom: 16px;
+      transition: opacity 0.3s ease, transform 0.4s cubic-bezier(.23,1,.32,1);
     }
 
     .visit-btn {
@@ -126,11 +148,12 @@
       text-transform: uppercase;
       color: #e8ded0;
       text-decoration: none;
-      transition: background 0.2s, color 0.2s;
+      transition: background 0.2s, color 0.2s, transform 0.2s;
     }
     .visit-btn:hover {
       background: #e8ded0;
       color: var(--borough-color);
+      transform: translateY(-1px);
     }
 
     .nav-link {
@@ -163,6 +186,12 @@
       top: 50%; left: 50%;
       transform-origin: 0 0;
     }
+
+    .pigeon {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+    }
   </style>
 </head>
 
@@ -171,18 +200,19 @@
 {% include '_nav.html.jinja' %}
 
 
+<div id="bg-overlay"></div>
+
 <div class="absolute top-0 left-0 right-0 flex items-center px-8 py-6 z-10">
   <h1 class="fade-up">Borough Directory</h1>
 </div>
 
 
-<div class="borough-panel fade-left">
-  <p class="name">{{ selected.name }}</p>
-  <a href="/borough/{{ selected.name | replace(' ', '-') }}" class="visit-btn">
+<div class="borough-panel fade-left" id="borough-panel">
+  <p class="name" id="borough-name">{{ selected.name }}</p>
+  <a href="/borough/{{ selected.name | replace(' ', '-') }}" class="visit-btn" id="visit-btn">
     Explore {{ selected.name }} &rarr;
   </a>
 </div>
-
 
 <div class="radial-container spin-in">
   <div class="arc-ring"></div>
@@ -190,17 +220,22 @@
   <div class="arc-ring"></div>
 
   <div class="borough-img-wrap" id="centerImage">
-
-    <img src="{{ url_for('static', filename='images/' + selected.name + '.png') }}"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-         style="width:100%; height:100%; object-fit:cover;">
-    <div style="display:none; width:100%; height:100%; background:radial-gradient(circle at 40% 35%, {{ selected.accent }}, {{ selected.color }}, #0a0a1a);"></div>
+    <img class="img-current" id="img-current"
+         src="{{ url_for('static', filename='images/' + selected.name + '.png') }}"
+         onerror="this.style.display='none'">
+    <img class="img-next" id="img-next" src="">
+    <div id="img-fallback" style="display:none;width:100%;height:100%;background:radial-gradient(circle at 40% 35%, {{ selected.accent }}, {{ selected.color }}, #0a0a1a);"></div>
   </div>
 
   {% for borough in boroughs %}
-  <form method="POST" class="borough-form" data-index="{{ loop.index0 }}" data-total="{{ boroughs|length }}">
-    <button type="submit" name="borough" value="{{ borough.name }}"
-      class="borough-label {% if borough.name == selected.name %}active{% endif %}">
+  <form method="POST" class="borough-form" data-index="{{ loop.index0 }}" data-total="{{ boroughs|length }}"
+        data-name="{{ borough.name }}"
+        data-color="{{ borough.color }}"
+        data-accent="{{ borough.accent }}"
+        data-image="{{ url_for('static', filename='images/' + borough.name + '.png') }}">
+    <button type="button"
+      class="borough-label {% if borough.name == selected.name %}active{% endif %}"
+      onclick="selectBorough(this)">
       <span class="dot"></span>{{ borough.name }}
     </button>
   </form>
@@ -216,77 +251,131 @@
 </div>
 
 <script>
+  
   document.querySelectorAll('.borough-form').forEach(form => {
-    const idx   = parseInt(form.dataset.index);
-    const total = parseInt(form.dataset.total);
+    const idx    = parseInt(form.dataset.index);
+    const total  = parseInt(form.dataset.total);
     const radius = 290;
     const angleDeg = -155 + (idx / (total - 1)) * 130;
     const angleRad = angleDeg * Math.PI / 180;
     const x = 350 + radius * Math.cos(angleRad);
     const y = 350 + radius * Math.sin(angleRad);
-    form.style.top  = y + 'px';
-    form.style.left = x + 'px';
+    form.style.top       = y + 'px';
+    form.style.left      = x + 'px';
     form.style.transform = 'translate(-50%, -50%)';
   });
 
-  document.body.style.backgroundColor = 'transparent';
-  requestAnimationFrame(() => {
-    document.body.style.backgroundColor = '{{ selected.color }}';
-  });
-</script>
+ 
+  let currentBorough = '{{ selected.name }}';
+  let isTransitioning = false;
 
-<style>
-  .pigeon {
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
+  function selectBorough(btn) {
+    if (isTransitioning) return;
+    const form    = btn.closest('.borough-form');
+    const name    = form.dataset.name;
+    const color   = form.dataset.color;
+    const accent  = form.dataset.accent;
+    const imgSrc  = form.dataset.image;
+
+    if (name === currentBorough) return;
+    isTransitioning = true;
+    currentBorough  = name;
+
+   
+    document.querySelectorAll('.borough-label').forEach(l => l.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Crossfade image
+    const imgCurrent = document.getElementById('img-current');
+    const imgNext    = document.getElementById('img-next');
+    imgNext.src      = imgSrc;
+    imgNext.onload   = () => {
+      imgNext.style.opacity    = '1';
+      imgCurrent.style.opacity = '0';
+      setTimeout(() => {
+        imgCurrent.src           = imgSrc;
+        imgCurrent.style.opacity = '1';
+        imgNext.style.opacity    = '0';
+      }, 500);
+    };
+    imgNext.onerror = () => {
+      imgNext.style.opacity = '0';
+    };
+
+    // Fade background color
+    const overlay = document.getElementById('bg-overlay');
+    overlay.style.background = color;
+    overlay.style.opacity    = '0';
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+      setTimeout(() => {
+        document.body.style.backgroundColor = color;
+        overlay.style.opacity = '0';
+      }, 500);
+    });
+
+    // Update CSS accent var smoothly
+    document.documentElement.style.setProperty('--accent', accent);
+    document.documentElement.style.setProperty('--borough-color', color);
+
+    
+    const nameEl    = document.getElementById('borough-name');
+    const visitBtn  = document.getElementById('visit-btn');
+    nameEl.style.opacity   = '0';
+    nameEl.style.transform = 'translateY(8px)';
+
+    setTimeout(() => {
+      nameEl.textContent    = name;
+      visitBtn.href         = `/borough/${name.replace(/ /g, '-')}`;
+      visitBtn.innerHTML    = `Explore ${name} &rarr;`;
+      nameEl.style.transform = 'translateY(-4px)';
+      requestAnimationFrame(() => {
+        nameEl.style.transition  = 'opacity 0.35s ease, transform 0.35s cubic-bezier(.23,1,.32,1)';
+        nameEl.style.opacity     = '1';
+        nameEl.style.transform   = 'translateY(0)';
+      });
+    }, 200);
+
+    // Update server state silently via fetch (no page reload)
+    fetch('/browse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `borough=${encodeURIComponent(name)}`
+    }).then(() => {
+      isTransitioning = false;
+    });
   }
-</style>
+</script>
 
 <script>
   function spawnPigeon() {
     const p = document.createElement('img');
     p.classList.add('pigeon');
     p.src = "{{ url_for('static', filename='images/pigeon.gif') }}";
-
-
-    const startY = Math.random() * (window.innerHeight * 0.65) + 40;
-
-
-    const size = 80 + Math.random() * 80;
-    p.style.width  = size + 'px';
-    p.style.height = 'auto';
-    p.style.transform = 'scaleX(1)';
-    p.style.top    = startY + 'px';
-
-    // random speed
+    const startY   = Math.random() * (window.innerHeight * 0.65) + 40;
+    const size     = 80 + Math.random() * 80;
     const duration = 1800 + Math.random() * 1200;
-
+    p.style.width     = size + 'px';
+    p.style.height    = 'auto';
+    p.style.transform = 'scaleX(1)';
+    p.style.top       = startY + 'px';
     document.body.appendChild(p);
-
     let startTime = null;
     const startX  = window.innerWidth + 60;
     const endX    = -(size + 60);
-
     function step(ts) {
       if (!startTime) startTime = ts;
       const progress = (ts - startTime) / duration;
-      if (progress >= 1) {
-        p.remove();
-        return;
-      }
+      if (progress >= 1) { p.remove(); return; }
       const drift = Math.sin(progress * Math.PI * 5) * 10;
       p.style.left = (startX + (endX - startX) * progress) + 'px';
       p.style.top  = (startY + drift) + 'px';
       requestAnimationFrame(step);
     }
-
     requestAnimationFrame(step);
   }
 
-  // Spawn on click
   document.addEventListener('click', spawnPigeon);
-  
   function autoSpawn() {
     spawnPigeon();
     setTimeout(autoSpawn, 2000 + Math.random() * 6000);
@@ -294,13 +383,12 @@
   autoSpawn();
 </script>
 
-<!-- PIXEL HORROR GAME OVERLAY -->
+
 <div id="pixel-horror-overlay"
      style="display:none; position:fixed; inset:0; background:black; z-index:999999;">
   <canvas id="horrorCanvas" width="480" height="270"
           style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) scale(2);
-                 image-rendering:pixelated; background:black;">
-  </canvas>
+                 image-rendering:pixelated; background:black;"></canvas>
   <button id="exitHorrorGame"
           style="position:absolute; top:20px; right:20px; padding:6px 12px;
                  background:#111; color:#fff; border:1px solid #444; cursor:pointer; z-index:10;">
@@ -312,14 +400,12 @@
     A / D to move
   </div>
 </div>
+
 <script>
-/* ============================
-   EASTER EGG TRIGGER (10 CLICKS)
-   ============================ */
 let horrorClicks = 0;
 window.addEventListener("load", () => {
   const centerImg = document.getElementById("centerImage");
-  if (!centerImg) { console.warn("centerImage not found"); return; }
+  if (!centerImg) return;
   centerImg.addEventListener("mousedown", (e) => {
     e.stopPropagation();
     horrorClicks++;
@@ -329,880 +415,246 @@ window.addEventListener("load", () => {
     }
   });
 });
-/* ============================
-   GAME VARIABLES
-   ============================ */
+
 let canvas, ctx;
 let player = { x: 20, y: 200, dir: 1, speed: 1.2 };
 let keys = {};
 let currentFloor = 1;
 let gameRunning = false;
 let ghostTimer = 0;
-// Floor 1 — Crawler
-let crawlerX = -40;
-let crawlerSpeed = 0.4;
-let crawlerFrame = 0;
-let crawlerAnimTimer = 0;
-let crawlerFlicker = false;
-let crawlerFlickerTimer = 0;
-let crawlerLunge = false;
-let crawlerLungeTimer = 0;
-let screenFlash = 0;
-let doorScare = false;
-let doorScareTimer = 0;
-let hallwayShake = 0;
-// Floor 2 — Pipe Whisperer
-let ventCorrectStreak = 0;
-let ventCorrectTimer = 0;
-let ventWrongTimer = 0;
-let ventJumpscare = false;
-let ventJumpscareTimer = 0;
-let whisperText = "";
-let whisperOpacity = 0;
-let correctVent = 1;
-// Floor 3 — Lightkeeper
-let flickerActive = false;
-let flickerTimer = 0;
-// Floor 4 — Door Scratcher
-let scratching = false;
-let scratchTimer = 0;
-// Floor 5 — Memory Loop Twins
-let loopTimer = 0;
-let loopFreeze = false;
-let survivalTimer = 0;
-// Intro / transition / death
-let introActive = false;
-let introOpacity = 0;
-let introTimer = 0;
+let crawlerX = -40, crawlerSpeed = 0.4, crawlerFrame = 0, crawlerAnimTimer = 0;
+let crawlerFlicker = false, crawlerFlickerTimer = 0;
+let crawlerLunge = false, crawlerLungeTimer = 0;
+let screenFlash = 0, doorScare = false, doorScareTimer = 0, hallwayShake = 0;
+let ventCorrectStreak = 0, ventCorrectTimer = 0, ventWrongTimer = 0;
+let ventJumpscare = false, ventJumpscareTimer = 0;
+let whisperText = "", whisperOpacity = 0, correctVent = 1;
+let flickerActive = false, flickerTimer = 0;
+let scratching = false, scratchTimer = 0;
+let loopTimer = 0, loopFreeze = false, survivalTimer = 0;
+let introActive = false, introOpacity = 0, introTimer = 0;
 let introTitle = "THE BUILDING THAT REMEMBERS";
-let deathActive = false;
-let deathTimer = 0;
-let deathShake = 0;
-let transitionActive = false;
-let transitionTimer = 0;
-/* ============================
-   START GAME
-   ============================ */
+let deathActive = false, deathTimer = 0, deathShake = 0;
+let transitionActive = false, transitionTimer = 0;
+
 function startPixelHorrorGame() {
   document.getElementById("pixel-horror-overlay").style.display = "block";
   canvas = document.getElementById("horrorCanvas");
   ctx = canvas.getContext("2d");
-  currentFloor = 1;
-  gameRunning = false; // will be set true after intro
-  player.x = 20;
-  player.y = 200;
-  player.dir = 1;
-  player.speed = 1.2;
-  deathActive = false;
-  transitionActive = false;
-  ghostTimer = 0;
-  survivalTimer = 0;
-  screenFlash = 0;
-  deathShake = 0;
-  hallwayShake = 0;
-  introActive = true;
-  introOpacity = 0;
-  introTimer = 0;
+  currentFloor = 1; gameRunning = false;
+  player.x = 20; player.y = 200; player.dir = 1; player.speed = 1.2;
+  deathActive = false; transitionActive = false;
+  ghostTimer = 0; survivalTimer = 0; screenFlash = 0; deathShake = 0; hallwayShake = 0;
+  introActive = true; introOpacity = 0; introTimer = 0;
   requestAnimationFrame(gameLoop);
 }
-/* ============================
-   EXIT GAME
-   ============================ */
+
 document.getElementById("exitHorrorGame").onclick = () => {
   document.getElementById("pixel-horror-overlay").style.display = "none";
-  gameRunning = false;
-  introActive = false;
-  transitionActive = false;
-  deathActive = false;
+  gameRunning = false; introActive = false; transitionActive = false; deathActive = false;
 };
-/* ============================
-   KEYBOARD INPUT
-   ============================ */
+
 document.addEventListener("keydown", e => { keys[e.key] = true; });
 document.addEventListener("keyup",   e => { keys[e.key] = false; });
-/* ============================
-   FLOOR SETUP
-   ============================ */
+
 function setupFloor(floor) {
-  ghostTimer = 0;
-  survivalTimer = 0;
-  player.x = 20;
-  player.y = 200;
-  player.speed = 1.2;
-  player.dir = 1;
-  screenFlash = 0;
-  deathShake = 0;
-  hallwayShake = 0;
-  whisperText = "";
-  whisperOpacity = 0;
-  // Floor 1
-  crawlerX = -40;
-  crawlerSpeed = 0.4;
-  crawlerFrame = 0;
-  crawlerAnimTimer = 0;
-  crawlerFlicker = false;
-  crawlerFlickerTimer = 0;
-  crawlerLunge = false;
-  crawlerLungeTimer = 0;
-  doorScare = false;
-  doorScareTimer = 0;
-  // Floor 2
-  ventCorrectStreak = 0;
-  ventCorrectTimer = 0;
-  ventWrongTimer = 0;
-  ventJumpscare = false;
-  ventJumpscareTimer = 0;
+  ghostTimer = 0; survivalTimer = 0;
+  player.x = 20; player.y = 200; player.speed = 1.2; player.dir = 1;
+  screenFlash = 0; deathShake = 0; hallwayShake = 0;
+  whisperText = ""; whisperOpacity = 0;
+  crawlerX = -40; crawlerSpeed = 0.4; crawlerFrame = 0; crawlerAnimTimer = 0;
+  crawlerFlicker = false; crawlerFlickerTimer = 0;
+  crawlerLunge = false; crawlerLungeTimer = 0;
+  doorScare = false; doorScareTimer = 0;
+  ventCorrectStreak = 0; ventCorrectTimer = 0; ventWrongTimer = 0;
+  ventJumpscare = false; ventJumpscareTimer = 0;
   correctVent = Math.random() < 0.5 ? 1 : 2;
-  // Floor 3
-  flickerActive = false;
-  flickerTimer = 0;
-  // Floor 4
-  scratching = false;
-  scratchTimer = 0;
-  // Floor 5
-  loopTimer = 0;
-  loopFreeze = false;
+  flickerActive = false; flickerTimer = 0;
+  scratching = false; scratchTimer = 0;
+  loopTimer = 0; loopFreeze = false;
 }
-/* ============================
-   INTRO
-   ============================ */
+
 function drawIntro() {
   introTimer++;
-  if (introTimer < 120)       introOpacity = introTimer / 120;
-  else if (introTimer < 240)  introOpacity = 1;
-  else if (introTimer < 360)  introOpacity = 1 - ((introTimer - 240) / 120);
-  else {
-    introActive = false;
-    gameRunning = true;
-    setupFloor(currentFloor);
-    return;
-  }
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (introTimer < 120)      introOpacity = introTimer / 120;
+  else if (introTimer < 240) introOpacity = 1;
+  else if (introTimer < 360) introOpacity = 1 - ((introTimer - 240) / 120);
+  else { introActive = false; gameRunning = true; setupFloor(currentFloor); return; }
+  ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.globalAlpha = introOpacity;
-  ctx.fillStyle = "white";
-  ctx.font = "20px serif";
-  ctx.textAlign = "center";
+  ctx.fillStyle = "white"; ctx.font = "20px serif"; ctx.textAlign = "center";
   ctx.fillText(introTitle, canvas.width / 2, canvas.height / 2);
-  if (Math.random() < 0.05) {
-    ctx.fillStyle = "rgba(255,0,0,0.2)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
+  if (Math.random() < 0.05) { ctx.fillStyle = "rgba(255,0,0,0.2)"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
   ctx.globalAlpha = 1;
 }
-/* ============================
-   ELEVATOR TRANSITION
-   ============================ */
-function startTransition() {
-  transitionActive = true;
-  transitionTimer = 0;
-  gameRunning = false;
-}
+
+function startTransition() { transitionActive = true; transitionTimer = 0; gameRunning = false; }
 function drawTransition() {
   transitionTimer++;
   let opacity = Math.min(1, transitionTimer / 60);
-  ctx.fillStyle = `rgba(0,0,0,${opacity})`;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = `rgba(0,0,0,${opacity})`; ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (transitionTimer > 60 && transitionTimer < 120) {
-    ctx.fillStyle = "rgba(255,255,255,0.4)";
-    ctx.font = "12px serif";
-    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "12px serif"; ctx.textAlign = "center";
     ctx.fillText("THE BUILDING REMEMBERS...", canvas.width / 2, canvas.height / 2);
   }
-  if (transitionTimer >= 150) {
-    transitionActive = false;
-    gameRunning = true;
-    setupFloor(currentFloor);
-  }
+  if (transitionTimer >= 150) { transitionActive = false; gameRunning = true; setupFloor(currentFloor); }
 }
-/* ============================
-   DEATH
-   ============================ */
+
 function triggerDeath() {
   if (deathActive) return;
-  deathActive = true;
-  deathTimer = 0;
-  gameRunning = false;
+  deathActive = true; deathTimer = 0; gameRunning = false;
 }
+
 function drawDeath() {
   deathTimer++;
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Phase 1 (0-20): white flash
+  ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (deathTimer < 20) {
     let alpha = 1 - (deathTimer / 20);
-    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    return;
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`; ctx.fillRect(0, 0, canvas.width, canvas.height); return;
   }
-
-  // Phase 2 (20-80): red vignette closes in, static, text glitches in
   if (deathTimer < 80) {
     let prog = (deathTimer - 20) / 60;
-    let vigAlpha = 0.2 + prog * 0.5;
-    let grad = ctx.createRadialGradient(
-      canvas.width / 2, canvas.height / 2, 20,
-      canvas.width / 2, canvas.height / 2, 240
-    );
-    grad.addColorStop(0, "rgba(0,0,0,0)");
-    grad.addColorStop(0.5, `rgba(180,0,0,${vigAlpha * 0.4})`);
-    grad.addColorStop(1, `rgba(180,0,0,${vigAlpha})`);
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    for (let y = 0; y < canvas.height; y += 3) {
-      ctx.fillStyle = "rgba(0,0,0,0.3)";
-      ctx.fillRect(0, y, canvas.width, 1);
-    }
-    for (let i = 0; i < 300; i++) {
-      ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.3})`;
-      ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 1, 1);
-    }
-
+    let grad = ctx.createRadialGradient(canvas.width/2,canvas.height/2,20,canvas.width/2,canvas.height/2,240);
+    grad.addColorStop(0,"rgba(0,0,0,0)");
+    grad.addColorStop(1,`rgba(180,0,0,${0.2+prog*0.5})`);
+    ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for (let i=0;i<300;i++){ctx.fillStyle=`rgba(255,255,255,${Math.random()*0.3})`;ctx.fillRect(Math.random()*canvas.width,Math.random()*canvas.height,1,1);}
     if (deathTimer > 50) {
-      ctx.globalAlpha = Math.min(1, (deathTimer - 50) / 30);
-      ctx.fillStyle = "white";
-      ctx.font = "bold 28px serif";
-      ctx.textAlign = "center";
-      let glitch = Math.random() < 0.3 ? (Math.random() * 8 - 4) : 0;
-      ctx.fillText("YOU DIED", canvas.width / 2 + glitch, canvas.height / 2);
-      ctx.globalAlpha = 1;
+      ctx.globalAlpha = Math.min(1,(deathTimer-50)/30);
+      ctx.fillStyle="white";ctx.font="bold 28px serif";ctx.textAlign="center";
+      ctx.fillText("YOU DIED",canvas.width/2+(Math.random()<0.3?Math.random()*8-4:0),canvas.height/2);
+      ctx.globalAlpha=1;
     }
     return;
   }
-
-  // Phase 3 (80-160): RGB split glitch, corruption, scanlines
-  if (deathTimer < 160) {
-    ctx.fillStyle = "rgba(30,0,0,1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.font = "bold 28px serif";
-    ctx.textAlign = "center";
-    ctx.globalAlpha = 0.6;
-    ctx.fillStyle = "red";
-    ctx.fillText("YOU DIED", canvas.width / 2 + 4, canvas.height / 2);
-    ctx.fillStyle = "cyan";
-    ctx.fillText("YOU DIED", canvas.width / 2 - 4, canvas.height / 2);
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "white";
-    ctx.fillText("YOU DIED", canvas.width / 2, canvas.height / 2);
-
-    ctx.fillStyle = "rgba(200,50,50,0.9)";
-    ctx.font = "10px serif";
-    ctx.fillText("THE BUILDING REMEMBERS", canvas.width / 2, canvas.height / 2 + 25);
-
-    for (let i = 0; i < 8; i++) {
-      if (Math.random() < 0.4) {
-        let gy = Math.floor(Math.random() * canvas.height);
-        let gh = Math.floor(Math.random() * 6) + 1;
-        let shift = Math.random() * 30 - 15;
-        ctx.save();
-        ctx.globalAlpha = 0.6;
-        ctx.drawImage(canvas, 0, gy, canvas.width, gh, shift, gy, canvas.width, gh);
-        ctx.restore();
-      }
-    }
-
-    for (let y = 0; y < canvas.height; y += 2) {
-      ctx.fillStyle = "rgba(0,0,0,0.25)";
-      ctx.fillRect(0, y, canvas.width, 1);
-    }
-    for (let i = 0; i < 150; i++) {
-      ctx.fillStyle = `rgba(255,${Math.random()*50},${Math.random()*50},${Math.random()*0.4})`;
-      ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
-    }
-
-    if (deathTimer > 140 && Math.random() < 0.3) {
-      ctx.fillStyle = "rgba(255,0,0,0.15)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    return;
-  }
-
-  // Phase 4 (160-230): fade to black, show restart floor
   if (deathTimer < 230) {
-    let fadeAlpha = (deathTimer - 160) / 70;
-    ctx.fillStyle = `rgba(0,0,0,${fadeAlpha})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.globalAlpha = Math.max(0, 1 - fadeAlpha * 2);
-    ctx.fillStyle = "white";
-    ctx.font = "bold 28px serif";
-    ctx.textAlign = "center";
-    ctx.fillText("YOU DIED", canvas.width / 2, canvas.height / 2);
-    ctx.globalAlpha = 1;
-
-    if (deathTimer > 190) {
-      ctx.fillStyle = `rgba(150,150,150,${(deathTimer - 190) / 40})`;
-      ctx.font = "9px serif";
-      ctx.fillText("FLOOR 1", canvas.width / 2, canvas.height / 2 + 35);
-    }
+    ctx.fillStyle="rgba(30,0,0,1)";ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font="bold 28px serif";ctx.textAlign="center";
+    ctx.globalAlpha=0.6;ctx.fillStyle="red";ctx.fillText("YOU DIED",canvas.width/2+4,canvas.height/2);
+    ctx.fillStyle="cyan";ctx.fillText("YOU DIED",canvas.width/2-4,canvas.height/2);
+    ctx.globalAlpha=1;ctx.fillStyle="white";ctx.fillText("YOU DIED",canvas.width/2,canvas.height/2);
+    ctx.fillStyle="rgba(200,50,50,0.9)";ctx.font="10px serif";
+    ctx.fillText("THE BUILDING REMEMBERS",canvas.width/2,canvas.height/2+25);
+    for(let y=0;y<canvas.height;y+=2){ctx.fillStyle="rgba(0,0,0,0.25)";ctx.fillRect(0,y,canvas.width,1);}
+    if(deathTimer>140&&Math.random()<0.3){ctx.fillStyle="rgba(255,0,0,0.15)";ctx.fillRect(0,0,canvas.width,canvas.height);}
     return;
   }
-
-  // Restart
-  currentFloor = 1;
-  deathActive = false;
-  introActive = true;
-  introOpacity = 0;
-  introTimer = 0;
+  currentFloor=1;deathActive=false;introActive=true;introOpacity=0;introTimer=0;
 }
-/* ============================
-   WIN
-   ============================ */
+
 function endGameWin() {
-  gameRunning = false;
-  let t = 0;
-  function finalSequence() {
-    t++;
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = t % 20 < 10 ? "white" : "red";
-    ctx.font = "20px serif";
-    ctx.textAlign = "center";
-    let glitch = Math.random() < 0.1 ? (Math.random() * 10 - 5) : 0;
-    ctx.fillText("THE BUILDING THAT REMEMBERS", canvas.width / 2 + glitch, canvas.height / 2);
-    if (t === 80) {
-      ctx.fillStyle = "rgba(255,255,255,0.6)";
-      ctx.font = "12px serif";
-      ctx.fillText("you escaped", canvas.width / 2, canvas.height / 2 + 30);
-    }
-    if (t < 240) {
-      requestAnimationFrame(finalSequence);
-    } else {
-      document.getElementById("pixel-horror-overlay").style.display = "none";
-    }
+  gameRunning=false;let t=0;
+  function finalSequence(){
+    t++;ctx.fillStyle="black";ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle=t%20<10?"white":"red";ctx.font="20px serif";ctx.textAlign="center";
+    ctx.fillText("THE BUILDING THAT REMEMBERS",canvas.width/2+(Math.random()<0.1?Math.random()*10-5:0),canvas.height/2);
+    if(t===80){ctx.fillStyle="rgba(255,255,255,0.6)";ctx.font="12px serif";ctx.fillText("you escaped",canvas.width/2,canvas.height/2+30);}
+    if(t<240)requestAnimationFrame(finalSequence);
+    else document.getElementById("pixel-horror-overlay").style.display="none";
   }
   finalSequence();
 }
-/* ============================
-   GAME LOOP
-   ============================ */
+
 function gameLoop() {
-  if (!document.getElementById("pixel-horror-overlay") ||
-      document.getElementById("pixel-horror-overlay").style.display === "none") return;
-  if (introActive) {
-    drawIntro();
-  } else if (transitionActive) {
-    drawTransition();
-  } else if (deathActive) {
-    drawDeath();
-  } else if (gameRunning) {
-    update();
-    draw();
-  }
+  if (!document.getElementById("pixel-horror-overlay")||document.getElementById("pixel-horror-overlay").style.display==="none") return;
+  if (introActive) drawIntro();
+  else if (transitionActive) drawTransition();
+  else if (deathActive) drawDeath();
+  else if (gameRunning) { update(); draw(); }
   requestAnimationFrame(gameLoop);
 }
-/* ============================
-   UPDATE
-   ============================ */
+
 function update() {
   ghostTimer++;
-  /* ---------- FLOOR 5 FREEZE ---------- */
-  if (loopFreeze && currentFloor === 5) {
+  if (loopFreeze&&currentFloor===5) {
     loopTimer++;
-    if (keys["ArrowLeft"] || keys["ArrowRight"] || keys["a"] || keys["d"]) {
-      triggerDeath();
-      return;
-    }
-    if (loopTimer > 200) {
-      loopTimer = 0;
-      loopFreeze = false;
-    }
+    if(keys["ArrowLeft"]||keys["ArrowRight"]||keys["a"]||keys["d"]){triggerDeath();return;}
+    if(loopTimer>200){loopTimer=0;loopFreeze=false;}
     return;
   }
-  /* ---------- MOVEMENT ---------- */
-  if (keys["d"] || keys["D"]) { player.x += player.speed; player.dir = 1; }
-  if (keys["a"] || keys["A"]) { player.x -= player.speed; player.dir = -1; }
-  if (player.x < 10)  player.x = 10;
-  if (player.x > 440) player.x = 440;
-  /* ---------- FLOOR 1: CRAWLER ---------- */
-  if (currentFloor === 1) {
-    // BUG FIX: Only trigger death if player actively moves left (key held), not just facing left
-    if ((keys["a"] || keys["A"]) && player.dir === -1) {
-      triggerDeath();
-      return;
-    }
-    // Crawler advances (unless door scare or lunging)
-    if (!doorScare && !crawlerLunge) {
-      crawlerX += crawlerSpeed;
-    }
-    // Animate crawler frames
+  if(keys["d"]||keys["D"]){player.x+=player.speed;player.dir=1;}
+  if(keys["a"]||keys["A"]){player.x-=player.speed;player.dir=-1;}
+  if(player.x<10)player.x=10;
+  if(player.x>440)player.x=440;
+  if(currentFloor===1){
+    if((keys["a"]||keys["A"])&&player.dir===-1){triggerDeath();return;}
+    if(!doorScare&&!crawlerLunge)crawlerX+=crawlerSpeed;
     crawlerAnimTimer++;
-    if (crawlerAnimTimer > 20) {
-      crawlerAnimTimer = 0;
-      crawlerFrame = (crawlerFrame + 1) % 2;
-    }
-    // Proximity flicker
-    crawlerFlicker = (player.x - crawlerX) < 80;
-    if (crawlerFlicker) crawlerFlickerTimer++;
-    else crawlerFlickerTimer = 0;
-    // Camera shake based on proximity
-    let dist = player.x - crawlerX;
-    hallwayShake = dist < 120 ? (120 - dist) * 0.05 : 0;
-    // Crawler catches player → lunge
-    if (!doorScare && !crawlerLunge && crawlerX + 12 >= player.x) {
-      crawlerFrame = 2;
-      crawlerLunge = true;
-      crawlerLungeTimer = 0;
-    }
-    // Lunge sequence
-    if (crawlerLunge) {
-      crawlerLungeTimer++;
-      if (crawlerLungeTimer === 1) screenFlash = 20;
-      if (crawlerLungeTimer > 15) { triggerDeath(); return; }
-    }
-    // Door scare sequence
-    if (doorScare) {
-      doorScareTimer++;
-      player.speed = 0;
-      if (doorScareTimer === 20) screenFlash = 15;
-      if (doorScareTimer > 20 && doorScareTimer < 50) {
-        deathShake = Math.sin(doorScareTimer * 1.5) * 3;
-      }
-      if (doorScareTimer > 60) {
-        doorScare = false;
-        deathShake = 0;
-        currentFloor++;
-        startTransition();
-        return;
-      }
+    if(crawlerAnimTimer>20){crawlerAnimTimer=0;crawlerFrame=(crawlerFrame+1)%2;}
+    crawlerFlicker=(player.x-crawlerX)<80;
+    if(crawlerFlicker)crawlerFlickerTimer++;else crawlerFlickerTimer=0;
+    let dist=player.x-crawlerX;
+    hallwayShake=dist<120?(120-dist)*0.05:0;
+    if(!doorScare&&!crawlerLunge&&crawlerX+12>=player.x){crawlerFrame=2;crawlerLunge=true;crawlerLungeTimer=0;}
+    if(crawlerLunge){crawlerLungeTimer++;if(crawlerLungeTimer===1)screenFlash=20;if(crawlerLungeTimer>15){triggerDeath();return;}}
+    if(doorScare){
+      doorScareTimer++;player.speed=0;
+      if(doorScareTimer===20)screenFlash=15;
+      if(doorScareTimer>20&&doorScareTimer<50)deathShake=Math.sin(doorScareTimer*1.5)*3;
+      if(doorScareTimer>60){doorScare=false;deathShake=0;currentFloor++;startTransition();return;}
     }
   }
-  /* ---------- FLOOR 2: PIPE WHISPERER ---------- */
-  if (currentFloor === 2) {
-    let ventX      = correctVent === 1 ? 150 : 250;
-    let wrongVentX = correctVent === 1 ? 250 : 150;
-    // Correct vent
-    if (Math.abs(player.x - ventX) < 40) {
+  if(currentFloor===2){
+    let ventX=correctVent===1?150:250;let wrongVentX=correctVent===1?250:150;
+    if(Math.abs(player.x-ventX)<40){
       ventCorrectTimer++;
-      if (ventCorrectTimer === 60)  { whisperText = "come closer"; whisperOpacity = 1; }
-      if (ventCorrectTimer > 120) {
-        ventCorrectStreak++;
-        ventCorrectTimer = 0;
-        correctVent = Math.random() < 0.5 ? 1 : 2;
-      }
-    } else {
-      ventCorrectTimer = 0;
-    }
-    // Wrong vent
-    if (Math.abs(player.x - wrongVentX) < 40) {
+      if(ventCorrectTimer===60){whisperText="come closer";whisperOpacity=1;}
+      if(ventCorrectTimer>120){ventCorrectStreak++;ventCorrectTimer=0;correctVent=Math.random()<0.5?1:2;}
+    }else ventCorrectTimer=0;
+    if(Math.abs(player.x-wrongVentX)<40){
       ventWrongTimer++;
-      if (ventWrongTimer === 40)  { whisperText = "not that one"; whisperOpacity = 1; }
-      if (ventWrongTimer > 90 && !ventJumpscare) {
-        ventJumpscare = true;
-        ventJumpscareTimer = 0;
-        ventCorrectStreak = 0;
-      }
-    } else {
-      ventWrongTimer = 0;
-    }
-    // Jumpscare
-    if (ventJumpscare) {
+      if(ventWrongTimer===40){whisperText="not that one";whisperOpacity=1;}
+      if(ventWrongTimer>90&&!ventJumpscare){ventJumpscare=true;ventJumpscareTimer=0;ventCorrectStreak=0;}
+    }else ventWrongTimer=0;
+    if(ventJumpscare){
       ventJumpscareTimer++;
-      if (ventJumpscareTimer < 20) screenFlash = 20;
-      deathShake = Math.sin(ventJumpscareTimer * 2) * 6;
-      if (ventJumpscareTimer > 40) {
-        ventJumpscare = false;
-        triggerDeath();
-        return;
-      }
+      if(ventJumpscareTimer<20)screenFlash=20;
+      deathShake=Math.sin(ventJumpscareTimer*2)*6;
+      if(ventJumpscareTimer>40){ventJumpscare=false;triggerDeath();return;}
     }
-    // 5 correct → advance
-    if (ventCorrectStreak >= 5 && !transitionActive) {
-      currentFloor++;
-      startTransition();
-      return;
-    }
+    if(ventCorrectStreak>=5&&!transitionActive){currentFloor++;startTransition();return;}
   }
-  /* ---------- FLOOR 3: LIGHTKEEPER ---------- */
-  if (currentFloor === 3) {
-    if (ghostTimer % 120 === 0) {
-      flickerActive = true;
-      flickerTimer = 0;
-    }
-    if (flickerActive) {
+  if(currentFloor===3){
+    if(ghostTimer%120===0){flickerActive=true;flickerTimer=0;}
+    if(flickerActive){
       flickerTimer++;
-      // BUG FIX: only die if moving left during flicker
-      if ((keys["a"] || keys["A"]) && player.dir === -1) { triggerDeath(); return; }
-      if (flickerTimer > 40) flickerActive = false;
+      if((keys["a"]||keys["A"])&&player.dir===-1){triggerDeath();return;}
+      if(flickerTimer>40)flickerActive=false;
     }
   }
-  /* ---------- FLOOR 4: DOOR SCRATCHER ---------- */
-  if (currentFloor === 4) {
-    if (ghostTimer % 150 === 0) {
-      scratching = true;
-      scratchTimer = 0;
-    }
-    if (scratching) {
+  if(currentFloor===4){
+    if(ghostTimer%150===0){scratching=true;scratchTimer=0;}
+    if(scratching){
       scratchTimer++;
-      if (keys["ArrowLeft"] || keys["ArrowRight"] || keys["a"] || keys["d"]) {
-        triggerDeath();
-        return;
-      }
-      if (scratchTimer > 60) scratching = false;
+      if(keys["ArrowLeft"]||keys["ArrowRight"]||keys["a"]||keys["d"]){triggerDeath();return;}
+      if(scratchTimer>60)scratching=false;
     }
   }
-  /* ---------- FLOOR 5: MEMORY LOOP TWINS ---------- */
-  if (currentFloor === 5) {
+  if(currentFloor===5){
     loopTimer++;
-    if (loopTimer < 120) {
-      loopFreeze = true;
-    } else if (loopTimer > 200) {
-      loopTimer = 0;
-      loopFreeze = false;
-    }
+    if(loopTimer<120)loopFreeze=true;
+    else if(loopTimer>200){loopTimer=0;loopFreeze=false;}
   }
-  /* ---------- FLOOR COMPLETION ---------- */
-  if (player.x >= 440 && !transitionActive && !deathActive && !doorScare) {
-    // Floor 1: door scare before advancing
-    if (currentFloor === 1) {
-      doorScare = true;
-      doorScareTimer = 0;
-      return;
-    }
-    // BUG FIX: win condition is floor >= 4 (floors 1-4, win after completing floor 4)
-    if (currentFloor >= 4) {
-      endGameWin();
-      return;
-    }
-    currentFloor++;
-    startTransition();
+  if(player.x>=440&&!transitionActive&&!deathActive&&!doorScare){
+    if(currentFloor===1){doorScare=true;doorScareTimer=0;return;}
+    if(currentFloor>=4){endGameWin();return;}
+    currentFloor++;startTransition();
   }
 }
-/* ============================
-   DRAW PLAYER
-   ============================ */
-function drawPlayerRight(x, y) {
-  const pixels = [
-    "....###.....",
-    "...#####....",
-    "..##R###....",
-    "..#####.....",
-    "..###.#.....",
-    "...##.#.....",
-    "....###.....",
-    "....###.....",
-    "....###.....",
-    "....###.....",
-    "....###.....",
-    "...#####....",
-    "...#####....",
-    "...#####...."
-  ];
-  for (let py = 0; py < pixels.length; py++) {
-    for (let px = 0; px < pixels[py].length; px++) {
-      const p = pixels[py][px];
-      if (p === "#") { ctx.fillStyle = "white"; ctx.fillRect(x + px, y + py, 1, 1); }
-      if (p === "R") { ctx.fillStyle = "red";   ctx.fillRect(x + px, y + py, 1, 1); }
-    }
-  }
-}
-function drawPlayerLeft(x, y) {
-  const pixels = [
-    ".....###....",
-    "....#####...",
-    "....###R##..",
-    ".....#####..",
-    ".....#.###..",
-    ".....#.##...",
-    ".....###....",
-    ".....###....",
-    ".....###....",
-    ".....###....",
-    ".....###....",
-    "....#####...",
-    "....#####...",
-    "....#####..."
-  ];
-  for (let py = 0; py < pixels.length; py++) {
-    for (let px = 0; px < pixels[py].length; px++) {
-      const p = pixels[py][px];
-      if (p === "#") { ctx.fillStyle = "white"; ctx.fillRect(x + px, y + py, 1, 1); }
-      if (p === "R") { ctx.fillStyle = "red";   ctx.fillRect(x + px, y + py, 1, 1); }
-    }
-  }
-}
-function drawPlayer() {
-  if (player.dir === 1) drawPlayerRight(player.x, player.y - 14);
-  else                  drawPlayerLeft(player.x,  player.y - 14);
-}
-/* ============================
-   DRAW CRAWLER
-   ============================ */
-function drawCrawler(x, y) {
-  const frames = [
-    [ // Frame 0
-      "....####....",
-      "...######...",
-      "..###R###...",
-      "..######....",
-      "..###.###...",
-      "..##...##...",
-      "..##...##...",
-      "..##...##...",
-      "..###.###...",
-      "..######....",
-      "...####.....",
-      "....##......"
-    ],
-    [ // Frame 1
-      "....####....",
-      "...######...",
-      "..###R###...",
-      "..######....",
-      "..###.###...",
-      "..##...##...",
-      "..##...##...",
-      "..###.###...",
-      "..######....",
-      "...####.....",
-      "....####....",
-      ".....##....."
-    ],
-    [ // Frame 2 — LUNGE
-      "..########..",
-      ".##########.",
-      "###RRRRRR###",
-      "###########.",
-      "###########.",
-      ".###....###.",
-      ".###....###.",
-      ".###....###.",
-      "..########..",
-      "...######...",
-      "....####....",
-      ".....##....."
-    ]
-  ];
-  const pixels = frames[crawlerFrame] || frames[0];
-  for (let py = 0; py < pixels.length; py++) {
-    for (let px = 0; px < pixels[py].length; px++) {
-      const p = pixels[py][px];
-      if (p === "#") { ctx.fillStyle = "white"; ctx.fillRect(x + px, y + py, 1, 1); }
-      if (p === "R") { ctx.fillStyle = "red";   ctx.fillRect(x + px, y + py, 1, 1); }
-    }
-  }
-}
-/* ============================
-   DRAW HALLWAY — FLOOR 1
-   ============================ */
-function drawHallway() {
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grd.addColorStop(0, "#0a0a0a");
-  grd.addColorStop(1, "#000000");
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = crawlerFlicker ? "rgba(255,0,0,0.2)" : "rgba(255,255,255,0.05)";
-  ctx.fillRect(60, 20, 40, 6);
-  ctx.fillRect(200, 20, 40, 6);
-  ctx.fillRect(340, 20, 40, 6);
-  ctx.strokeStyle = "rgba(255,255,255,0.05)";
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(480, 212); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(240, 260); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(480, 212); ctx.lineTo(240, 260); ctx.stroke();
-  // Wall texture
-  for (let i = 0; i < 40; i++) {
-    ctx.fillStyle = "rgba(255,255,255,0.03)";
-    ctx.fillRect(Math.random() * 480, Math.random() * 200, 2, 2);
-  }
-  // Exit door
-  ctx.strokeStyle = "rgba(255,255,255,0.9)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(440, 150, 30, 60);
-  let glow = Math.sin(ghostTimer * 0.1) * 0.1 + 0.2;
-  ctx.fillStyle = `rgba(255,0,0,${glow})`;
-  ctx.fillRect(440, 150, 30, 60);
-  ctx.fillStyle = "rgba(255,255,255,0.2)";
-  ctx.fillRect(448, 160, 14, 8);
-  let exitFlicker = (ghostTimer % 20 < 10) ? 1 : 0.4;
-  if (crawlerFlicker) exitFlicker = Math.random() * 0.6 + 0.2;
-  ctx.fillStyle = `rgba(255,0,0,${exitFlicker})`;
-  ctx.font = "10px serif";
-  ctx.textAlign = "center";
-  ctx.fillText("EXIT", 455, 145);
-  // Floor label
-  ctx.fillStyle = "rgba(255,255,255,0.15)";
-  ctx.font = "8px serif";
-  ctx.textAlign = "left";
-  ctx.fillText("FLOOR 1", 10, 15);
-}
-/* ============================
-   DRAW HALLWAY — FLOOR 2
-   ============================ */
-function drawHallwayFloor2() {
-  ctx.fillStyle = "#050505";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  for (let i = 0; i < 6; i++) {
-    ctx.fillStyle = "rgba(255,255,255,0.03)";
-    ctx.fillRect(60 + i * 70, 0, 6, 270);
-  }
-  ctx.strokeStyle = "#222";
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(480, 212); ctx.stroke();
-  // Vents
-  let ventX      = correctVent === 1 ? 150 : 250;
-  let wrongVentX = correctVent === 1 ? 250 : 150;
-  // Correct vent: green glow hint
-  ctx.strokeStyle = "rgba(0,255,100,0.3)";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(ventX - 10, 180, 20, 20);
-  ctx.strokeStyle = "rgba(255,255,255,0.5)";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(wrongVentX - 10, 180, 20, 20);
-  // Labels
-  ctx.fillStyle = "rgba(255,255,255,0.2)";
-  ctx.font = "7px serif";
-  ctx.textAlign = "center";
-  ctx.fillText("vent", ventX, 176);
-  ctx.fillText("vent", wrongVentX, 176);
-  // Streak counter
-  ctx.fillStyle = "rgba(255,255,255,0.3)";
-  ctx.font = "8px serif";
-  ctx.textAlign = "left";
-  ctx.fillText(`FLOOR 2 — correct: ${ventCorrectStreak}/5`, 10, 15);
-  // Exit door (only visible after 5 correct)
-  if (ventCorrectStreak >= 5) {
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(440, 150, 30, 60);
-    ctx.fillStyle = "rgba(255,255,255,0.05)";
-    ctx.fillRect(440, 150, 30, 60);
-  }
-}
-/* ============================
-   DRAW HALLWAY — FLOORS 3-5
-   ============================ */
-function drawHallwayGeneric(floorNum) {
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grd.addColorStop(0, "#080808");
-  grd.addColorStop(1, "#000");
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = "rgba(255,255,255,0.04)";
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, 212); ctx.lineTo(480, 212); ctx.stroke();
-  // Floor 3 — light flicker
-  if (floorNum === 3) {
-    ctx.fillStyle = flickerActive ? "rgba(255,0,0,0.15)" : "rgba(255,255,255,0.04)";
-    ctx.fillRect(60, 20, 40, 6);
-    ctx.fillRect(200, 20, 40, 6);
-    ctx.fillRect(340, 20, 40, 6);
-  }
-  // Floor 4 — door on left wall
-  if (floorNum === 4) {
-    ctx.strokeStyle = scratching ? "rgba(255,0,0,0.8)" : "rgba(255,255,255,0.3)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(20, 150, 30, 60);
-    if (scratching) {
-      ctx.fillStyle = "rgba(255,0,0,0.1)";
-      ctx.fillRect(20, 150, 30, 60);
-    }
-  }
-  // Floor 5 — twins silhouettes
-  if (floorNum === 5) {
-    ctx.fillStyle = loopFreeze ? "white" : "rgba(255,255,255,0.3)";
-    ctx.fillRect(200, 180, 10, 20);
-    ctx.fillRect(230, 180, 10, 20);
-  }
-  // Exit door
-  ctx.strokeStyle = "rgba(255,255,255,0.9)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(440, 150, 30, 60);
-  let glow = Math.sin(ghostTimer * 0.1) * 0.1 + 0.2;
-  ctx.fillStyle = `rgba(255,0,0,${glow})`;
-  ctx.fillRect(440, 150, 30, 60);
-  ctx.fillStyle = "rgba(255,255,255,0.2)";
-  ctx.fillRect(448, 160, 14, 8);
-  let ef = (ghostTimer % 20 < 10) ? 1 : 0.4;
-  ctx.fillStyle = `rgba(255,0,0,${ef})`;
-  ctx.font = "10px serif";
-  ctx.textAlign = "center";
-  ctx.fillText("EXIT", 455, 145);
-  ctx.fillStyle = "rgba(255,255,255,0.15)";
-  ctx.font = "8px serif";
-  ctx.textAlign = "left";
-  ctx.fillText(`FLOOR ${floorNum}`, 10, 15);
-}
-/* ============================
-   DRAW GHOST / ENEMIES
-   ============================ */
-function drawGhost() {
-  if (currentFloor === 1) {
-    drawCrawler(crawlerX, player.y - 12);
-  } else if (currentFloor === 3 && flickerActive) {
-    ctx.fillStyle = "white";
-    ctx.fillRect(400, 100, 20, 40);
-  } else if (currentFloor === 4) {
-    ctx.strokeStyle = scratching ? "red" : "rgba(255,255,255,0.4)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(300, 150, 40, 60);
-  } else if (currentFloor === 5) {
-    ctx.fillStyle = loopFreeze ? "white" : "rgba(255,255,255,0.3)";
-    ctx.fillRect(200, 180, 10, 20);
-    ctx.fillRect(230, 180, 10, 20);
-  }
-}
-/* ============================
-   DRAW
-   ============================ */
-function draw() {
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  let shakeX = deathShake + hallwayShake;
-  let shakeY = deathShake;
-  ctx.save();
-  ctx.translate(shakeX, shakeY);
-  // Hallway per floor
-  if (currentFloor === 1)      drawHallway();
-  else if (currentFloor === 2) drawHallwayFloor2();
-  else                          drawHallwayGeneric(currentFloor);
-  drawPlayer();
-  drawGhost();
-  // Screen flash
-  if (screenFlash > 0) {
-    ctx.fillStyle = "rgba(255,0,0,0.4)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    screenFlash--;
-  }
-  // Whisper text
-  if (whisperOpacity > 0) {
-    ctx.globalAlpha = whisperOpacity;
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    ctx.font = "10px serif";
-    ctx.textAlign = "center";
-    ctx.fillText(whisperText, canvas.width / 2, 40);
-    whisperOpacity = Math.max(0, whisperOpacity - 0.01);
-    ctx.globalAlpha = 1;
-  }
-  ctx.restore();
-}
-</script>
-<script>
-  let eggClicks = 0;
 
-  const center = document.getElementById("centerImage");
+function drawPlayerRight(x,y){const p=["....###.....","...#####....","..##R###....","..#####.....","..###.#.....","...##.#.....","....###.....","....###.....","....###.....","....###.....","....###.....","...#####....","...#####....","...#####...."];for(let py=0;py<p.length;py++)for(let px=0;px<p[py].length;px++){if(p[py][px]==="#"){ctx.fillStyle="white";ctx.fillRect(x+px,y+py,1,1);}if(p[py][px]==="R"){ctx.fillStyle="red";ctx.fillRect(x+px,y+py,1,1);}}}
+function drawPlayerLeft(x,y){const p=[".....###....","....#####...","....###R##..","....#####...","....#.###...","....#.##....","....###.....","....###.....","....###.....","....###.....","....###.....","....#####...","....#####...","....#####..."];for(let py=0;py<p.length;py++)for(let px=0;px<p[py].length;px++){if(p[py][px]==="#"){ctx.fillStyle="white";ctx.fillRect(x+px,y+py,1,1);}if(p[py][px]==="R"){ctx.fillStyle="red";ctx.fillRect(x+px,y+py,1,1);}}}
+function drawPlayer(){if(player.dir===1)drawPlayerRight(player.x,player.y-14);else drawPlayerLeft(player.x,player.y-14);}
 
-  center.addEventListener("click", (e) => {
-    e.stopPropagation(); // prevents pigeon spawn from counting
-    eggClicks++;
+function drawCrawler(x,y){const frames=[[["....####...."],["...######..."],["..###R###..."],["..######...."],["..###.###..."],["..##...##..."],["..##...##..."],["..##...##..."],["..###.###..."],["..######...."],["...####....."],["....##......"]],[["....####...."],["...######..."],["..###R###..."],["..######...."],["..###.###..."],["..##...##..."],["..##...##..."],["..###.###..."],["..######...."],["...####....."],["....####...."],["....##......"]]];const f=frames[Math.min(crawlerFrame,1)];for(let py=0;py<f.length;py++)for(let px=0;px<f[py][0].length;px++){if(f[py][0][px]==="#"){ctx.fillStyle="white";ctx.fillRect(x+px,y+py,1,1);}if(f[py][0][px]==="R"){ctx.fillStyle="red";ctx.fillRect(x+px,y+py,1,1);}}}
 
-    if (eggClicks === 10) {
-      eggClicks = 0;
-      launchEasterEgg();
-    }
-  });
+function drawHallway(){ctx.fillStyle="black";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle=crawlerFlicker?"rgba(255,0,0,0.2)":"rgba(255,255,255,0.05)";ctx.fillRect(60,20,40,6);ctx.fillRect(200,20,40,6);ctx.fillRect(340,20,40,6);ctx.strokeStyle="rgba(255,255,255,0.05)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,212);ctx.lineTo(480,212);ctx.stroke();ctx.beginPath();ctx.moveTo(0,212);ctx.lineTo(240,260);ctx.stroke();ctx.beginPath();ctx.moveTo(480,212);ctx.lineTo(240,260);ctx.stroke();ctx.strokeStyle="rgba(255,255,255,0.9)";ctx.lineWidth=2;ctx.strokeRect(440,150,30,60);let glow=Math.sin(ghostTimer*0.1)*0.1+0.2;ctx.fillStyle=`rgba(255,0,0,${glow})`;ctx.fillRect(440,150,30,60);ctx.fillStyle="rgba(255,255,255,0.2)";ctx.fillRect(448,160,14,8);let ef=(ghostTimer%20<10)?1:0.4;ctx.fillStyle=`rgba(255,0,0,${ef})`;ctx.font="10px serif";ctx.textAlign="center";ctx.fillText("EXIT",455,145);ctx.fillStyle="rgba(255,255,255,0.15)";ctx.font="8px serif";ctx.textAlign="left";ctx.fillText("FLOOR 1",10,15);}
+function drawHallwayFloor2(){ctx.fillStyle="#050505";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.strokeStyle="#222";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,212);ctx.lineTo(480,212);ctx.stroke();let ventX=correctVent===1?150:250;let wrongVentX=correctVent===1?250:150;ctx.strokeStyle="rgba(0,255,100,0.3)";ctx.lineWidth=1;ctx.strokeRect(ventX-10,180,20,20);ctx.strokeStyle="rgba(255,255,255,0.5)";ctx.lineWidth=1;ctx.strokeRect(wrongVentX-10,180,20,20);ctx.fillStyle="rgba(255,255,255,0.2)";ctx.font="7px serif";ctx.textAlign="center";ctx.fillText("vent",ventX,176);ctx.fillText("vent",wrongVentX,176);ctx.fillStyle="rgba(255,255,255,0.3)";ctx.font="8px serif";ctx.textAlign="left";ctx.fillText(`FLOOR 2 — correct: ${ventCorrectStreak}/5`,10,15);if(ventCorrectStreak>=5){ctx.strokeStyle="white";ctx.lineWidth=2;ctx.strokeRect(440,150,30,60);ctx.fillStyle="rgba(255,255,255,0.05)";ctx.fillRect(440,150,30,60);}}
+function drawHallwayGeneric(n){ctx.fillStyle="black";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.strokeStyle="rgba(255,255,255,0.04)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,212);ctx.lineTo(480,212);ctx.stroke();if(n===3){ctx.fillStyle=flickerActive?"rgba(255,0,0,0.15)":"rgba(255,255,255,0.04)";ctx.fillRect(60,20,40,6);ctx.fillRect(200,20,40,6);ctx.fillRect(340,20,40,6);}if(n===4){ctx.strokeStyle=scratching?"rgba(255,0,0,0.8)":"rgba(255,255,255,0.3)";ctx.lineWidth=2;ctx.strokeRect(20,150,30,60);if(scratching){ctx.fillStyle="rgba(255,0,0,0.1)";ctx.fillRect(20,150,30,60);}}if(n===5){ctx.fillStyle=loopFreeze?"white":"rgba(255,255,255,0.3)";ctx.fillRect(200,180,10,20);ctx.fillRect(230,180,10,20);}ctx.strokeStyle="rgba(255,255,255,0.9)";ctx.lineWidth=2;ctx.strokeRect(440,150,30,60);let glow=Math.sin(ghostTimer*0.1)*0.1+0.2;ctx.fillStyle=`rgba(255,0,0,${glow})`;ctx.fillRect(440,150,30,60);ctx.fillStyle="rgba(255,255,255,0.2)";ctx.fillRect(448,160,14,8);let ef=(ghostTimer%20<10)?1:0.4;ctx.fillStyle=`rgba(255,0,0,${ef})`;ctx.font="10px serif";ctx.textAlign="center";ctx.fillText("EXIT",455,145);ctx.fillStyle="rgba(255,255,255,0.15)";ctx.font="8px serif";ctx.textAlign="left";ctx.fillText(`FLOOR ${n}`,10,15);}
 
-  function launchEasterEgg() {
-    alert("🎉 You unlocked the Hidden Gems Easter Egg!");
-    // Replace alert with your secret feature later
-  }
+function drawGhost(){if(currentFloor===1)drawCrawler(crawlerX,player.y-12);else if(currentFloor===3&&flickerActive){ctx.fillStyle="white";ctx.fillRect(400,100,20,40);}else if(currentFloor===4){ctx.strokeStyle=scratching?"red":"rgba(255,255,255,0.4)";ctx.lineWidth=1;ctx.strokeRect(300,150,40,60);}else if(currentFloor===5){ctx.fillStyle=loopFreeze?"white":"rgba(255,255,255,0.3)";ctx.fillRect(200,180,10,20);ctx.fillRect(230,180,10,20);}}
+
+function draw(){ctx.fillStyle="black";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(deathShake+hallwayShake,deathShake);if(currentFloor===1)drawHallway();else if(currentFloor===2)drawHallwayFloor2();else drawHallwayGeneric(currentFloor);drawPlayer();drawGhost();if(screenFlash>0){ctx.fillStyle="rgba(255,0,0,0.4)";ctx.fillRect(0,0,canvas.width,canvas.height);screenFlash--;}if(whisperOpacity>0){ctx.globalAlpha=whisperOpacity;ctx.fillStyle="rgba(255,255,255,0.8)";ctx.font="10px serif";ctx.textAlign="center";ctx.fillText(whisperText,canvas.width/2,40);whisperOpacity=Math.max(0,whisperOpacity-0.01);ctx.globalAlpha=1;}ctx.restore();}
 </script>
 
 </body>
