@@ -213,6 +213,12 @@
 </head>
 
 <body>
+<div id="page-transition" class="fixed inset-0 z-[9999] pointer-events-none opacity-0 flex flex-col items-center justify-center gap-4"
+     style="background:radial-gradient(ellipse at 60% 50%, #3a2a1a 0%, #1a1210 60%, #0d0a08 100%);transition:opacity 0.55s cubic-bezier(0.4,0,0.2,1);">
+  <p id="transition-text" style="font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:300;color:#e8ded0;line-height:1.1;text-align:center;opacity:0;transition:opacity 0.5s ease 0.15s;">Hidden<br>Gems</p>
+  <div id="transition-divider" style="width:40px;height:1px;background:rgba(232,222,208,0.3);opacity:0;transition:opacity 0.5s ease 0.25s;"></div>
+  <p id="transition-sub" style="font-size:0.6rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(232,222,208,0.4);opacity:0;transition:opacity 0.5s ease 0.35s;">Finding your next NYC adventure</p>
+</div>
 
 {% include '_nav.html.jinja' %}
 
@@ -231,7 +237,7 @@
 
   <div class="flex items-end justify-between mb-10 fade-up">
     <div>
-      <a href="/browse" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
+      <a href="/browse" onclick="navigateTo(event, '/browse')" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
       <h1 class="serif text-6xl font-light mt-2 leading-none">{{ borough.name | capitalize }}</h1>
       <div class="w-10 h-px mt-4 opacity-50" style="background:var(--accent);"></div>
       <p class="text-xs opacity-30 tracking-widest uppercase mt-3">New York City</p>
@@ -261,7 +267,7 @@
           {% else %}
             <div class="no-img">No image</div>
           {% endif %}
-          <div class="overlay"></div>
+         
           <div class="info">
             <span class="badge">
               {% if loop.index0 == 0 %}Featured
@@ -943,6 +949,155 @@
     socket.emit('leave', { room: CHAT_ROOM, username: USERNAME });
   });
 </script>
+<!-- Borough quick-switch -->
+<div id="borough-switcher" style="position:fixed;bottom:24px;left:32px;z-index:50;">
+  <button onclick="toggleSwitcher()"
+    style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;
+           background:rgba(0,0,0,0.35);border:1px solid rgba(232,222,208,0.15);
+           color:rgba(232,222,208,0.5);font-size:0.55rem;letter-spacing:0.25em;
+           text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);
+           transition:all 0.2s;font-family:inherit;"
+    onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.3)'"
+    onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.15)'">
+    <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
+    {{ borough.name }}
+    <span id="switcher-arrow" style="transition:transform 0.25s;opacity:0.4;">▴</span>
+  </button>
+
+  <div id="switcher-menu"
+    style="position:absolute;bottom:calc(100% + 8px);left:0;
+           background:rgba(10,10,10,0.85);border:1px solid rgba(232,222,208,0.1);
+           border-radius:14px;overflow:hidden;backdrop-filter:blur(12px);
+           min-width:160px;transform-origin:bottom left;
+           transform:scale(0.92) translateY(6px);opacity:0;
+           pointer-events:none;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);">
+    {% set all_boroughs = [
+    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
+    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
+    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
+    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
+    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
+] %}
+    {% for b in all_boroughs %}
+<a href="/borough/{{ b.name | replace(' ', '-') }}"
+   onclick="navigateTo(event, '/borough/{{ b.name | replace(' ', '-') }}')"
+   style="display:flex;align-items:center;gap:10px;padding:10px 16px;
+          text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;
+          text-transform:uppercase;transition:background 0.15s;
+          color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};
+          background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
+   onmouseover="this.style.background='rgba(232,222,208,0.08)';this.style.color='#e8ded0'"
+   onmouseout="this.style.background='{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }}';this.style.color='{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }}'">
+  <span style="width:4px;height:4px;border-radius:50%;flex-shrink:0;
+               background:{{ 'var(--accent)' if b.name == borough.name else 'rgba(232,222,208,0.2)' }};"></span>
+  {{ b.name }}
+  {% if b.name == borough.name %}
+    <span style="margin-left:auto;font-size:0.5rem;opacity:0.4;">current</span>
+  {% endif %}
+</a>
+{% endfor %}
+  </div>
+</div>
+
+<script>
+  let switcherOpen = false;
+  function toggleSwitcher() {
+    switcherOpen = !switcherOpen;
+    const menu  = document.getElementById('switcher-menu');
+    const arrow = document.getElementById('switcher-arrow');
+    if (switcherOpen) {
+      menu.style.opacity       = '1';
+      menu.style.transform     = 'scale(1) translateY(0)';
+      menu.style.pointerEvents = 'all';
+      arrow.style.transform    = 'rotate(180deg)';
+    } else {
+      menu.style.opacity       = '0';
+      menu.style.transform     = 'scale(0.92) translateY(6px)';
+      menu.style.pointerEvents = 'none';
+      arrow.style.transform    = 'rotate(0deg)';
+    }
+  }
+
+  document.addEventListener('click', e => {
+    if (switcherOpen && !document.getElementById('borough-switcher').contains(e.target)) {
+      switcherOpen = false;
+      toggleSwitcher(); toggleSwitcher();
+    }
+  });
+
+  function navigateTo(e, url) {
+    e.preventDefault();
+    if (window._navigating) return;
+    window._navigating = true;
+
+    const overlay = document.getElementById('page-transition');
+
+    document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
+      el.style.transition = 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+      el.style.opacity    = '0';
+      el.style.transform  = 'translateY(10px)';
+    });
+
+    setTimeout(() => {
+      overlay.style.pointerEvents = 'all';
+      overlay.style.opacity = '1';
+      document.getElementById('transition-text').style.opacity     = '1';
+      document.getElementById('transition-divider').style.opacity  = '1';
+      document.getElementById('transition-sub').style.opacity      = '1';
+    }, 200);
+
+    setTimeout(() => {
+      window.location.href = url;
+    }, 620);
+  }
+
+  window.addEventListener('pageshow', () => {
+    window._navigating = false;
+    const overlay = document.getElementById('page-transition');
+
+    // Start fully visible, then fade out
+    overlay.style.transition    = 'none';
+    overlay.style.opacity       = '1';
+    overlay.style.pointerEvents = 'all';
+
+    // Reset text elements to hidden
+    document.getElementById('transition-text').style.opacity    = '0';
+    document.getElementById('transition-divider').style.opacity = '0';
+    document.getElementById('transition-sub').style.opacity     = '0';
+
+    // Start page content hidden
+    document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
+      el.style.transition = 'none';
+      el.style.opacity    = '0';
+      el.style.transform  = 'translateY(12px)';
+    });
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // Fade out overlay
+        overlay.style.transition = 'opacity 0.6s cubic-bezier(0.4,0,0.2,1)';
+        overlay.style.opacity    = '0';
+
+        // Fade in page content
+        document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
+          el.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1)';
+          el.style.opacity    = '1';
+          el.style.transform  = 'translateY(0)';
+        });
+
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+          document.querySelectorAll('body > *:not(#page-transition)').forEach(el => {
+            el.style.transition = '';
+            el.style.transform  = '';
+          });
+        }, 700);
+      });
+    });
+  });
+</script>
 
 </body>
+
+
 </html>
