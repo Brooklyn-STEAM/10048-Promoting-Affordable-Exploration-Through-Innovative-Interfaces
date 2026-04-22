@@ -287,6 +287,10 @@ def add_location(n):
     loc_name    = request.form.get("name", "").strip()
     address     = request.form.get("address", "").strip()
     description = request.form.get("description", "").strip()
+    latitude    = request.form.get("latitude", "").strip() or None
+    longitude   = request.form.get("longitude", "").strip() or None
+    place_id    = request.form.get("place_id", "").strip() or None
+
 
     if not loc_name or not address:
         flash("Please fill in the name and address")

@@ -6,6 +6,11 @@
   <title>{{ borough.name | capitalize }} — Hidden Gems</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+ <script>window.initGoogleMaps = function() {
+  window._googleMapsReady = true;
+  initAddressAutocomplete();
+};</script>
+ <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places&callback=initGoogleMaps" async defer></script>  
   {% include 'icon.html.jinja'%}
   <style>
     :root {
@@ -33,7 +38,10 @@
       cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;
       background: rgba(0,0,0,0.25); border: 1px solid rgba(232,222,208,0.12);
     }
-    .featured-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px rgba(0,0,0,0.5); border-color: rgba(232,222,208,0.3); }
+    /* Disable hover lift on touch devices */
+    @media (hover: hover) {
+      .featured-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px rgba(0,0,0,0.5); border-color: rgba(232,222,208,0.3); }
+    }
     .featured-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .featured-card .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 55%); }
     .featured-card .info { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 18px; }
@@ -43,7 +51,9 @@
     .featured-card .no-img { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.7rem; opacity: 0.2; }
 
     .gem-card { border-radius: 14px; overflow: hidden; background: rgba(0,0,0,0.2); border: 1px solid rgba(232,222,208,0.1); transition: all 0.25s ease; cursor: pointer; }
-    .gem-card:hover { border-color: rgba(232,222,208,0.25); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+    @media (hover: hover) {
+      .gem-card:hover { border-color: rgba(232,222,208,0.25); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+    }
     .gem-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
     .gem-card .gem-info { padding: 12px 14px; }
     .gem-card .gem-title { font-size: 0.85rem; font-weight: 500; }
@@ -51,7 +61,9 @@
     .gem-card .no-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0.2; }
 
     .add-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: 999px; border: 1px solid rgba(232,222,208,0.35); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; background: transparent; color: #e8ded0; transition: background 0.2s; }
-    .add-btn:hover { background: rgba(232,222,208,0.08); }
+    @media (hover: hover) {
+      .add-btn:hover { background: rgba(232,222,208,0.08); }
+    }
     .add-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
     .section-label { font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.4; }
@@ -87,6 +99,8 @@
     #add-modal input[type="text"], #add-modal input[type="time"], #add-modal textarea, #add-modal select {
       background-color: rgba(101,75,55,0.25) !important; color: #e8ded0 !important;
       border-color: rgba(232,222,208,0.15) !important; color-scheme: dark;
+      /* Prevent iOS zoom on focus */
+      font-size: 16px !important;
     }
     #add-modal input::placeholder, #add-modal textarea::placeholder { color: rgba(232,222,208,0.25) !important; }
     #add-modal input[type="text"]:focus, #add-modal input[type="time"]:focus, #add-modal textarea:focus, #add-modal select:focus {
@@ -100,6 +114,69 @@
 
     .chat-msg { opacity: 0; transform: translateY(6px); animation: chatIn 0.25s ease forwards; }
     @keyframes chatIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── MOBILE OVERRIDES ── */
+    @media (max-width: 640px) {
+      /* Page header */
+      .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      h1.serif { font-size: 3rem !important; }
+
+      /* Featured carousel — show 1 card on mobile */
+      .feat-card-inner { min-width: 100% !important; }
+
+      /* Gem grid — 2 cols on mobile */
+      .gem-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Chat panel height */
+      .chat-panel { height: 400px !important; }
+
+      /* Lightbox — full screen sheet on mobile */
+      #lightbox { align-items: flex-end !important; padding: 0 !important; }
+      #lb-card {
+        max-width: 100% !important;
+        padding: 0 !important;
+        border-radius: 24px 24px 0 0;
+        overflow-y: auto;
+        max-height: 90vh;
+        background: var(--borough-color);
+        margin: 0 !important;
+      }
+      #lb-prev, #lb-next { top: auto !important; bottom: 92vh !important; transform: none !important; }
+      #lb-prev { left: 16px !important; }
+      #lb-next { right: 16px !important; }
+      #lb-counter { top: calc(10vh - 20px) !important; }
+      #lb-dots { margin-top: 12px !important; padding-bottom: 16px; }
+      #lightbox > button { top: calc(10vh - 20px) !important; }
+
+      /* Map area in lightbox */
+      #lb-map-area { height: 160px !important; }
+
+      /* Borough switcher */
+      #borough-switcher { left: 16px !important; bottom: 16px !important; }
+
+      /* Add modal — full screen sheet */
+      #add-modal > div { 
+        max-height: 95vh !important; 
+        border-radius: 24px 24px 0 0 !important;
+        margin-top: auto;
+      }
+      #add-modal {
+        align-items: flex-end !important;
+        padding: 0 !important;
+      }
+
+      /* Delete modal */
+      #delete-modal > div { max-width: 100% !important; width: calc(100% - 32px) !important; }
+
+      /* Touch-friendly tap targets */
+      .add-btn { padding: 12px 20px; }
+      #chat-input { font-size: 16px !important; } /* prevent iOS zoom */
+    }
+
+    @media (max-width: 400px) {
+      h1.serif { font-size: 2.5rem !important; }
+      .gem-grid { grid-template-columns: repeat(1, 1fr) !important; }
+    }
   </style>
 </head>
 
@@ -119,9 +196,9 @@
   {% endif %}
 {% endwith %}
 
-<div class="max-w-5xl mx-auto px-8 py-10">
+<div class="max-w-5xl mx-auto px-4 sm:px-8 py-10">
 
-  <div class="flex items-end justify-between mb-10 fade-up">
+  <div class="flex items-end justify-between mb-10 fade-up page-header">
     <div>
       <a href="/browse" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
       <h1 class="serif text-6xl font-light mt-2 leading-none">{{ borough.name | capitalize }}</h1>
@@ -143,10 +220,10 @@
         <button onclick="featStep(1)"  id="feat-next" style="width:32px;height:32px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;">›</button>
       </div>
     </div>
-    <div style="overflow:hidden;border-radius:18px;">
+    <div style="overflow:hidden;border-radius:18px;" id="feat-overflow">
       <div id="feat-track" class="flex gap-4 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
         {% for loc in locations %}
-        <div class="featured-card shrink-0 basis-1/3 h-[340px]" onclick="openDetail({{ loop.index0 }})">
+        <div class="featured-card feat-card-inner shrink-0 h-[280px] sm:h-[340px]" style="min-width:calc(33.333% - 11px);" onclick="openDetail({{ loop.index0 }})">
           {% if loc.Image %}<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
           {% else %}<div class="no-img">No image</div>{% endif %}
           <div class="overlay"></div>
@@ -165,7 +242,7 @@
   {% if locations | length > 3 %}
   <div class="mt-12 fade-up d2">
     <p class="section-label mb-4">All Locations</p>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div class="gem-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       {% for loc in locations[3:] %}
       <div class="gem-card" onclick="openDetail({{ loop.index0 + 3 }})">
         {% if loc.Image %}<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
@@ -180,7 +257,7 @@
             data-borough="{{ borough.name | replace(' ', '-') }}"
             data-liked="{{ 'true' if loc.ID in liked_ids else 'false' }}"
             onclick="event.stopPropagation(); toggleLike(this)"
-            style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;color:{{ 'var(--accent)' if loc.ID in liked_ids else 'rgba(232,222,208,0.3)' }};font-size:0.7rem;padding:2px 0;flex-shrink:0;">
+            style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;color:{{ 'var(--accent)' if loc.ID in liked_ids else 'rgba(232,222,208,0.3)' }};font-size:0.7rem;padding:2px 0;flex-shrink:0;min-width:44px;min-height:44px;justify-content:center;">
             <span class="like-heart">{{ '♥' if loc.ID in liked_ids else '♡' }}</span>
             <span class="like-count">{{ loc.LikeCount or 0 }}</span>
           </button>
@@ -200,39 +277,38 @@
 
 </div>
 
-<div class="max-w-5xl mx-auto px-8 pb-16 mt-12 fade-up">
-  <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,222,208,0.1);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;height:500px;">
-    <div style="padding:16px 22px;border-bottom:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;justify-content:space-between;">
+<div class="max-w-5xl mx-auto px-4 sm:px-8 pb-16 mt-12 fade-up">
+  <div class="chat-panel" style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,222,208,0.1);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;height:500px;">
+    <div style="padding:16px 22px;border-bottom:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0;"></div>
         <p style="font-size:0.7rem;font-weight:500;color:#e8ded0;letter-spacing:0.05em;">{{ borough.name | capitalize }} Community Chat</p>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
         <span id="online-count" style="font-size:0.6rem;color:rgba(232,222,208,0.4);letter-spacing:0.1em;">0 online</span>
         <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;"></div>
       </div>
     </div>
-    <div id="chat-messages" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 20px;display:flex;flex-direction:column;gap:4px;min-height:0;"></div>
-    <div style="padding:14px 16px;border-top:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15);">
-      <input id="chat-input" type="text" placeholder="Type your message here..." maxlength="300"
+    <div id="chat-messages" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 20px;display:flex;flex-direction:column;gap:4px;min-height:0;-webkit-overflow-scrolling:touch;"></div>
+    <div style="padding:14px 16px;border-top:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15);flex-shrink:0;">
+      <input id="chat-input" type="text" placeholder="Type a message…" maxlength="300"
         onkeydown="if(event.key==='Enter') sendMessage()"
-        style="flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);border-radius:999px;padding:11px 18px;color:#e8ded0;font-size:0.82rem;font-family:inherit;outline:none;transition:border-color 0.2s;"
+        style="flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);border-radius:999px;padding:11px 18px;color:#e8ded0;font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;min-width:0;"
         onfocus="this.style.borderColor='rgba(232,222,208,0.3)'"
         onblur="this.style.borderColor='rgba(232,222,208,0.12)'">
-      <button onclick="sendMessage()" style="width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s, transform 0.15s;font-size:1rem;"
-        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'"
-        onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='scale(1)'">➤</button>
+      <button onclick="sendMessage()" style="width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s, transform 0.15s;font-size:1rem;">➤</button>
     </div>
   </div>
 </div>
 
+<!-- LIGHTBOX -->
 <div id="lightbox" class="fixed inset-0 z-[400] flex-col items-center justify-center bg-black/50 backdrop-blur-2xl" style="display:none;">
-  <button onclick="closeLightbox()" style="position:absolute;top:24px;right:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.1rem;width:38px;height:38px;border-radius:50%;cursor:pointer;line-height:1;">✕</button>
+  <button onclick="closeLightbox()" style="position:absolute;top:24px;right:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.1rem;width:44px;height:44px;border-radius:50%;cursor:pointer;line-height:1;z-index:10;">✕</button>
   <p id="lb-counter" style="position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.35);"></p>
 
-  <div style="display:flex;align-items:center;gap:16px;width:100%;max-width:960px;padding:0 24px;box-sizing:border-box;">
-    <button id="lb-prev" onclick="lbStep(-1)" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">‹</button>
-    <button id="lb-next" onclick="lbStep(1)"  style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">›</button>
+  <div style="display:flex;align-items:center;gap:16px;width:100%;max-width:960px;padding:0 24px;box-sizing:border-box;justify-content:center;">
+    <button id="lb-prev" onclick="lbStep(-1)" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">‹</button>
+    <button id="lb-next" onclick="lbStep(1)"  style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">›</button>
 
     <div id="lb-card" style="width:100%;max-width:780px;padding:0 64px;box-sizing:border-box;margin:auto;">
       <div id="lb-map-area" class="relative h-[220px] bg-black/40 flex items-end justify-between p-4 gap-2">
@@ -241,39 +317,42 @@
           <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
           <span id="lb-badge" class="text-[10px] font-bold tracking-[.2em] uppercase text-white"></span>
         </div>
-        <span id="lb-coords" class="z-10 text-[10px] tracking-[.12em] uppercase text-[#e8ded0]/25 font-mono"></span>
+        <span id="lb-coords" class="z-10 text-[10px] tracking-[.12em] uppercase text-[#e8ded0]/25 font-mono hidden sm:inline"></span>
         <a id="lb-map-link" href="#" target="_blank" class="z-10 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 bg-[#e8ded0]/[.08] border border-[#e8ded0]/20 text-[#e8ded0] text-[10px] font-bold tracking-[.18em] uppercase no-underline hover:bg-[#e8ded0]/[.15] transition-colors">Open in Maps ↗</a>
       </div>
       <div class="h-[3px] w-full" style="background:var(--accent)"></div>
-      <div class="px-6 pt-5">
-        <div class="flex items-center gap-2 mb-3">
+      <div class="px-4 sm:px-6 pt-5">
+        <div class="flex items-center gap-2 mb-3 flex-wrap">
           <span id="lb-type" class="text-[9px] font-bold tracking-[.22em] uppercase px-2.5 py-0.5 rounded-sm text-white" style="background:var(--accent)"></span>
           <span id="lb-open-status" class="inline-flex items-center gap-1 text-[9px] font-bold tracking-[.16em] uppercase text-green-400 bg-green-400/10 border border-green-400/20 rounded-sm px-2.5 py-0.5">
             <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>Open now
           </span>
         </div>
-        <h2 id="lb-title" class="font-['Cormorant_Garamond'] font-light text-[2rem] leading-none text-[#e8ded0] mb-1"></h2>
+        <h2 id="lb-title" class="font-['Cormorant_Garamond'] font-light leading-none text-[#e8ded0] mb-1" style="font-size:clamp(1.5rem,5vw,2rem);"></h2>
         <p id="lb-meta" class="text-[10px] tracking-[.18em] uppercase text-[#e8ded0]/35 mb-3"></p>
         <p id="lb-desc" class="text-[13px] text-[#e8ded0]/60 leading-relaxed mb-4"></p>
         <div id="lb-tags" class="flex flex-wrap gap-1.5 mb-5"></div>
       </div>
-      <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-6 py-4">
+      <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-4 sm:px-6 py-4">
         <p class="text-[9px] font-bold tracking-[.24em] uppercase text-[#e8ded0]/35 mb-3">Hours</p>
         <div id="lb-hours" class="grid grid-cols-2 gap-x-4 gap-y-0"></div>
       </div>
-      <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-6 py-4">
-        <p id="lb-addr-text" class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed"></p>
-        <button id="lb-like-btn" onclick="toggleLikeById()" class="flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#e8ded0]/15 bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px] tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors cursor-pointer">
+      <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-4 sm:px-6 py-4">
+        <p id="lb-addr-text" class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed pr-4"></p>
+        <button id="lb-like-btn" onclick="toggleLikeById()" class="flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#e8ded0]/15 bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px] tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors cursor-pointer flex-shrink-0" style="min-height:44px;">
           <span id="lb-heart">♡</span><span id="lb-like-count">0</span>
           <span class="text-[8px] opacity-50 tracking-[.15em]">likes</span>
         </button>
       </div>
-      <button id="lb-delete-btn" onclick="openDeleteModal()" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">Remove location</button>
+      <div class="px-4 sm:px-6 pb-6">
+        <button id="lb-delete-btn" onclick="openDeleteModal()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">Remove location</button>
+      </div>
     </div>
   </div>
-  <div id="lb-dots" style="display:flex;gap:8px;margin-top:28px;"></div>
+  <div id="lb-dots" style="display:flex;gap:8px;margin-top:28px;padding-bottom:env(safe-area-inset-bottom,16px);"></div>
 </div>
 
+<!-- ADD MODAL -->
 <div id="add-modal" class="modal-backdrop fixed inset-0 z-[500] bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 hidden" onclick="closeAddBackdrop(event)">
   <div class="w-full max-w-md flex flex-col rounded-2xl overflow-hidden border border-[#f5efe6]/10 shadow-2xl" style="background:#231a13;max-height:90vh;" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between px-5 py-4 border-b border-[#f5efe6]/8 flex-shrink-0">
@@ -281,9 +360,9 @@
         <h2 class="serif text-xl font-light text-[#f5efe6]">Add a location</h2>
         <p class="text-[10px] tracking-widest uppercase text-[#f5efe6]/30 mt-0.5">New York City</p>
       </div>
-      <button onclick="closeAddModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-[#f5efe6]/40 hover:text-[#f5efe6]/80 hover:bg-[#f5efe6]/5 text-sm transition-all border border-[#f5efe6]/10">✕</button>
+      <button onclick="closeAddModal()" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(245,239,230,0.4);background:rgba(245,239,230,0.05);border:1px solid rgba(245,239,230,0.1);font-size:0.9rem;">✕</button>
     </div>
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto" style="-webkit-overflow-scrolling:touch;">
       <form id="add-location-form" method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add" enctype="multipart/form-data">
         <div class="px-5 py-4 space-y-3 border-b border-[#f5efe6]/8">
           <div>
@@ -294,13 +373,17 @@
             <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Address</label>
             <input type="text" name="address" required placeholder="e.g. 15 River St, Brooklyn" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all">
           </div>
+          <input type="hidden" name="latitude"      id="loc-lat">
+          <input type="hidden" name="longitude"     id="loc-lng">
+          <input type="hidden" name="place_id"      id="loc-place-id">
+          <input type="hidden" name="formatted_address" id="loc-formatted-address">
           <div>
             <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Description</label>
             <textarea name="description" placeholder="What makes this place special?" rows="3" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 resize-none focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all"></textarea>
           </div>
           <div>
             <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Photo</label>
-            <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer bg-[#f5efe6]/4 border border-dashed border-[#f5efe6]/15 hover:border-[#f5efe6]/30 hover:bg-[#f5efe6]/6 transition-all">
+            <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer bg-[#f5efe6]/4 border border-dashed border-[#f5efe6]/15 hover:border-[#f5efe6]/30 hover:bg-[#f5efe6]/6 transition-all" style="min-height:44px;">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4.5 2.5 3 2-2.5L14 12H2z" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1.5" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1"/><rect x="1" y="1" width="14" height="14" rx="2" stroke="#f5efe6" stroke-opacity="0.2" stroke-width="1"/></svg>
               <span class="text-xs text-[#f5efe6]/30" id="photo-label">Choose a photo…</span>
               <input type="file" name="image" accept="image/*" class="hidden" onchange="document.getElementById('photo-label').textContent = this.files[0]?.name || 'Choose a photo…'">
@@ -317,21 +400,21 @@
                 <option value="24-7">Open 24/7</option>
                 <option value="closed">Closed all week</option>
               </select>
-              <button type="button" onclick="applyPreset()" class="text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-md bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[#f5efe6]/50 hover:text-[#f5efe6]/80 hover:border-[#f5efe6]/25 transition-all">Apply</button>
+              <button type="button" onclick="applyPreset()" class="text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-md bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[#f5efe6]/50 hover:text-[#f5efe6]/80 hover:border-[#f5efe6]/25 transition-all" style="min-height:36px;">Apply</button>
             </div>
           </div>
           <div class="space-y-1">
             {% set days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
             {% for d in days %}
-            <div class="flex items-center gap-3 py-1.5 border-b border-[#f5efe6]/5 last:border-0">
+            <div class="flex items-center gap-2 py-1.5 border-b border-[#f5efe6]/5 last:border-0">
               <span class="w-7 text-[10px] tracking-widest uppercase text-[#f5efe6]/30 flex-shrink-0">{{ d }}</span>
-              <div id="hours-row-{{ d }}" class="flex items-center gap-1.5 flex-1">
-                <input type="time" name="hours_{{ d }}_open" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
+              <div id="hours-row-{{ d }}" class="flex items-center gap-1 flex-1 min-w-0">
+                <input type="time" name="hours_{{ d }}_open" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-1.5 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
                 <span class="text-[#f5efe6]/20 text-xs flex-shrink-0">–</span>
-                <input type="time" name="hours_{{ d }}_close" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
+                <input type="time" name="hours_{{ d }}_close" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-1.5 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
               </div>
-              <label class="flex items-center gap-1.5 flex-shrink-0 cursor-pointer">
-                <input type="checkbox" name="hours_{{ d }}_closed" class="accent-[var(--accent)] w-3 h-3" onchange="toggleClosed('{{ d }}')">
+              <label class="flex items-center gap-1 flex-shrink-0 cursor-pointer" style="min-height:44px;">
+                <input type="checkbox" name="hours_{{ d }}_closed" class="accent-[var(--accent)] w-4 h-4" onchange="toggleClosed('{{ d }}')">
                 <span class="text-[10px] text-[#f5efe6]/25 tracking-wide">Closed</span>
               </label>
             </div>
@@ -340,13 +423,14 @@
         </div>
       </form>
     </div>
-    <div class="px-5 py-4 border-t border-[#f5efe6]/8 flex gap-2 flex-shrink-0">
-      <button type="submit" form="add-location-form" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold tracking-widest uppercase transition-all" style="background:var(--accent);color:#fff;">Post location</button>
-      <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 rounded-xl text-[11px] tracking-widest uppercase text-[#f5efe6]/40 bg-[#f5efe6]/4 border border-[#f5efe6]/10 hover:text-[#f5efe6]/70 hover:border-[#f5efe6]/20 transition-all">Cancel</button>
+    <div class="px-5 py-4 border-t border-[#f5efe6]/8 flex gap-2 flex-shrink-0" style="padding-bottom:max(1rem,env(safe-area-inset-bottom));">
+      <button type="submit" form="add-location-form" class="flex-1 py-3 rounded-xl text-[11px] font-semibold tracking-widest uppercase transition-all" style="background:var(--accent);color:#fff;min-height:48px;">Post location</button>
+      <button type="button" onclick="closeAddModal()" class="px-5 py-3 rounded-xl text-[11px] tracking-widest uppercase text-[#f5efe6]/40 bg-[#f5efe6]/4 border border-[#f5efe6]/10 hover:text-[#f5efe6]/70 hover:border-[#f5efe6]/20 transition-all">Cancel</button>
     </div>
   </div>
 </div>
 
+<!-- DELETE MODAL -->
 <div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;">
   <div style="background:#111;border:1px solid rgba(232,222,208,0.12);border-radius:20px;padding:32px 28px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;">
     <div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
@@ -355,15 +439,16 @@
     <p class="serif" style="font-size:1.4rem;font-weight:300;color:#e8ded0;margin-bottom:8px;text-align:center;line-height:1.2;">Remove this location?</p>
     <p style="font-size:0.75rem;color:rgba(232,222,208,0.4);text-align:center;line-height:1.6;margin-bottom:28px;">This can't be undone. The location and all its data will be permanently deleted.</p>
     <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
-      <button id="delete-confirm-btn" style="width:100%;padding:11px;border-radius:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:rgb(239,68,68);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Yes, remove it</button>
-      <button onclick="closeDeleteModal()" style="width:100%;padding:11px;border-radius:10px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.5);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Cancel</button>
+      <button id="delete-confirm-btn" style="width:100%;padding:14px;border-radius:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:rgb(239,68,68);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;min-height:48px;">Yes, remove it</button>
+      <button onclick="closeDeleteModal()" style="width:100%;padding:14px;border-radius:10px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.5);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;min-height:48px;">Cancel</button>
     </div>
   </div>
 </div>
 
+<!-- BOROUGH SWITCHER -->
 <div id="borough-switcher" style="position:fixed;bottom:24px;left:32px;z-index:50;">
   <button onclick="toggleSwitcher()"
-    style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(0,0,0,0.35);border:1px solid rgba(232,222,208,0.15);color:rgba(232,222,208,0.5);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-family:inherit;"
+    style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:rgba(0,0,0,0.35);border:1px solid rgba(232,222,208,0.15);color:rgba(232,222,208,0.5);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-family:inherit;min-height:44px;"
     onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.3)'"
     onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.15)'">
     <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
@@ -385,7 +470,7 @@
      '{{ b.color }}',
      '{{ b.accent }}'
    )"
-       style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;transition:background 0.15s;color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
+       style="display:flex;align-items:center;gap:10px;padding:12px 16px;text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;transition:background 0.15s;color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};min-height:44px;"
        onmouseover="this.style.background='rgba(232,222,208,0.08)';this.style.color='#e8ded0'"
        onmouseout="this.style.background='{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }}';this.style.color='{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }}'">
       <span style="width:4px;height:4px;border-radius:50%;flex-shrink:0;background:{{ 'var(--accent)' if b.name == borough.name else 'rgba(232,222,208,0.2)' }};"></span>
@@ -431,14 +516,25 @@
     if (btn) { btn.dataset.liked = data.liked ? 'true' : 'false'; btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡'; btn.querySelector('.like-count').textContent = data.count; btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)'; }
   }
 
+  // Responsive: 1 card on mobile, 3 on desktop
+  function getVisible() { return window.innerWidth < 640 ? 1 : 3; }
+
   let featIndex = 0;
   const featTotal = locations.length;
-  const VISIBLE = 3;
+
+  function updateCardWidths() {
+    const vis = getVisible();
+    const gap = vis === 1 ? 0 : 16;
+    document.querySelectorAll('.feat-card-inner').forEach(card => {
+      card.style.minWidth = `calc(${100/vis}% - ${gap * (vis-1) / vis}px)`;
+    });
+  }
 
   function buildFeatDots() {
     const dotsEl = document.getElementById('feat-dots'); if (!dotsEl) return;
+    const vis = getVisible();
     dotsEl.innerHTML = '';
-    const pages = Math.max(1, featTotal - VISIBLE + 1);
+    const pages = Math.max(1, featTotal - vis + 1);
     for (let i = 0; i < pages; i++) {
       const d = document.createElement('div');
       d.style.cssText = `width:5px;height:5px;border-radius:50%;cursor:pointer;background:${i===featIndex?'var(--accent)':'rgba(232,222,208,0.2)'};transition:background 0.2s;`;
@@ -448,20 +544,52 @@
   }
 
   function updateFeatSlide() {
+    const vis = getVisible();
     const track = document.getElementById('feat-track'); if (!track) return;
-    track.style.transform = `translateX(-${(100/VISIBLE)*featIndex}%)`;
-    const maxIndex = Math.max(0, featTotal - VISIBLE);
+    const cardEl = document.querySelector('.feat-card-inner');
+    if (!cardEl) return;
+    const cardW = cardEl.getBoundingClientRect().width;
+    const gap = 16;
+    track.style.transform = `translateX(-${(cardW + gap) * featIndex}px)`;
+    const maxIndex = Math.max(0, featTotal - vis);
     document.getElementById('feat-prev').style.opacity = featIndex > 0 ? '1' : '0.25';
     document.getElementById('feat-next').style.opacity = featIndex < maxIndex ? '1' : '0.25';
     buildFeatDots();
   }
 
   function featStep(dir) {
-    featIndex = Math.max(0, Math.min(featIndex + dir, Math.max(0, featTotal - VISIBLE)));
+    const vis = getVisible();
+    featIndex = Math.max(0, Math.min(featIndex + dir, Math.max(0, featTotal - vis)));
     updateFeatSlide();
   }
 
-  window.addEventListener('load', () => { buildFeatDots(); updateFeatSlide(); });
+  // Touch swipe on featured carousel
+  (function() {
+    const track = document.getElementById('feat-track');
+    if (!track) return;
+    let startX = 0, startY = 0, isDragging = false;
+    track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; isDragging = true; }, { passive: true });
+    track.addEventListener('touchend', e => {
+      if (!isDragging) return; isDragging = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) featStep(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  })();
+
+  // Touch swipe on lightbox
+  (function() {
+    const lb = document.getElementById('lightbox');
+    let startX = 0;
+    lb.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50) lbStep(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  })();
+
+  window.addEventListener('load', () => { updateCardWidths(); buildFeatDots(); updateFeatSlide(); });
+  window.addEventListener('resize', () => { updateCardWidths(); featIndex = 0; updateFeatSlide(); });
 
   let lbIndex = 0;
   const lbTotal = locations.length;
@@ -532,6 +660,10 @@
     document.getElementById('lb-delete-btn').style.display = loc.IsOwner?'flex':'none';
     document.getElementById('lb-prev').style.visibility = lbIndex>0?'visible':'hidden';
     document.getElementById('lb-next').style.visibility = lbIndex<lbTotal-1?'visible':'hidden';
+
+    // Scroll card back to top on mobile
+    const card = document.getElementById('lb-card');
+    if (card) card.scrollTop = 0;
 
     const dotsEl = document.getElementById('lb-dots'); dotsEl.innerHTML = '';
     locations.forEach((_,i) => { const d=document.createElement('div'); d.style.cssText=`width:6px;height:6px;border-radius:50%;cursor:pointer;background:${i===lbIndex?'var(--accent)':'rgba(232,222,208,0.25)'};transition:background 0.2s;`; d.onclick=()=>{lbIndex=i;renderLightbox();}; dotsEl.appendChild(d); });
@@ -632,7 +764,7 @@
     } else {
       div.innerHTML=`
         ${!isMe?`<p style="font-size:0.6rem;color:rgba(232,222,208,0.4);margin-bottom:3px;padding-left:4px;">${data.user}</p>`:''}
-        <div style="max-width:65%;padding:10px 14px;border-radius:${isMe?'18px 18px 4px 18px':'18px 18px 18px 4px'};background:${isMe?'var(--accent)':'rgba(232,222,208,0.1)'};color:#e8ded0;font-size:0.82rem;line-height:1.5;word-break:break-word;">${data.text}</div>
+        <div style="max-width:75%;padding:10px 14px;border-radius:${isMe?'18px 18px 4px 18px':'18px 18px 18px 4px'};background:${isMe?'var(--accent)':'rgba(232,222,208,0.1)'};color:#e8ded0;font-size:0.82rem;line-height:1.5;word-break:break-word;">${data.text}</div>
         <p style="font-size:0.55rem;color:rgba(232,222,208,0.2);margin-top:3px;padding:0 4px;">${time}</p>`;
     }
     wrap.appendChild(div);
@@ -666,7 +798,6 @@ function navigateWithTransition(url, color, accent) {
   if (document.body._transitioning) return;
   document.body._transitioning = true;
 
-  // Slide out the page heading
   const heading = document.querySelector('h1.serif');
   if (heading) {
     heading.style.transition = 'opacity 0.2s ease, transform 0.25s ease';
@@ -687,6 +818,74 @@ function navigateWithTransition(url, color, accent) {
   });
 }
 </script>
+<script>
+function initAddressAutocomplete() {
+  const input = document.querySelector('input[name="address"]');
+  if (!input) return;
 
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    types: ['establishment', 'geocode'],
+    componentRestrictions: { country: 'us' },
+    bounds: new google.maps.LatLngBounds(
+      { lat: 40.4774, lng: -74.2591 },
+      { lat: 40.9176, lng: -73.7004 }
+    ),
+    strictBounds: false,
+    fields: ['geometry', 'formatted_address', 'place_id', 'name'],
+  });
+
+  let placeConfirmed = false;
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+
+    if (!place.geometry || !place.geometry.location) {
+      clearGeoFields();
+      showAddressStatus('invalid');
+      return;
+    }
+
+    document.getElementById('loc-lat').value             = place.geometry.location.lat();
+    document.getElementById('loc-lng').value             = place.geometry.location.lng();
+    document.getElementById('loc-place-id').value        = place.place_id || '';
+    document.getElementById('loc-formatted-address').value = place.formatted_address || '';
+
+    input.value = place.formatted_address || place.name || input.value;
+
+    placeConfirmed = true;
+    showAddressStatus('valid');
+  });
+
+  input.addEventListener('input', () => {
+    if (placeConfirmed) {
+      placeConfirmed = false;
+      clearGeoFields();
+      showAddressStatus('typing');
+    }
+  });
+
+  function clearGeoFields() {
+    ['loc-lat','loc-lng','loc-place-id','loc-formatted-address']
+      .forEach(id => { document.getElementById(id).value = ''; });
+  }
+
+  function showAddressStatus(state) {
+    let indicator = document.getElementById('address-status');
+    if (!indicator) {
+      indicator = document.createElement('p');
+      indicator.id = 'address-status';
+      indicator.style.cssText = 'font-size:0.6rem;margin-top:4px;letter-spacing:0.08em;transition:opacity 0.2s;';
+      input.parentNode.insertBefore(indicator, input.nextSibling);
+    }
+    const states = {
+      valid:   { text: '✓ Location confirmed', color: 'rgba(74,222,128,0.8)'  },
+      invalid: { text: '✗ Select a location from the list', color: 'rgba(239,68,68,0.7)' },
+      typing:  { text: '',  color: 'transparent' },
+    };
+    indicator.textContent  = states[state].text;
+    indicator.style.color  = states[state].color;
+  }
+}
+</script>
 </body>
 </html>
