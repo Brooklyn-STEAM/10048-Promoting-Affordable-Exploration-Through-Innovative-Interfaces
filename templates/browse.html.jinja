@@ -17,14 +17,19 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Archivo', sans-serif;
-      background-color: {{ selected.color }};
-      color: #e8ded0;
-      min-height: 100vh;
-      overflow: hidden;
-      position: relative;
-    }
+    /* Change your body rule to: */
+body {
+  font-family: 'Archivo', sans-serif;
+  background-color: {{ selected.color }};
+  color: #e8ded0;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (max-width: 640px) {
+  body { overflow-y: auto; overflow-x: hidden; }
+}
 
 
     #bg-overlay {
@@ -192,6 +197,44 @@
       pointer-events: none;
       z-index: 9999;
     }
+
+   @media (max-width: 640px) {
+  .absolute.top-0 { padding: 16px; }
+  h1 { font-size: 0.65rem; }
+}
+
+@media (max-width: 640px) {
+  .absolute.bottom-6 {
+    position: relative;
+    padding: 20px;
+    margin-top: 16px;
+  }
+}
+
+  @media (max-width: 640px) {
+  .radial-container {
+    position: relative;
+    bottom: auto; left: auto;
+    transform: none;
+    width: 320px;
+    height: 320px;
+    margin: 0 auto;
+  }
+
+  .borough-panel {
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    padding: 24px 20px 8px;
+    text-align: center;
+  }
+
+  .borough-panel .name { font-size: 1.8rem; }
+
+  #mobile-img {
+  transition: opacity 0.2s ease;
+}
+}
   </style>
 </head>
 
@@ -200,6 +243,83 @@
 </div>
 
 {% include '_nav.html.jinja' %}
+
+<!-- MOBILE LAYOUT ONLY -->
+<div id="mobile-layout" style="display:none; flex-direction:column; align-items:center; padding-top:80px; min-height:100vh;">
+  
+  <!-- Borough image circle -->
+  <div id="mobile-img-wrap" style="
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    margin-bottom: 32px;
+    flex-shrink: 0;
+  ">
+    <img id="mobile-img" src="{{ url_for('static', filename='images/' + selected.name + '.png') }}"
+         style="width:100%;height:100%;object-fit:cover;">
+  </div>
+
+  <!-- Borough name -->
+  <p id="mobile-borough-name" style="
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 8px;
+    transition: opacity 0.3s ease;
+  ">{{ selected.name }}</p>
+
+  <!-- Dots -->
+  <div id="mobile-dots" style="display:flex; gap:8px; margin-bottom:28px;">
+    {% for borough in boroughs %}
+    <div class="mobile-dot" data-index="{{ loop.index0 }}"
+         style="width:6px;height:6px;border-radius:50%;background:rgba(232,222,208,0.3);cursor:pointer;transition:background 0.3s;">
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Prev / Next arrows -->
+  <div style="display:flex; align-items:center; gap:32px; margin-bottom:32px;">
+    <button id="mobile-prev" style="
+      background:none; border:1px solid rgba(232,222,208,0.3);
+      color:#e8ded0; width:44px;height:44px;border-radius:50%;
+      font-size:1.1rem;cursor:pointer;
+    ">←</button>
+
+    <a id="mobile-visit-btn" href="/borough/{{ selected.name | replace(' ', '-') }}" style="
+      padding: 10px 28px;
+      border: 1px solid rgba(232,222,208,0.5);
+      border-radius: 999px;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #e8ded0;
+      text-decoration: none;
+    ">Explore →</a>
+
+    <button id="mobile-next" style="
+      background:none; border:1px solid rgba(232,222,208,0.3);
+      color:#e8ded0; width:44px;height:44px;border-radius:50%;
+      font-size:1.1rem;cursor:pointer;
+    ">→</button>
+  </div>
+
+  <!-- Borough list pills -->
+  <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 24px;">
+    {% for borough in boroughs %}
+    <button class="mobile-pill" data-index="{{ loop.index0 }}"
+            style="
+              font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;
+              padding:6px 14px;border-radius:999px;cursor:pointer;
+              background:none;border:1px solid rgba(232,222,208,0.2);
+              color:rgba(232,222,208,0.5);transition:all 0.2s;
+            ">
+      {{ borough.name }}
+    </button>
+    {% endfor %}
+  </div>
+</div>
 
 
 <div id="bg-overlay"></div>
@@ -256,18 +376,7 @@
 
 <script>
 
-  document.querySelectorAll('.borough-form').forEach(form => {
-    const idx    = parseInt(form.dataset.index);
-    const total  = parseInt(form.dataset.total);
-    const radius = 290;
-    const angleDeg = -155 + (idx / (total - 1)) * 130;
-    const angleRad = angleDeg * Math.PI / 180;
-    const x = 350 + radius * Math.cos(angleRad);
-    const y = 350 + radius * Math.sin(angleRad);
-    form.style.top       = y + 'px';
-    form.style.left      = x + 'px';
-    form.style.transform = 'translate(-50%, -50%)';
-  });
+  
 
 
   let currentBorough = '{{ selected.name }}';
@@ -436,6 +545,19 @@ document.addEventListener("visibilitychange", () => {
               color:rgba(255,255,255,0.4); font-size:11px; letter-spacing:0.15em; text-transform:uppercase;">
     A / D to move
   </div>
+  <div id="horrorMobileControls" style="
+  display: none; position: absolute; bottom: 60px; left: 50%;
+  transform: translateX(-50%); gap: 40px; z-index: 10;
+">
+  <button ontouchstart="keys['a']=true" ontouchend="keys['a']=false"
+          style="width:56px;height:56px;background:#222;color:white;border:1px solid #555;border-radius:50%;font-size:20px;">
+    ←
+  </button>
+  <button ontouchstart="keys['d']=true" ontouchend="keys['d']=false"
+          style="width:56px;height:56px;background:#222;color:white;border:1px solid #555;border-radius:50%;font-size:20px;">
+    →
+  </button>
+</div>
 </div>
 
 <script>
@@ -484,6 +606,10 @@ function startPixelHorrorGame() {
   ghostTimer = 0; survivalTimer = 0; screenFlash = 0; deathShake = 0; hallwayShake = 0;
   introActive = true; introOpacity = 0; introTimer = 0;
   requestAnimationFrame(gameLoop);
+}
+
+if (window.innerWidth < 640) {
+  document.getElementById('horrorMobileControls').style.display = 'flex';
 }
 
 document.getElementById("exitHorrorGame").onclick = () => {
@@ -692,8 +818,134 @@ function drawHallwayGeneric(n){ctx.fillStyle="black";ctx.fillRect(0,0,canvas.wid
 function drawGhost(){if(currentFloor===1)drawCrawler(crawlerX,player.y-12);else if(currentFloor===3&&flickerActive){ctx.fillStyle="white";ctx.fillRect(400,100,20,40);}else if(currentFloor===4){ctx.strokeStyle=scratching?"red":"rgba(255,255,255,0.4)";ctx.lineWidth=1;ctx.strokeRect(300,150,40,60);}else if(currentFloor===5){ctx.fillStyle=loopFreeze?"white":"rgba(255,255,255,0.3)";ctx.fillRect(200,180,10,20);ctx.fillRect(230,180,10,20);}}
 
 function draw(){ctx.fillStyle="black";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(deathShake+hallwayShake,deathShake);if(currentFloor===1)drawHallway();else if(currentFloor===2)drawHallwayFloor2();else drawHallwayGeneric(currentFloor);drawPlayer();drawGhost();if(screenFlash>0){ctx.fillStyle="rgba(255,0,0,0.4)";ctx.fillRect(0,0,canvas.width,canvas.height);screenFlash--;}if(whisperOpacity>0){ctx.globalAlpha=whisperOpacity;ctx.fillStyle="rgba(255,255,255,0.8)";ctx.font="10px serif";ctx.textAlign="center";ctx.fillText(whisperText,canvas.width/2,40);whisperOpacity=Math.max(0,whisperOpacity-0.01);ctx.globalAlpha=1;}ctx.restore();}
-</script>
 
+const isMobile = window.innerWidth < 768;
+
+if (isMobile) {
+  // Show mobile layout, hide desktop elements
+  document.getElementById('mobile-layout').style.display = 'flex';
+  document.querySelector('.radial-container').style.display = 'none';
+  document.getElementById('borough-panel').style.display = 'none';
+
+  // Build borough data array from the forms
+  const boroughData = [];
+  document.querySelectorAll('.borough-form').forEach(f => {
+    boroughData.push({
+      name: f.dataset.name,
+      color: f.dataset.color,
+      accent: f.dataset.accent,
+      image: f.dataset.image
+    });
+  });
+
+  let mobileIndex = boroughData.findIndex(b => b.name === currentBorough);
+  if (mobileIndex < 0) mobileIndex = 0;
+
+  function updateMobileView(idx, animate = true) {
+    mobileIndex = (idx + boroughData.length) % boroughData.length;
+    const b = boroughData[mobileIndex];
+
+    // Animate name fade
+    const nameEl = document.getElementById('mobile-borough-name');
+    if (animate) { nameEl.style.opacity = '0'; }
+    setTimeout(() => {
+      nameEl.textContent = b.name;
+      nameEl.style.opacity = '1';
+    }, animate ? 150 : 0);
+
+    // Image crossfade
+    const img = document.getElementById('mobile-img');
+    if (animate) { img.style.opacity = '0'; }
+    setTimeout(() => {
+      img.src = b.image;
+      img.style.opacity = '1';
+    }, animate ? 150 : 0);
+
+    // Visit button
+    document.getElementById('mobile-visit-btn').href = `/borough/${b.name.replace(/ /g,'-')}`;
+    document.getElementById('mobile-visit-btn').textContent = `Explore ${b.name} →`;
+
+    // Background
+    const overlay = document.getElementById('bg-overlay');
+    overlay.style.background = b.color;
+    overlay.style.opacity = '1';
+    setTimeout(() => {
+      document.body.style.backgroundColor = b.color;
+      overlay.style.opacity = '0';
+    }, 400);
+    document.documentElement.style.setProperty('--accent', b.accent);
+    document.documentElement.style.setProperty('--borough-color', b.color);
+
+    // Dots
+    document.querySelectorAll('.mobile-dot').forEach((d, i) => {
+      d.style.background = i === mobileIndex ? b.accent : 'rgba(232,222,208,0.3)';
+    });
+
+    // Pills
+    document.querySelectorAll('.mobile-pill').forEach((p, i) => {
+      p.style.borderColor = i === mobileIndex ? 'rgba(232,222,208,0.7)' : 'rgba(232,222,208,0.2)';
+      p.style.color = i === mobileIndex ? '#e8ded0' : 'rgba(232,222,208,0.5)';
+    });
+
+    // Sync server
+    fetch('/browse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `borough=${encodeURIComponent(b.name)}`
+    });
+  }
+
+  document.getElementById('mobile-next').onclick = (e) => {
+    e.stopPropagation();
+    updateMobileView(mobileIndex + 1);
+  };
+  document.getElementById('mobile-prev').onclick = (e) => {
+    e.stopPropagation();
+    updateMobileView(mobileIndex - 1);
+  };
+
+  document.querySelectorAll('.mobile-dot').forEach((d) => {
+    d.onclick = (e) => { e.stopPropagation(); updateMobileView(parseInt(d.dataset.index)); };
+  });
+  document.querySelectorAll('.mobile-pill').forEach((p) => {
+    p.onclick = (e) => { e.stopPropagation(); updateMobileView(parseInt(p.dataset.index)); };
+  });
+
+  // Swipe support
+  let touchStartX = 0;
+  document.getElementById('mobile-layout').addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  document.getElementById('mobile-layout').addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) updateMobileView(mobileIndex + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+
+  // Init
+  updateMobileView(mobileIndex, false);
+}
+
+
+</script>
+<script>
+  (function positionBoroughLabels() {
+    const forms = document.querySelectorAll('.borough-form');
+    const total = forms.length;
+    const radius = 310;
+    const startAngle = 200;
+    const endAngle = 340;
+
+    forms.forEach((form, i) => {
+      const angleDeg = startAngle + (i / (total - 1)) * (endAngle - startAngle);
+      const angleRad = (angleDeg * Math.PI) / 180;
+      const x = 350 + radius * Math.cos(angleRad);
+      const y = 350 + radius * Math.sin(angleRad);
+      form.style.left      = x + 'px';
+      form.style.top       = y + 'px';
+      form.style.transform = 'translate(-50%, -50%)';
+    });
+  })();
+</script>
 
 </body>
 </html>
