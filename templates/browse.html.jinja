@@ -381,11 +381,43 @@
   }
 
   document.addEventListener('click', spawnPigeon);
-  function autoSpawn() {
-    spawnPigeon();
-    setTimeout(autoSpawn, 2000 + Math.random() * 6000);
+ 
+
+  let autoSpawnEnabled = true;
+let autoSpawnTimeout = null;
+
+function autoSpawn() {
+  if (!autoSpawnEnabled) return;
+
+  spawnPigeon();
+
+  autoSpawnTimeout = setTimeout(() => {
+    autoSpawn();
+  }, 2000 + Math.random() * 6000);
+}
+
+// start it
+autoSpawn();
+
+
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    autoSpawnEnabled = false;
+
+    // stop pending spawn
+    if (autoSpawnTimeout) {
+      clearTimeout(autoSpawnTimeout);
+    }
+  } else {
+    if (!autoSpawnEnabled) {
+      autoSpawnEnabled = true;
+      autoSpawn(); // resume when user comes back
+    }
   }
-  autoSpawn();
+});
+
+
 </script>
 
 
