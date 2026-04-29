@@ -29,6 +29,7 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.2); border-radius: 2px; }
 
+    /* ── Featured Cards ── */
     .featured-card {
       position: relative; border-radius: 18px; overflow: hidden;
       cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -43,6 +44,7 @@
     .featured-card .card-sub { font-size: 0.6rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 4px; }
     .featured-card .no-img { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.7rem; opacity: 0.2; }
 
+    /* ── Gem Cards ── */
     .gem-card { border-radius: 14px; overflow: hidden; background: rgba(0,0,0,0.2); border: 1px solid rgba(232,222,208,0.1); transition: all 0.25s ease; cursor: pointer; }
     .gem-card:hover { border-color: rgba(232,222,208,0.25); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
     .gem-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
@@ -51,12 +53,14 @@
     .gem-card .gem-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 3px; letter-spacing: 0.08em; }
     .gem-card .no-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0.2; }
 
-    .add-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: 999px; border: 1px solid rgba(232,222,208,0.35); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; background: transparent; color: #e8ded0; transition: background 0.2s; }
+    /* ── Buttons ── */
+    .add-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: 999px; border: 1px solid rgba(232,222,208,0.35); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; background: transparent; color: #e8ded0; transition: background 0.2s; white-space: nowrap; }
     .add-btn:hover { background: rgba(232,222,208,0.08); }
-    .add-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .add-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
     .section-label { font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.4; }
 
+    /* ── Modals ── */
     .modal-backdrop { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 24px; }
     .modal-backdrop.open { display: flex; }
     .modal { background: #ece4d8; border-radius: 20px; border: 2px solid #1f1f1f; box-shadow: 6px 6px 0 #1f1f1f; padding: 28px; width: 100%; max-width: 400px; color: #2b2b2b; }
@@ -69,6 +73,7 @@
     .modal-cancel { width: 100%; padding: 9px; margin-top: 6px; background: transparent; border: none; color: #4a4a4a; cursor: pointer; font-size: 0.78rem; font-family: inherit; }
     .modal-cancel:hover { color: #2b2b2b; }
 
+    /* ── Animations ── */
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     .fade-up { animation: fadeUp 0.5s ease both; }
     .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.12s; } .d3 { animation-delay: 0.2s; } .d4 { animation-delay: 0.28s; }
@@ -85,6 +90,7 @@
     #lb-card.lb-animating-in  { animation: lbCardIn  0.3s cubic-bezier(0.23,1,0.32,1) forwards; }
     #lb-card.lb-animating-out { animation: lbCardOut 0.22s ease forwards; }
 
+    /* ── Add modal dark inputs ── */
     #add-modal input[type="text"], #add-modal input[type="time"], #add-modal textarea, #add-modal select {
       background-color: rgba(101,75,55,0.25) !important; color: #e8ded0 !important;
       border-color: rgba(232,222,208,0.15) !important; color-scheme: dark;
@@ -95,59 +101,141 @@
     }
     #add-modal select option { background-color: #2a1f18; color: #e8ded0; }
 
+    /* ── Chat ── */
     #chat-messages { scrollbar-width: thin; }
     #chat-messages::-webkit-scrollbar { width: 3px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(232,222,208,0.1); border-radius: 2px; }
 
     .chat-msg { opacity: 0; transform: translateY(6px); animation: chatIn 0.25s ease forwards; }
     @keyframes chatIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Lightbox mobile: full-screen card ── */
+    @media (max-width: 767px) {
+      #lb-card {
+        padding: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        max-height: 85vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #lb-prev, #lb-next {
+        top: auto !important;
+        bottom: 16px !important;
+        transform: none !important;
+        width: 44px !important;
+        height: 44px !important;
+      }
+      #lb-prev { left: 16px !important; }
+      #lb-next { right: 16px !important; }
+      #lightbox { padding: 12px !important; align-items: flex-end !important; }
+      #lb-map-area { height: 140px !important; }
+      #lb-dots { margin-bottom: 60px; }
+
+      /* borough switcher: move to bottom-right so it doesn't crowd content */
+      #borough-switcher {
+        bottom: 16px !important;
+        left: 16px !important;
+        right: auto !important;
+      }
+      #switcher-menu {
+        left: 0 !important;
+        right: auto !important;
+      }
+
+      /* Add modal full-screen on mobile */
+      #add-modal > div {
+        max-height: 100vh !important;
+        border-radius: 20px 20px 0 0 !important;
+        margin-top: auto !important;
+      }
+      #add-modal {
+        align-items: flex-end !important;
+        padding: 0 !important;
+      }
+
+      /* hours rows — stack time inputs vertically */
+      .hours-row-inner {
+        flex-direction: column !important;
+        gap: 4px !important;
+      }
+      .hours-row-inner input[type="time"] {
+        width: 100% !important;
+      }
+
+      /* chat section */
+      .chat-container {
+        height: 420px !important;
+        border-radius: 16px !important;
+      }
+    }
+
+    /* ── iPad (768–1023px) ── */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      #lb-card {
+        padding: 0 32px !important;
+      }
+      #borough-switcher {
+        bottom: 20px !important;
+        left: 20px !important;
+      }
+    }
+
+    /* ── Spin keyframe for address spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 
 <body>
   <p id="transition-sub" style="font-size:0.6rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(232,222,208,0.4);opacity:0;transition:opacity 0.5s ease 0.35s;">Finding your next NYC adventure</p>
-</div>
 
 {% include '_nav.html.jinja' %}
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-[calc(100%-2rem)] max-w-sm">
       {% for message in messages %}
-        <div class="px-5 py-3 rounded-xl text-white text-sm border border-white/20 shadow-lg" style="background:var(--accent);">{{ message }}</div>
+        <div class="px-5 py-3 rounded-xl text-white text-sm border border-white/20 shadow-lg text-center" style="background:var(--accent);">{{ message }}</div>
       {% endfor %}
     </div>
   {% endif %}
 {% endwith %}
 
-<div class="max-w-5xl mx-auto px-8 py-10">
+<!-- ── Page wrapper: tighter padding on mobile ── -->
+<div class="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10">
 
-  <div class="flex items-end justify-between mb-10 fade-up">
-    <div>
+  <!-- ── Header ── -->
+  <div class="flex items-end justify-between mb-8 sm:mb-10 fade-up gap-4">
+    <div class="min-w-0">
       <a href="/browse" class="text-xs tracking-widest uppercase opacity-30 hover:opacity-60 transition-opacity">← Back</a>
-      <h1 class="serif text-6xl font-light mt-2 leading-none">{{ borough.name | capitalize }}</h1>
+      <!-- Responsive heading: scales from 3xl on mobile up to 6xl on desktop -->
+      <h1 class="serif text-4xl sm:text-5xl md:text-6xl font-light mt-2 leading-none truncate">{{ borough.name | capitalize }}</h1>
       <div class="w-10 h-px mt-4 opacity-50" style="background:var(--accent);"></div>
       <p class="text-xs opacity-30 tracking-widest uppercase mt-3">New York City</p>
     </div>
-    <button class="add-btn" onclick="openModal()">
+    <button class="add-btn flex-shrink-0" onclick="openModal()">
       <span class="dot"></span>
-      Add a location
+      <!-- Shorten label on very small screens -->
+      <span class="hidden xs:inline sm:inline">Add a location</span>
+      <span class="xs:hidden sm:hidden inline">Add</span>
     </button>
   </div>
 
   {% if locations %}
+  <!-- ── Featured carousel ── -->
   <div class="fade-up d1">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <p class="section-label">Featured</p>
       <div style="display:flex;gap:8px;">
-        <button onclick="featStep(-1)" id="feat-prev" style="width:32px;height:32px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;">‹</button>
-        <button onclick="featStep(1)"  id="feat-next" style="width:32px;height:32px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;">›</button>
+        <button onclick="featStep(-1)" id="feat-prev" style="width:36px;height:36px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;">‹</button>
+        <button onclick="featStep(1)"  id="feat-next" style="width:36px;height:36px;border-radius:50%;background:rgba(232,222,208,0.08);border:1px solid rgba(232,222,208,0.2);color:#e8ded0;font-size:1rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;">›</button>
       </div>
     </div>
-    <div style="overflow:hidden;border-radius:18px;">
+    <div style="overflow:hidden;border-radius:18px;" id="feat-overflow">
       <div id="feat-track" class="flex gap-4 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
         {% for loc in locations %}
-        <div class="featured-card shrink-0 basis-1/3 h-[340px]" onclick="openDetail({{ loop.index0 }})">
+        <!-- On mobile: 1 card (basis-full), sm: 2 cards (basis-1/2), md+: 3 cards (basis-1/3) -->
+        <div class="featured-card shrink-0 basis-full sm:basis-1/2 md:basis-1/3 h-[280px] sm:h-[310px] md:h-[340px]" onclick="openDetail({{ loop.index0 }})">
           {% if loc.Image %}
             {% if loc.Image.startswith('http') %}
               <img src="{{ loc.Image }}" alt="{{ loc.Name }}">
@@ -169,9 +257,11 @@
   </div>
 
   {% if locations | length > 3 %}
-  <div class="mt-12 fade-up d2">
+  <!-- ── All Locations grid ── -->
+  <div class="mt-10 sm:mt-12 fade-up d2">
     <p class="section-label mb-4">All Locations</p>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <!-- Mobile: 1 col, sm: 2 col, md: 3 col, lg: 4 col -->
+    <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       {% for loc in locations[3:] %}
       <div class="gem-card" onclick="openDetail({{ loop.index0 + 3 }})">
         {% if loc.Image %}
@@ -182,8 +272,8 @@
           {% endif %}
         {% else %}<div class="no-img"></div>{% endif %}
         <div class="gem-info" style="display:flex;align-items:flex-start;justify-content:space-between;">
-          <div>
-            <p class="gem-title">{{ loc.Name }}</p>
+          <div style="min-width:0;flex:1;margin-right:8px;">
+            <p class="gem-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ loc.Name }}</p>
             <p class="gem-meta">{{ loc.DatePosted.strftime('%b %d, %Y') if loc.DatePosted else '' }}</p>
           </div>
           <button class="like-btn"
@@ -191,7 +281,7 @@
             data-borough="{{ borough.name | replace(' ', '-') }}"
             data-liked="{{ 'true' if loc.ID in liked_ids else 'false' }}"
             onclick="event.stopPropagation(); toggleLike(this)"
-            style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;color:{{ 'var(--accent)' if loc.ID in liked_ids else 'rgba(232,222,208,0.3)' }};font-size:0.7rem;padding:2px 0;flex-shrink:0;">
+            style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;color:{{ 'var(--accent)' if loc.ID in liked_ids else 'rgba(232,222,208,0.3)' }};font-size:0.7rem;padding:6px 0;flex-shrink:0;min-width:36px;justify-content:flex-end;-webkit-tap-highlight-color:transparent;">
             <span class="like-heart">{{ '♥' if loc.ID in liked_ids else '♡' }}</span>
             <span class="like-count">{{ loc.LikeCount or 0 }}</span>
           </button>
@@ -203,7 +293,7 @@
   {% endif %}
 
   {% else %}
-  <div class="fade-up d1 flex flex-col items-center justify-center py-32 opacity-30">
+  <div class="fade-up d1 flex flex-col items-center justify-center py-24 sm:py-32 opacity-30">
     <p class="serif text-3xl font-light mb-2">No gems yet</p>
     <p class="text-xs tracking-widest uppercase">Be the first to add a location</p>
   </div>
@@ -211,119 +301,129 @@
 
 </div>
 
-<div class="max-w-5xl mx-auto px-8 pb-16 mt-12 fade-up">
-  <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,222,208,0.1);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;height:500px;">
-    <div style="padding:16px 22px;border-bottom:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;justify-content:space-between;">
+<!-- ── Community Chat ── -->
+<div class="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pb-16 mt-10 sm:mt-12 fade-up">
+  <!-- chat-container class used by mobile CSS override above -->
+  <div class="chat-container" style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,222,208,0.1);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;height:500px;">
+    <div style="padding:14px 18px;border-bottom:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
-        <p style="font-size:0.7rem;font-weight:500;color:#e8ded0;letter-spacing:0.05em;">{{ borough.name | capitalize }} Community Chat</p>
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0;"></div>
+        <p style="font-size:0.65rem;font-weight:500;color:#e8ded0;letter-spacing:0.05em;">{{ borough.name | capitalize }} Community Chat</p>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span id="online-count" style="font-size:0.6rem;color:rgba(232,222,208,0.4);letter-spacing:0.1em;">0 online</span>
-        <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;"></div>
+        <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;flex-shrink:0;"></div>
       </div>
     </div>
-    <div id="chat-messages" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 20px;display:flex;flex-direction:column;gap:4px;min-height:0;"></div>
-    <div style="padding:14px 16px;border-top:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15);">
-      <input id="chat-input" type="text" placeholder="Type your message here..." maxlength="300"
+    <div id="chat-messages" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-height:0;-webkit-overflow-scrolling:touch;"></div>
+    <div style="padding:12px 14px;border-top:1px solid rgba(232,222,208,0.08);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.15);flex-shrink:0;">
+      <input id="chat-input" type="text" placeholder="Type a message…" maxlength="300"
         onkeydown="if(event.key==='Enter') sendMessage()"
-        style="flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);border-radius:999px;padding:11px 18px;color:#e8ded0;font-size:0.82rem;font-family:inherit;outline:none;transition:border-color 0.2s;"
+        style="flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);border-radius:999px;padding:11px 16px;color:#e8ded0;font-size:0.82rem;font-family:inherit;outline:none;transition:border-color 0.2s;min-width:0;"
         onfocus="this.style.borderColor='rgba(232,222,208,0.3)'"
         onblur="this.style.borderColor='rgba(232,222,208,0.12)'">
-      <button onclick="sendMessage()" style="width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s, transform 0.15s;font-size:1rem;"
-        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'"
+      <button onclick="sendMessage()" style="width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s, transform 0.15s;font-size:1rem;-webkit-tap-highlight-color:transparent;"
         onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='scale(1)'">➤</button>
     </div>
   </div>
 </div>
 
-<div id="lightbox" class="fixed inset-0 z-[400] flex-col items-center justify-center bg-black/50 backdrop-blur-2xl" style="display:none;">
-  <button onclick="closeLightbox()" style="position:absolute;top:24px;right:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.1rem;width:38px;height:38px;border-radius:50%;cursor:pointer;line-height:1;">✕</button>
-  <p id="lb-counter" style="position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.35);"></p>
+<!-- ── Lightbox ── -->
+<div id="lightbox" class="fixed inset-0 z-[400] flex-col items-center justify-center bg-black/50 backdrop-blur-2xl" style="display:none;padding:16px;">
+  <button onclick="closeLightbox()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.1rem;width:42px;height:42px;border-radius:50%;cursor:pointer;line-height:1;z-index:10;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;">✕</button>
+  <p id="lb-counter" style="position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.35);"></p>
 
-  <div style="display:flex;align-items:center;gap:16px;width:100%;max-width:960px;padding:0 24px;box-sizing:border-box;">
-    <button id="lb-prev" onclick="lbStep(-1)" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">‹</button>
-    <button id="lb-next" onclick="lbStep(1)"  style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">›</button>
+  <div style="display:flex;align-items:center;width:100%;max-width:960px;padding:0;box-sizing:border-box;justify-content:center;">
+    <button id="lb-prev" onclick="lbStep(-1)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;-webkit-tap-highlight-color:transparent;">‹</button>
+    <button id="lb-next" onclick="lbStep(1)"  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#e8ded0;font-size:1.3rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;-webkit-tap-highlight-color:transparent;">›</button>
 
-    <div id="lb-card" style="width:100%;max-width:780px;padding:0 64px;box-sizing:border-box;margin:auto;">
+    <div id="lb-card" style="width:100%;max-width:780px;padding:0 56px;box-sizing:border-box;margin:auto;">
       <div id="lb-map-area" class="relative h-[220px] bg-black/40 flex items-end justify-between p-4 gap-2">
         <div class="absolute inset-0 opacity-[0.06]" style="background-image:linear-gradient(rgba(232,222,208,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(232,222,208,.8) 1px,transparent 1px);background-size:30px 30px"></div>
         <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-full px-3 py-1" style="background:var(--accent)">
           <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
           <span id="lb-badge" class="text-[10px] font-bold tracking-[.2em] uppercase text-white"></span>
         </div>
-        <span id="lb-coords" class="z-10 text-[10px] tracking-[.12em] uppercase text-[#e8ded0]/25 font-mono"></span>
-        <a id="lb-map-link" href="#" target="_blank" class="z-10 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 bg-[#e8ded0]/[.08] border border-[#e8ded0]/20 text-[#e8ded0] text-[10px] font-bold tracking-[.18em] uppercase no-underline hover:bg-[#e8ded0]/[.15] transition-colors">Open in Maps ↗</a>
+        <span id="lb-coords" class="z-10 text-[9px] tracking-[.1em] uppercase text-[#e8ded0]/25 font-mono hidden sm:block"></span>
+        <a id="lb-map-link" href="#" target="_blank" class="z-10 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 bg-[#e8ded0]/[.08] border border-[#e8ded0]/20 text-[#e8ded0] text-[10px] font-bold tracking-[.18em] uppercase no-underline hover:bg-[#e8ded0]/[.15] transition-colors">Maps ↗</a>
       </div>
       <div class="h-[3px] w-full" style="background:var(--accent)"></div>
-      <div class="px-6 pt-5">
-        <div class="flex items-center gap-2 mb-3">
+      <div class="px-4 sm:px-6 pt-4 sm:pt-5">
+        <div class="flex items-center gap-2 mb-3 flex-wrap">
           <span id="lb-type" class="text-[9px] font-bold tracking-[.22em] uppercase px-2.5 py-0.5 rounded-sm text-white" style="background:var(--accent)"></span>
           <span id="lb-open-status" class="inline-flex items-center gap-1 text-[9px] font-bold tracking-[.16em] uppercase text-green-400 bg-green-400/10 border border-green-400/20 rounded-sm px-2.5 py-0.5">
             <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>Open now
           </span>
         </div>
-        <h2 id="lb-title" class="font-['Cormorant_Garamond'] font-light text-[2rem] leading-none text-[#e8ded0] mb-1"></h2>
+        <h2 id="lb-title" class="font-['Cormorant_Garamond'] font-light text-[1.6rem] sm:text-[2rem] leading-none text-[#e8ded0] mb-1"></h2>
         <p id="lb-meta" class="text-[10px] tracking-[.18em] uppercase text-[#e8ded0]/35 mb-3"></p>
         <p id="lb-desc" class="text-[13px] text-[#e8ded0]/60 leading-relaxed mb-4"></p>
-        <div id="lb-tags" class="flex flex-wrap gap-1.5 mb-5"></div>
+        <div id="lb-tags" class="flex flex-wrap gap-1.5 mb-4 sm:mb-5"></div>
       </div>
-      <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-6 py-4">
+      <div class="border-t border-[#e8ded0]/[.08] bg-black/15 px-4 sm:px-6 py-4">
         <p class="text-[9px] font-bold tracking-[.24em] uppercase text-[#e8ded0]/35 mb-3">Hours</p>
         <div id="lb-hours" class="grid grid-cols-2 gap-x-4 gap-y-0"></div>
       </div>
-      <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-6 py-4">
-        <p id="lb-addr-text" class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed"></p>
-        <button id="lb-like-btn" onclick="toggleLikeById()" class="flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#e8ded0]/15 bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px] tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors cursor-pointer">
+      <div class="flex items-center justify-between border-t border-[#e8ded0]/[.08] px-4 sm:px-6 py-4 gap-3">
+        <p id="lb-addr-text" class="text-[10px] text-[#e8ded0]/30 tracking-wide leading-relaxed flex-1 min-w-0"></p>
+        <button id="lb-like-btn" onclick="toggleLikeById()" class="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-sm border border-[#e8ded0]/15 bg-[#e8ded0]/[.06] text-[#e8ded0] font-bold text-[11px] tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors cursor-pointer flex-shrink-0" style="-webkit-tap-highlight-color:transparent;">
           <span id="lb-heart">♡</span><span id="lb-like-count">0</span>
           <span class="text-[8px] opacity-50 tracking-[.15em]">likes</span>
         </button>
       </div>
-      <button id="lb-delete-btn" onclick="openDeleteModal()" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">Remove location</button>
+      <div class="px-4 sm:px-6 pb-4">
+        <button id="lb-delete-btn" onclick="openDeleteModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">Remove location</button>
+      </div>
     </div>
   </div>
-  <div id="lb-dots" style="display:flex;gap:8px;margin-top:28px;"></div>
+  <div id="lb-dots" style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;justify-content:center;padding:0 60px;"></div>
 </div>
 
-<!-- ADD LOCATION MODAL -->
+<!-- ── ADD LOCATION MODAL ── -->
 <div id="add-modal" onclick="if(event.target===this)closeAddModal()" style="
   display:none; position:fixed; inset:0; z-index:500;
   background:rgba(0,0,0,0.7); backdrop-filter:blur(16px);
-  align-items:center; justify-content:center; padding:20px;
+  align-items:flex-end; justify-content:center; padding:0;
 ">
+  <!-- On md+: centered card. On mobile: sheet from bottom -->
   <div style="
     width:100%; max-width:520px; max-height:92vh;
     background:linear-gradient(145deg,#1a1410 0%,#120e0a 100%);
     border:1px solid rgba(232,222,208,0.12);
-    border-radius:24px; overflow:hidden;
+    border-radius:24px 24px 0 0;
+    overflow:hidden;
     display:flex; flex-direction:column;
     box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,222,208,0.05);
-  " onclick="event.stopPropagation()">
+  " onclick="event.stopPropagation()" id="add-modal-inner">
 
-    <!-- Header with accent bar -->
+    <!-- Drag handle (mobile UX hint) -->
+    <div style="display:flex;justify-content:center;padding:10px 0 0;flex-shrink:0;">
+      <div style="width:36px;height:3px;border-radius:999px;background:rgba(232,222,208,0.15);"></div>
+    </div>
+
+    <!-- Header -->
     <div style="position:relative; overflow:hidden; flex-shrink:0;">
       <div style="height:3px; background:linear-gradient(90deg, var(--accent), transparent);"></div>
-      <div style="padding:22px 26px 18px; display:flex; align-items:flex-start; justify-content:space-between;">
+      <div style="padding:18px 22px 14px; display:flex; align-items:flex-start; justify-content:space-between;">
         <div>
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
             <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
             <p style="font-size:0.5rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.3);">{{ borough.name | capitalize }}</p>
           </div>
-          <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;color:#e8ded0;line-height:1.1;">Add a Hidden Gem</h2>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:#e8ded0;line-height:1.1;">Add a Hidden Gem</h2>
         </div>
         <button onclick="closeAddModal()" style="
           width:32px;height:32px;border-radius:50%;flex-shrink:0;margin-top:4px;
           background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);
           color:rgba(232,222,208,0.4);cursor:pointer;font-size:0.9rem;
-          display:flex;align-items:center;justify-content:center;
-          transition:all 0.2s;
-        " onmouseover="this.style.background='rgba(232,222,208,0.12)';this.style.color='#e8ded0'"
-           onmouseout="this.style.background='rgba(232,222,208,0.06)';this.style.color='rgba(232,222,208,0.4)'">✕</button>
+          display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+          -webkit-tap-highlight-color:transparent;
+        ">✕</button>
       </div>
     </div>
 
-    <!-- Step indicator -->
-    <div style="padding:0 26px 16px; display:flex; gap:6px; flex-shrink:0;" id="step-indicators">
+    <!-- Step indicators -->
+    <div style="padding:0 22px 14px; display:flex; gap:6px; flex-shrink:0;" id="step-indicators">
       <div class="step-dot active" data-step="0" style="flex:1;height:2px;border-radius:999px;background:var(--accent);transition:background 0.3s;"></div>
       <div class="step-dot" data-step="1" style="flex:1;height:2px;border-radius:999px;background:rgba(232,222,208,0.15);transition:background 0.3s;"></div>
       <div class="step-dot" data-step="2" style="flex:1;height:2px;border-radius:999px;background:rgba(232,222,208,0.15);transition:background 0.3s;"></div>
@@ -332,13 +432,12 @@
     <!-- Form -->
     <form id="add-location-form" method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add" enctype="multipart/form-data" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
 
-      <div style="flex:1;overflow-y:auto;padding:0 26px;">
+      <div style="flex:1;overflow-y:auto;padding:0 22px;-webkit-overflow-scrolling:touch;">
 
-        <!-- STEP 1: Basic Info + Address Autocomplete -->
+        <!-- STEP 1 -->
         <div id="step-0" class="form-step">
           <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);margin-bottom:18px;">Step 1 — Basic Info</p>
 
-          <!-- Location Name -->
           <div style="margin-bottom:16px;">
             <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Location Name <span style="color:var(--accent);">*</span></label>
             <input type="text" name="name" required placeholder="e.g. Domino Park" id="input-name" style="
@@ -349,7 +448,6 @@
                onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
           </div>
 
-          <!-- Address with autocomplete -->
           <div style="margin-bottom:8px;">
             <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Address <span style="color:var(--accent);">*</span></label>
             <div style="position:relative;">
@@ -359,28 +457,24 @@
                 onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)';showSuggestions()"
                 onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)';setTimeout(hideSuggestions,200)"
                 style="width:100%;padding:12px 40px 12px 16px;border-radius:12px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:#e8ded0;font-size:0.9rem;font-family:inherit;outline:none;transition:all 0.2s;">
-
-              <!-- Loading spinner -->
               <div id="addr-spinner" style="display:none;position:absolute;right:14px;top:50%;transform:translateY(-50%);">
                 <div style="width:14px;height:14px;border:2px solid rgba(232,222,208,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;"></div>
               </div>
-
-              <!-- Suggestions dropdown -->
               <div id="addr-suggestions" style="
                 display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:999;
                 background:#1a1410;border:1px solid rgba(232,222,208,0.12);border-radius:14px;
                 overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.5);
+                max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;
               "></div>
             </div>
           </div>
 
-          <!-- AI enrichment card -->
           <div id="addr-enrichment-card" style="display:none;margin-bottom:16px;border-radius:14px;overflow:hidden;border:1px solid rgba(232,222,208,0.1);">
             <div id="addr-card-inner" style="padding:16px 18px;background:linear-gradient(135deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));position:relative;">
               <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-                <div style="flex:1;">
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
                     <div id="addr-type-badge" style="font-size:0.45rem;letter-spacing:0.2em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--accent);color:#fff;opacity:0.85;"></div>
                     <div style="font-size:0.45rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.3);display:flex;align-items:center;gap:3px;">
                       <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
@@ -400,7 +494,12 @@
             </div>
           </div>
 
-          <!-- Description -->
+          <!-- hidden fields -->
+          <input type="hidden" name="latitude"     id="hidden-lat">
+          <input type="hidden" name="longitude"    id="hidden-lng">
+          <input type="hidden" name="photo_url"    id="hidden-photo-url">
+          <input type="hidden" name="neighborhood" id="hidden-neighborhood">
+
           <div style="margin-bottom:20px;">
             <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Description</label>
             <textarea name="description" id="input-description" placeholder="What makes this place special?" rows="3" style="
@@ -415,15 +514,13 @@
         <!-- STEP 2: Photo -->
         <div id="step-1" class="form-step" style="display:none;">
           <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);margin-bottom:18px;">Step 2 — Photo</p>
-
           <label id="photo-drop-zone" style="
             display:flex;flex-direction:column;align-items:center;justify-content:center;
-            gap:12px;padding:40px 20px;border-radius:16px;cursor:pointer;
+            gap:12px;padding:36px 20px;border-radius:16px;cursor:pointer;
             border:2px dashed rgba(232,222,208,0.15);
             background:rgba(232,222,208,0.03);
             transition:all 0.2s;text-align:center;margin-bottom:16px;
-          " onmouseover="this.style.borderColor='rgba(232,222,208,0.3)';this.style.background='rgba(232,222,208,0.06)'"
-             onmouseout="this.style.borderColor='rgba(232,222,208,0.15)';this.style.background='rgba(232,222,208,0.03)'">
+          ">
             <div id="photo-preview-wrap" style="display:none;width:100%;border-radius:10px;overflow:hidden;max-height:180px;">
               <img id="photo-preview-img" src="" style="width:100%;height:180px;object-fit:cover;display:block;">
             </div>
@@ -431,19 +528,17 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="margin:0 auto 8px;opacity:0.3;">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="#e8ded0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <p style="font-size:0.8rem;color:rgba(232,222,208,0.5);">Click to upload a photo</p>
+              <p style="font-size:0.8rem;color:rgba(232,222,208,0.5);">Tap to upload a photo</p>
               <p style="font-size:0.65rem;color:rgba(232,222,208,0.25);margin-top:4px;">PNG, JPG, GIF up to 10MB</p>
             </div>
-            <input type="file" name="image" accept="image/*" class="hidden" id="photo-input"
-              onchange="previewPhoto(this)">
+            <input type="file" name="image" accept="image/*" class="hidden" id="photo-input" onchange="previewPhoto(this)">
           </label>
-
           <p id="photo-filename" style="font-size:0.65rem;color:rgba(232,222,208,0.3);text-align:center;display:none;"></p>
         </div>
 
         <!-- STEP 3: Hours -->
         <div id="step-2" class="form-step" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
             <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);">Step 3 — Hours</p>
             <div id="hours-autofill-badge" style="display:none;font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(74,222,128,0.7);padding:3px 8px;border-radius:999px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15);">
               ✓ Auto-filled from Google
@@ -454,7 +549,7 @@
             <select id="hours-preset" style="
               flex:1;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
               color:rgba(232,222,208,0.5);padding:8px 12px;border-radius:10px;
-              font-size:0.75rem;font-family:inherit;outline:none;
+              font-size:0.75rem;font-family:inherit;outline:none;min-width:0;
             ">
               <option value="">Apply a preset…</option>
               <option value="9-5">Weekdays 9am–5pm</option>
@@ -462,39 +557,40 @@
               <option value="closed">Closed all week</option>
             </select>
             <button type="button" onclick="applyPreset()" style="
-              padding:8px 16px;border-radius:10px;
+              padding:8px 14px;border-radius:10px;
               background:var(--accent);border:none;
               color:white;font-size:0.7rem;font-family:inherit;
               cursor:pointer;white-space:nowrap;
               letter-spacing:0.1em;text-transform:uppercase;
-              transition:opacity 0.2s;
-            " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Apply</button>
+              transition:opacity 0.2s;flex-shrink:0;
+            ">Apply</button>
           </div>
 
           <div style="display:flex;flex-direction:column;gap:2px;border-radius:14px;overflow:hidden;border:1px solid rgba(232,222,208,0.08);">
             {% set days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
             {% for d in days %}
-            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(232,222,208,0.03);border-bottom:1px solid rgba(232,222,208,0.05);">
-              <span style="width:28px;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(232,222,208,0.35);flex-shrink:0;">{{ d }}</span>
-              <div id="hours-row-{{ d }}" style="display:flex;align-items:center;gap:6px;flex:1;">
+            <div style="padding:10px 12px;background:rgba(232,222,208,0.03);border-bottom:1px solid rgba(232,222,208,0.05);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(232,222,208,0.35);">{{ d }}</span>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+                  <input type="checkbox" name="hours_{{ d }}_closed" style="accent-color:var(--accent);width:14px;height:14px;" onchange="toggleClosed('{{ d }}')">
+                  <span style="font-size:0.6rem;color:rgba(232,222,208,0.25);">Closed</span>
+                </label>
+              </div>
+              <!-- hours-row-inner: stacks on mobile via .hours-row-inner CSS rule above -->
+              <div id="hours-row-{{ d }}" class="hours-row-inner" style="display:flex;align-items:center;gap:6px;">
                 <input type="time" name="hours_{{ d }}_open" style="
                   flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.1);
-                  border-radius:8px;padding:6px 8px;color:rgba(232,222,208,0.7);
-                  font-size:0.75rem;font-family:inherit;outline:none;min-width:0;
-                  color-scheme:dark;
+                  border-radius:8px;padding:7px 8px;color:rgba(232,222,208,0.7);
+                  font-size:0.8rem;font-family:inherit;outline:none;min-width:0;color-scheme:dark;
                 ">
-                <span style="color:rgba(232,222,208,0.2);font-size:0.7rem;">–</span>
+                <span style="color:rgba(232,222,208,0.2);font-size:0.7rem;flex-shrink:0;">–</span>
                 <input type="time" name="hours_{{ d }}_close" style="
                   flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.1);
-                  border-radius:8px;padding:6px 8px;color:rgba(232,222,208,0.7);
-                  font-size:0.75rem;font-family:inherit;outline:none;min-width:0;
-                  color-scheme:dark;
+                  border-radius:8px;padding:7px 8px;color:rgba(232,222,208,0.7);
+                  font-size:0.8rem;font-family:inherit;outline:none;min-width:0;color-scheme:dark;
                 ">
               </div>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;">
-                <input type="checkbox" name="hours_{{ d }}_closed" style="accent-color:var(--accent);width:12px;height:12px;" onchange="toggleClosed('{{ d }}')">
-                <span style="font-size:0.6rem;color:rgba(232,222,208,0.25);">Closed</span>
-              </label>
             </div>
             {% endfor %}
           </div>
@@ -503,65 +599,62 @@
       </div>
 
       <!-- Footer navigation -->
-      <div style="padding:16px 26px;border-top:1px solid rgba(232,222,208,0.06);display:flex;gap:10px;flex-shrink:0;background:rgba(0,0,0,0.2);">
+      <div style="padding:14px 22px;border-top:1px solid rgba(232,222,208,0.06);display:flex;gap:10px;flex-shrink:0;background:rgba(0,0,0,0.2);">
         <button type="button" id="step-back-btn" onclick="modalStep(-1)" style="
-          display:none;padding:11px 20px;border-radius:12px;
+          display:none;padding:12px 18px;border-radius:12px;
           background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);
           color:rgba(232,222,208,0.5);font-size:0.7rem;font-family:inherit;
           cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;
-          transition:all 0.2s;
-        " onmouseover="this.style.color='#e8ded0'" onmouseout="this.style.color='rgba(232,222,208,0.5)'">← Back</button>
+          transition:all 0.2s;-webkit-tap-highlight-color:transparent;
+        ">← Back</button>
 
         <button type="button" id="step-next-btn" onclick="modalStep(1)" style="
-          flex:1;padding:12px;border-radius:12px;
+          flex:1;padding:14px;border-radius:12px;
           background:var(--accent);border:none;
-          color:white;font-size:0.75rem;font-family:inherit;
+          color:white;font-size:0.8rem;font-family:inherit;
           cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;
-          transition:opacity 0.2s, transform 0.15s;
-        " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'"
-           onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
-          Continue →
-        </button>
+          transition:opacity 0.2s, transform 0.15s;-webkit-tap-highlight-color:transparent;
+        ">Continue →</button>
 
         <button type="submit" form="add-location-form" id="step-submit-btn" style="
-          display:none;flex:1;padding:12px;border-radius:12px;
+          display:none;flex:1;padding:14px;border-radius:12px;
           background:var(--accent);border:none;
-          color:white;font-size:0.75rem;font-family:inherit;
+          color:white;font-size:0.8rem;font-family:inherit;
           cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;
-          transition:opacity 0.2s, transform 0.15s;
-        " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-          Post Location ✦
-        </button>
+          transition:opacity 0.2s, transform 0.15s;-webkit-tap-highlight-color:transparent;
+        ">Post Location ✦</button>
       </div>
 
     </form>
   </div>
 </div>
 
+<!-- ── Delete Modal ── -->
 <div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;">
-  <div style="background:#111;border:1px solid rgba(232,222,208,0.12);border-radius:20px;padding:32px 28px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;">
+  <div style="background:#111;border:1px solid rgba(232,222,208,0.12);border-radius:20px;padding:28px 24px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;">
     <div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 4h4M3 6h14M5 6l1 10a2 2 0 002 2h4a2 2 0 002-2l1-10" stroke="rgba(239,68,68,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <p class="serif" style="font-size:1.4rem;font-weight:300;color:#e8ded0;margin-bottom:8px;text-align:center;line-height:1.2;">Remove this location?</p>
-    <p style="font-size:0.75rem;color:rgba(232,222,208,0.4);text-align:center;line-height:1.6;margin-bottom:28px;">This can't be undone. The location and all its data will be permanently deleted.</p>
+    <p style="font-size:0.75rem;color:rgba(232,222,208,0.4);text-align:center;line-height:1.6;margin-bottom:24px;">This can't be undone. The location and all its data will be permanently deleted.</p>
     <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
-      <button id="delete-confirm-btn" style="width:100%;padding:11px;border-radius:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:rgb(239,68,68);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Yes, remove it</button>
-      <button onclick="closeDeleteModal()" style="width:100%;padding:11px;border-radius:10px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.5);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Cancel</button>
+      <button id="delete-confirm-btn" style="width:100%;padding:13px;border-radius:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:rgb(239,68,68);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Yes, remove it</button>
+      <button onclick="closeDeleteModal()" style="width:100%;padding:13px;border-radius:10px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.5);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;font-family:inherit;">Cancel</button>
     </div>
   </div>
 </div>
 
-<div id="borough-switcher" style="position:fixed;bottom:24px;left:32px;z-index:50;">
+<!-- ── Borough Switcher ── -->
+<div id="borough-switcher" style="position:fixed;bottom:24px;left:16px;z-index:50;">
   <button onclick="toggleSwitcher()"
-    style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(0,0,0,0.35);border:1px solid rgba(232,222,208,0.15);color:rgba(232,222,208,0.5);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-family:inherit;"
+    style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(0,0,0,0.35);border:1px solid rgba(232,222,208,0.15);color:rgba(232,222,208,0.5);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-family:inherit;-webkit-tap-highlight-color:transparent;"
     onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.3)'"
     onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.15)'">
     <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
     {{ borough.name }}
     <span id="switcher-arrow" style="transition:transform 0.25s;opacity:0.4;">▴</span>
   </button>
-  <div id="switcher-menu" style="position:absolute;bottom:calc(100% + 8px);left:0;background:rgba(10,10,10,0.85);border:1px solid rgba(232,222,208,0.1);border-radius:14px;overflow:hidden;backdrop-filter:blur(12px);min-width:160px;transform-origin:bottom left;transform:scale(0.92) translateY(6px);opacity:0;pointer-events:none;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);">
+  <div id="switcher-menu" style="position:absolute;bottom:calc(100% + 8px);left:0;background:rgba(10,10,10,0.92);border:1px solid rgba(232,222,208,0.1);border-radius:14px;overflow:hidden;backdrop-filter:blur(12px);min-width:160px;transform-origin:bottom left;transform:scale(0.92) translateY(6px);opacity:0;pointer-events:none;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);">
     {% set all_boroughs = [
       {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
       {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
@@ -571,7 +664,7 @@
     ] %}
     {% for b in all_boroughs %}
     <a href="/borough/{{ b.name | replace(' ', '-') }}"
-       style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;transition:background 0.15s;color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
+       style="display:flex;align-items:center;gap:10px;padding:12px 16px;text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;transition:background 0.15s;color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
        onmouseover="this.style.background='rgba(232,222,208,0.08)';this.style.color='#e8ded0'"
        onmouseout="this.style.background='{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }}';this.style.color='{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }}'">
       <span style="width:4px;height:4px;border-radius:50%;flex-shrink:0;background:{{ 'var(--accent)' if b.name == borough.name else 'rgba(232,222,208,0.2)' }};"></span>
@@ -584,6 +677,13 @@
 
 <script>
   const locations = {{ locations_json | safe }};
+
+  // ── Responsive carousel config ──
+  function getVisibleCount() {
+    if (window.innerWidth < 640)  return 1;
+    if (window.innerWidth < 768)  return 2;
+    return 3;
+  }
 
   async function toggleLike(btn) {
     const id = btn.dataset.id, borough = btn.dataset.borough;
@@ -617,23 +717,25 @@
     if (btn) { btn.dataset.liked = data.liked ? 'true' : 'false'; btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡'; btn.querySelector('.like-count').textContent = data.count; btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)'; }
   }
 
+  // ── Featured carousel ──
   let featIndex = 0;
   const featTotal = locations.length;
-  const VISIBLE = 3;
 
   function buildFeatDots() {
+    const VISIBLE = getVisibleCount();
     const dotsEl = document.getElementById('feat-dots'); if (!dotsEl) return;
     dotsEl.innerHTML = '';
     const pages = Math.max(1, featTotal - VISIBLE + 1);
     for (let i = 0; i < pages; i++) {
       const d = document.createElement('div');
-      d.style.cssText = `width:5px;height:5px;border-radius:50%;cursor:pointer;background:${i===featIndex?'var(--accent)':'rgba(232,222,208,0.2)'};transition:background 0.2s;`;
+      d.style.cssText = `width:6px;height:6px;border-radius:50%;cursor:pointer;background:${i===featIndex?'var(--accent)':'rgba(232,222,208,0.2)'};transition:background 0.2s;`;
       d.onclick = () => { featIndex = i; updateFeatSlide(); };
       dotsEl.appendChild(d);
     }
   }
 
   function updateFeatSlide() {
+    const VISIBLE = getVisibleCount();
     const track = document.getElementById('feat-track'); if (!track) return;
     track.style.transform = `translateX(-${(100/VISIBLE)*featIndex}%)`;
     const maxIndex = Math.max(0, featTotal - VISIBLE);
@@ -643,12 +745,47 @@
   }
 
   function featStep(dir) {
+    const VISIBLE = getVisibleCount();
     featIndex = Math.max(0, Math.min(featIndex + dir, Math.max(0, featTotal - VISIBLE)));
     updateFeatSlide();
   }
 
+  // Reset carousel on resize so it snaps to correct position
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      featIndex = 0;
+      updateFeatSlide();
+    }, 150);
+  });
+
   window.addEventListener('load', () => { buildFeatDots(); updateFeatSlide(); });
 
+  // ── Touch swipe support for featured carousel ──
+  (function() {
+    let touchStartX = 0;
+    const overflow = document.getElementById('feat-overflow');
+    if (!overflow) return;
+    overflow.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    overflow.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) featStep(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  })();
+
+  // ── Touch swipe for lightbox ──
+  (function() {
+    let touchStartX = 0;
+    const lb = document.getElementById('lightbox');
+    lb.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) lbStep(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  })();
+
+  // ── Lightbox ──
   let lbIndex = 0;
   const lbTotal = locations.length;
   let lbAnimating = false;
@@ -774,16 +911,25 @@
     else alert("Failed to delete location.");
   }
 
-
-
-  // Multi-step modal
+  // ── Multi-step modal ──
   let currentStep = 0;
   const totalSteps = 3;
 
   function openModal() {
     currentStep = 0;
     renderModalStep();
-    document.getElementById('add-modal').style.display = 'flex';
+    const modal = document.getElementById('add-modal');
+    modal.style.display = 'flex';
+    // On desktop: center vertically
+    if (window.innerWidth >= 640) {
+      modal.style.alignItems = 'center';
+      modal.style.padding = '20px';
+      document.getElementById('add-modal-inner').style.borderRadius = '24px';
+    } else {
+      modal.style.alignItems = 'flex-end';
+      modal.style.padding = '0';
+      document.getElementById('add-modal-inner').style.borderRadius = '20px 20px 0 0';
+    }
     document.body.style.overflow = 'hidden';
   }
 
@@ -810,7 +956,6 @@
     document.querySelectorAll('.form-step').forEach((el, i) => {
       el.style.display = i === currentStep ? 'block' : 'none';
     });
-    // Show auto-fill badge on hours step
     const hoursBadge = document.getElementById('hours-autofill-badge');
     if (hoursBadge) hoursBadge.style.display = (currentStep === 2 && window._hoursAutoFilled) ? 'block' : 'none';
     document.querySelectorAll('.step-dot').forEach((dot, i) => {
@@ -825,8 +970,7 @@
   }
 
   function previewPhoto(input) {
-    const file = input.files[0];
-    if (!file) return;
+    const file = input.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = e => {
       document.getElementById('photo-preview-img').src = e.target.result;
@@ -838,7 +982,10 @@
     reader.readAsDataURL(file);
   }
 
-  function toggleClosed(day) { const row=document.getElementById(`hours-row-${day}`), cb=document.querySelector(`input[name="hours_${day}_closed"]`); row.style.display=cb.checked?'none':'flex'; }
+  function toggleClosed(day) {
+    const row=document.getElementById(`hours-row-${day}`), cb=document.querySelector(`input[name="hours_${day}_closed"]`);
+    row.style.display=cb.checked?'none':'flex';
+  }
   function applyPreset() {
     const preset=document.getElementById("hours-preset").value, days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
     days.forEach(d=>{
@@ -849,6 +996,7 @@
     });
   }
 
+  // ── Chat ──
   const USERNAME  = '{{ current_user.name }}';
   const CHAT_ROOM = '{{ borough.name | replace(" ", "-") }}';
   const socket    = io();
@@ -878,7 +1026,7 @@
     } else {
       div.innerHTML=`
         ${!isMe?`<p style="font-size:0.6rem;color:rgba(232,222,208,0.4);margin-bottom:3px;padding-left:4px;">${data.user}</p>`:''}
-        <div style="max-width:65%;padding:10px 14px;border-radius:${isMe?'18px 18px 4px 18px':'18px 18px 18px 4px'};background:${isMe?'var(--accent)':'rgba(232,222,208,0.1)'};color:#e8ded0;font-size:0.82rem;line-height:1.5;word-break:break-word;">${data.text}</div>
+        <div style="max-width:75%;padding:10px 14px;border-radius:${isMe?'18px 18px 4px 18px':'18px 18px 18px 4px'};background:${isMe?'var(--accent)':'rgba(232,222,208,0.1)'};color:#e8ded0;font-size:0.82rem;line-height:1.5;word-break:break-word;">${data.text}</div>
         <p style="font-size:0.55rem;color:rgba(232,222,208,0.2);margin-top:3px;padding:0 4px;">${time}</p>`;
     }
     wrap.appendChild(div);
@@ -897,7 +1045,6 @@
   let addrDebounce = null;
   let addrSelected = false;
 
-  // Define callback before loading script
   window.initPlaces = function() {
     window._placesReady = true;
     window._placesService = new google.maps.places.AutocompleteService();
@@ -905,7 +1052,6 @@
     window._sessionToken   = new google.maps.places.AutocompleteSessionToken();
   };
 
-  // Load Google Maps JS API
   if (GOOGLE_API_KEY && !window._gplacesLoaded) {
     window._gplacesLoaded = true;
     const s = document.createElement('script');
@@ -916,9 +1062,7 @@
   }
 
   function onAddressInput(val) {
-    addrSelected = false;
-    hideEnrichmentCard();
-    clearTimeout(addrDebounce);
+    addrSelected = false; hideEnrichmentCard(); clearTimeout(addrDebounce);
     if (!val || val.length < 2) { hideSuggestions(); return; }
     document.getElementById('addr-spinner').style.display = 'block';
     addrDebounce = setTimeout(() => fetchSuggestions(val), 300);
@@ -938,44 +1082,32 @@
               placeId: p.place_id,
               source: 'google'
             })));
-          } else {
-            claudeSuggestions(val);
-          }
+          } else { claudeSuggestions(val); }
         }
       );
-    } else {
-      claudeSuggestions(val);
-    }
+    } else { claudeSuggestions(val); }
   }
 
   async function claudeSuggestions(val) {
     try {
-      const res = await fetch('/api/address-suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: val })
-      });
+      const res = await fetch('/api/address-suggest', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query:val}) });
       const parsed = await res.json();
       document.getElementById('addr-spinner').style.display = 'none';
-      renderSuggestions((parsed||[]).map(p => ({ ...p, source: 'claude' })));
-    } catch {
-      document.getElementById('addr-spinner').style.display = 'none';
-      hideSuggestions();
-    }
+      renderSuggestions((parsed||[]).map(p => ({...p, source:'claude'})));
+    } catch { document.getElementById('addr-spinner').style.display='none'; hideSuggestions(); }
   }
 
   function renderSuggestions(items) {
     const box = document.getElementById('addr-suggestions');
     if (!items.length) { hideSuggestions(); return; }
     box.innerHTML = items.map((s, i) => `
-      <button type="button" onclick="selectAddress(${i})"
-        data-index="${i}"
-        style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;
+      <button type="button" onclick="selectAddress(${i})" data-index="${i}"
+        style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;
                background:none;border:none;border-bottom:1px solid rgba(232,222,208,0.06);
                color:#e8ded0;cursor:pointer;text-align:left;transition:background 0.15s;"
         onmouseover="this.style.background='rgba(232,222,208,0.05)'"
         onmouseout="this.style.background='none'">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(232,222,208,0.3)" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(232,222,208,0.3)" stroke-width="2" style="flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
         <div style="flex:1;min-width:0;">
           <div style="font-size:0.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.label}</div>
           <div style="font-size:0.65rem;color:rgba(232,222,208,0.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.sub||''}</div>
@@ -991,269 +1123,126 @@
     showSuggestions();
   }
 
-  function showSuggestions() {
-    const box = document.getElementById('addr-suggestions');
-    if (box.innerHTML) box.style.display = 'block';
-  }
-  function hideSuggestions() {
-    document.getElementById('addr-suggestions').style.display = 'none';
-  }
+  function showSuggestions() { const box=document.getElementById('addr-suggestions'); if(box.innerHTML) box.style.display='block'; }
+  function hideSuggestions() { document.getElementById('addr-suggestions').style.display='none'; }
 
   async function selectAddress(index) {
-    const items = JSON.parse(document.getElementById('addr-suggestions').dataset.items || '[]');
-    const item = items[index]; if (!item) return;
-    hideSuggestions();
-    addrSelected = true;
-
-    const input = document.getElementById('input-address');
-    input.value = item.full || item.label;
-
+    const items = JSON.parse(document.getElementById('addr-suggestions').dataset.items||'[]');
+    const item = items[index]; if(!item) return;
+    hideSuggestions(); addrSelected=true;
+    document.getElementById('input-address').value = item.full||item.label;
     if (item.placeId && window._placesReady) {
-      document.getElementById('addr-spinner').style.display = 'block';
-
-      // Use Places Details to get everything
-      const service = new google.maps.places.PlacesService(document.createElement('div'));
-      service.getDetails({
-        placeId: item.placeId,
-        fields: [
-          'name', 'formatted_address', 'geometry',
-          'opening_hours', 'photos', 'rating',
-          'editorial_summary', 'types', 'vicinity',
-          'website', 'formatted_phone_number'
-        ],
-        sessionToken: window._sessionToken
-      }, (place, status) => {
-        document.getElementById('addr-spinner').style.display = 'none';
-        window._sessionToken = new google.maps.places.AutocompleteSessionToken();
-
-        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-          autoFillFromPlace(place);
-        }
-      });
-    } else if (item.lat) {
-      await enrichAndShow({ lat: item.lat, lng: item.lng, formatted: item.full });
-    } else {
-      await enrichAndShow({ lat: null, lng: null, formatted: item.full });
-    }
+      document.getElementById('addr-spinner').style.display='block';
+      const service=new google.maps.places.PlacesService(document.createElement('div'));
+      service.getDetails({ placeId:item.placeId, fields:['name','formatted_address','geometry','opening_hours','photos','rating','editorial_summary','types','vicinity','website','formatted_phone_number'], sessionToken:window._sessionToken },
+        (place,status)=>{
+          document.getElementById('addr-spinner').style.display='none';
+          window._sessionToken=new google.maps.places.AutocompleteSessionToken();
+          if(status===google.maps.places.PlacesServiceStatus.OK&&place) autoFillFromPlace(place);
+        });
+    } else if(item.lat) { await enrichAndShow({lat:item.lat,lng:item.lng,formatted:item.full}); }
+    else { await enrichAndShow({lat:null,lng:null,formatted:item.full}); }
   }
 
   function autoFillFromPlace(place) {
-    // Fill address
-    document.getElementById('input-address').value = place.formatted_address || place.vicinity || '';
-
-    // Fill name if empty
-    const nameEl = document.getElementById('input-name');
-    if (nameEl && !nameEl.value && place.name) nameEl.value = place.name;
-
-    // Fill description
-    const descEl = document.getElementById('input-description');
-    if (descEl && !descEl.value) {
-      descEl.value = place.editorial_summary?.overview || '';
-    }
-
-    // Fill hidden lat/lng
-    if (place.geometry?.location) {
-      document.getElementById('hidden-lat').value = place.geometry.location.lat();
-      document.getElementById('hidden-lng').value = place.geometry.location.lng();
-    }
-
-    // Fill hours from Google — always show all rows, just fill the times
-    if (place.opening_hours?.periods) {
-      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-      // First reset all days to closed
-      ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => {
-        const cb = document.querySelector(`input[name="hours_${d}_closed"]`);
-        const row = document.getElementById(`hours-row-${d}`);
-        if (cb) cb.checked = true;
-        if (row) row.style.display = 'none';
+    document.getElementById('input-address').value = place.formatted_address||place.vicinity||'';
+    const nameEl=document.getElementById('input-name');
+    if(nameEl&&!nameEl.value&&place.name) nameEl.value=place.name;
+    const descEl=document.getElementById('input-description');
+    if(descEl&&!descEl.value) descEl.value=place.editorial_summary?.overview||'';
+    if(place.geometry?.location) { document.getElementById('hidden-lat').value=place.geometry.location.lat(); document.getElementById('hidden-lng').value=place.geometry.location.lng(); }
+    if(place.opening_hours?.periods) {
+      const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>{
+        const cb=document.querySelector(`input[name="hours_${d}_closed"]`), row=document.getElementById(`hours-row-${d}`);
+        if(cb) cb.checked=true; if(row) row.style.display='none';
       });
-
-      // Fill covered days
-      const coveredDays = [];
-      place.opening_hours.periods.forEach(period => {
-        const dayName = days[period.open.day];
-        coveredDays.push(dayName);
-        const openInput  = document.querySelector(`input[name="hours_${dayName}_open"]`);
-        const closeInput = document.querySelector(`input[name="hours_${dayName}_close"]`);
-        const closedCb   = document.querySelector(`input[name="hours_${dayName}_closed"]`);
-        const row        = document.getElementById(`hours-row-${dayName}`);
-
-        // Show the row
-        if (closedCb)   { closedCb.checked = false; }
-        if (row)        { row.style.display = 'flex'; }
-
-        if (period.close) {
-          const openH  = String(period.open.hours).padStart(2,'0');
-          const openM  = String(period.open.minutes||0).padStart(2,'0');
-          const closeH = String(period.close.hours).padStart(2,'0');
-          const closeM = String(period.close.minutes||0).padStart(2,'0');
-          if (openInput)  openInput.value  = `${openH}:${openM}`;
-          if (closeInput) closeInput.value = `${closeH}:${closeM}`;
-        } else {
-          if (openInput)  openInput.value  = '00:00';
-          if (closeInput) closeInput.value = '23:59';
-        }
+      place.opening_hours.periods.forEach(period=>{
+        const dayName=days[period.open.day];
+        const openInput=document.querySelector(`input[name="hours_${dayName}_open"]`), closeInput=document.querySelector(`input[name="hours_${dayName}_close"]`), closedCb=document.querySelector(`input[name="hours_${dayName}_closed"]`), row=document.getElementById(`hours-row-${dayName}`);
+        if(closedCb) closedCb.checked=false; if(row) row.style.display='flex';
+        if(period.close) {
+          const oh=String(period.open.hours).padStart(2,'0'), om=String(period.open.minutes||0).padStart(2,'0'), ch=String(period.close.hours).padStart(2,'0'), cm=String(period.close.minutes||0).padStart(2,'0');
+          if(openInput) openInput.value=`${oh}:${om}`; if(closeInput) closeInput.value=`${ch}:${cm}`;
+        } else { if(openInput) openInput.value='00:00'; if(closeInput) closeInput.value='23:59'; }
       });
-
-      // Show a hours-filled badge on step 3
-      window._hoursAutoFilled = true;
+      window._hoursAutoFilled=true;
     }
-
-    // Store photo reference for preview
-    if (place.photos && place.photos.length > 0) {
-      const photoUrl = place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 });
-      window._googlePhotoUrl = photoUrl;
-      document.getElementById('hidden-photo-url').value = photoUrl;
-      showPlaceCard(place, photoUrl);
-    } else {
-      showPlaceCard(place, null);
-    }
+    if(place.photos&&place.photos.length>0) {
+      const photoUrl=place.photos[0].getUrl({maxWidth:800,maxHeight:600});
+      window._googlePhotoUrl=photoUrl;
+      document.getElementById('hidden-photo-url').value=photoUrl;
+      showPlaceCard(place,photoUrl);
+    } else showPlaceCard(place,null);
   }
 
-  function showPlaceCard(place, photoUrl) {
-    const card = document.getElementById('addr-enrichment-card');
-    const inner = document.getElementById('addr-card-inner');
-
-    // Build type label
-    const typeMap = { restaurant:'Restaurant', cafe:'Café', park:'Park', museum:'Museum',
-      bar:'Bar', store:'Shop', lodging:'Hotel', school:'School',
-      hospital:'Hospital', church:'Church', gym:'Gym' };
-    const placeType = place.types?.find(t => typeMap[t]) || place.types?.[0] || 'location';
-    const typeLabel = typeMap[placeType] || placeType.replace(/_/g,' ');
-
-    document.getElementById('addr-type-badge').textContent = typeLabel;
-    document.getElementById('addr-street').textContent = place.name || '';
-    document.getElementById('addr-city').textContent = place.formatted_address || place.vicinity || '';
-    document.getElementById('addr-description').textContent = place.editorial_summary?.overview || '';
-
-    // Rating
-    const factEl = document.getElementById('addr-fun-fact');
-    if (place.rating) {
-      factEl.textContent = `⭐ ${place.rating} Google rating`;
-      factEl.style.display = 'block';
-    } else factEl.style.display = 'none';
-
-    // Coords
-    if (place.geometry?.location) {
-      const lat = place.geometry.location.lat(), lng = place.geometry.location.lng();
-      document.getElementById('addr-coords').innerHTML = `${lat.toFixed(4)}°N<br>${lng.toFixed(4)}°W`;
-      document.getElementById('addr-map-link').href = `https://www.google.com/maps/@${lat},${lng},17z`;
+  function showPlaceCard(place,photoUrl) {
+    const card=document.getElementById('addr-enrichment-card'), inner=document.getElementById('addr-card-inner');
+    const typeMap={restaurant:'Restaurant',cafe:'Café',park:'Park',museum:'Museum',bar:'Bar',store:'Shop',lodging:'Hotel',school:'School',hospital:'Hospital',church:'Church',gym:'Gym'};
+    const placeType=place.types?.find(t=>typeMap[t])||place.types?.[0]||'location', typeLabel=typeMap[placeType]||placeType.replace(/_/g,' ');
+    document.getElementById('addr-type-badge').textContent=typeLabel;
+    document.getElementById('addr-street').textContent=place.name||'';
+    document.getElementById('addr-city').textContent=place.formatted_address||place.vicinity||'';
+    document.getElementById('addr-description').textContent=place.editorial_summary?.overview||'';
+    const factEl=document.getElementById('addr-fun-fact');
+    if(place.rating){factEl.textContent=`⭐ ${place.rating} Google rating`;factEl.style.display='block';}else factEl.style.display='none';
+    if(place.geometry?.location){
+      const lat=place.geometry.location.lat(),lng=place.geometry.location.lng();
+      document.getElementById('addr-coords').innerHTML=`${lat.toFixed(4)}°N<br>${lng.toFixed(4)}°W`;
+      document.getElementById('addr-map-link').href=`https://www.google.com/maps/@${lat},${lng},17z`;
     }
-
-    // Photo preview in step 2
-    if (photoUrl) {
-      window._googlePhotoUrl = photoUrl;
-      // Show preview in photo step
-      const previewImg  = document.getElementById('photo-preview-img');
-      const previewWrap = document.getElementById('photo-preview-wrap');
-      const placeholder = document.getElementById('photo-placeholder');
-      if (previewImg) {
-        previewImg.src = photoUrl;
-        previewWrap.style.display = 'block';
-        placeholder.style.display = 'none';
-        document.getElementById('photo-filename').textContent = 'Photo from Google Places';
-        document.getElementById('photo-filename').style.display = 'block';
-      }
-      // Also show thumbnail in the card
-      inner.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.6)), url(${photoUrl})`;
-      inner.style.backgroundSize = 'cover';
-      inner.style.backgroundPosition = 'center';
+    if(photoUrl){
+      window._googlePhotoUrl=photoUrl;
+      const previewImg=document.getElementById('photo-preview-img'), previewWrap=document.getElementById('photo-preview-wrap'), placeholder=document.getElementById('photo-placeholder');
+      if(previewImg){previewImg.src=photoUrl;previewWrap.style.display='block';placeholder.style.display='none';document.getElementById('photo-filename').textContent='Photo from Google Places';document.getElementById('photo-filename').style.display='block';}
+      inner.style.backgroundImage=`linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.6)), url(${photoUrl})`;
+      inner.style.backgroundSize='cover'; inner.style.backgroundPosition='center';
     }
-
-    // Show card with animation
-    card.style.display = 'block';
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(8px)';
-    requestAnimationFrame(() => {
-      card.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)';
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-    });
-
-    // Show a "✓ auto-filled" indicator
+    card.style.display='block'; card.style.opacity='0'; card.style.transform='translateY(8px)';
+    requestAnimationFrame(()=>{ card.style.transition='opacity 0.4s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)'; card.style.opacity='1'; card.style.transform='translateY(0)'; });
     showAutoFillBadge();
   }
 
   function showAutoFillBadge() {
-    let badge = document.getElementById('autofill-badge');
-    if (!badge) {
-      badge = document.createElement('div');
-      badge.id = 'autofill-badge';
-      badge.style.cssText = `
-        display:inline-flex;align-items:center;gap:5px;
-        font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;
-        color:rgba(74,222,128,0.8);margin-bottom:12px;
-        padding:4px 10px;border-radius:999px;
-        background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);
-      `;
-      badge.innerHTML = `<span style="width:5px;height:5px;border-radius:50%;background:rgb(74,222,128);"></span> Auto-filled from Google`;
-      const step = document.getElementById('step-0');
-      step.insertBefore(badge, step.firstChild);
+    let badge=document.getElementById('autofill-badge');
+    if(!badge){
+      badge=document.createElement('div'); badge.id='autofill-badge';
+      badge.style.cssText='display:inline-flex;align-items:center;gap:5px;font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(74,222,128,0.8);margin-bottom:12px;padding:4px 10px;border-radius:999px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);';
+      badge.innerHTML='<span style="width:5px;height:5px;border-radius:50%;background:rgb(74,222,128);"></span> Auto-filled from Google';
+      const step=document.getElementById('step-0'); step.insertBefore(badge,step.firstChild);
     }
   }
 
   async function enrichAndShow(geo) {
-    document.getElementById('addr-spinner').style.display = 'block';
+    document.getElementById('addr-spinner').style.display='block';
     try {
-      const res = await fetch('/api/address-enrich', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: geo.formatted, lat: geo.lat, lng: geo.lng })
-      });
-      const info = await res.json();
-      showEnrichmentCard(geo, info);
-      const descEl = document.getElementById('input-description');
-      if (descEl && !descEl.value && info.description) {
-        descEl.value = info.description;
-        descEl.style.borderColor = 'rgba(232,222,208,0.25)';
-      }
-    } catch {
-      showEnrichmentCard(geo, {});
-    }
-    document.getElementById('addr-spinner').style.display = 'none';
+      const res=await fetch('/api/address-enrich',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:geo.formatted,lat:geo.lat,lng:geo.lng})});
+      const info=await res.json(); showEnrichmentCard(geo,info);
+      const descEl=document.getElementById('input-description');
+      if(descEl&&!descEl.value&&info.description){descEl.value=info.description;descEl.style.borderColor='rgba(232,222,208,0.25)';}
+    } catch { showEnrichmentCard(geo,{}); }
+    document.getElementById('addr-spinner').style.display='none';
   }
 
-  function showEnrichmentCard(geo, info) {
-    const card = document.getElementById('addr-enrichment-card');
-    const parts = (geo.formatted||'').split(',');
-
-    document.getElementById('addr-street').textContent = parts[0]||geo.formatted;
-    document.getElementById('addr-city').textContent = parts.slice(1).join(',').trim();
-    document.getElementById('addr-type-badge').textContent = info.type || 'Location';
-    document.getElementById('addr-description').textContent = info.description || '';
-
-    const factEl = document.getElementById('addr-fun-fact');
-    if (info.fun_fact) { factEl.textContent = '✦ ' + info.fun_fact; factEl.style.display = 'block'; }
-    else factEl.style.display = 'none';
-
-    // Populate hidden form fields
-    if (geo.lat) {
-      document.getElementById('hidden-lat').value  = geo.lat;
-      document.getElementById('hidden-lng').value  = geo.lng;
-      document.getElementById('addr-coords').innerHTML = `${geo.lat.toFixed(4)}°N<br>${geo.lng.toFixed(4)}°W`;
-      const mapLink = document.getElementById('addr-map-link');
-      mapLink.href = `https://www.google.com/maps/@${geo.lat},${geo.lng},17z`;
-    } else {
-      document.getElementById('addr-coords').textContent = '';
-    }
-    if (info.neighborhood) {
-      document.getElementById('hidden-neighborhood').value = info.neighborhood;
-    }
-
-    card.style.display = 'block';
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(8px)';
-    requestAnimationFrame(() => {
-      card.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)';
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-    });
+  function showEnrichmentCard(geo,info) {
+    const card=document.getElementById('addr-enrichment-card'), parts=(geo.formatted||'').split(',');
+    document.getElementById('addr-street').textContent=parts[0]||geo.formatted;
+    document.getElementById('addr-city').textContent=parts.slice(1).join(',').trim();
+    document.getElementById('addr-type-badge').textContent=info.type||'Location';
+    document.getElementById('addr-description').textContent=info.description||'';
+    const factEl=document.getElementById('addr-fun-fact');
+    if(info.fun_fact){factEl.textContent='✦ '+info.fun_fact;factEl.style.display='block';}else factEl.style.display='none';
+    if(geo.lat){
+      document.getElementById('hidden-lat').value=geo.lat; document.getElementById('hidden-lng').value=geo.lng;
+      document.getElementById('addr-coords').innerHTML=`${geo.lat.toFixed(4)}°N<br>${geo.lng.toFixed(4)}°W`;
+      document.getElementById('addr-map-link').href=`https://www.google.com/maps/@${geo.lat},${geo.lng},17z`;
+    } else document.getElementById('addr-coords').textContent='';
+    if(info.neighborhood) document.getElementById('hidden-neighborhood').value=info.neighborhood;
+    card.style.display='block'; card.style.opacity='0'; card.style.transform='translateY(8px)';
+    requestAnimationFrame(()=>{ card.style.transition='opacity 0.4s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)'; card.style.opacity='1'; card.style.transform='translateY(0)'; });
   }
 
-  function hideEnrichmentCard() {
-    document.getElementById('addr-enrichment-card').style.display = 'none';
-  }
+  function hideEnrichmentCard() { document.getElementById('addr-enrichment-card').style.display='none'; }
 
   let switcherOpen=false;
   function toggleSwitcher() {
@@ -1266,12 +1255,10 @@
   }
 
   document.addEventListener('click', e => {
-    if(switcherOpen && !document.getElementById('borough-switcher').contains(e.target)){
+    if(switcherOpen&&!document.getElementById('borough-switcher').contains(e.target)){
       switcherOpen=true; toggleSwitcher();
     }
   });
-
-
 </script>
 
 </body>
