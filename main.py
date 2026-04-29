@@ -24,7 +24,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 login_manager = LoginManager(app)
 login_manager.login_view = "/login"
 
-
+# ── USER ─────────────────────────────────────────────────────
 class User(UserMixin):
     def __init__(self, result):
         self.name            = result["Username"]
@@ -36,7 +36,7 @@ class User(UserMixin):
     def get_id(self):
         return str(self.id)
 
-
+# ── DB ───────────────────────────────────────────────────────
 def connect_db():
     return pymysql.connect(
         host="db.steamcenter.tech",
@@ -47,7 +47,7 @@ def connect_db():
         cursorclass=pymysql.cursors.DictCursor
     )
 
-
+# ── USER LOADER ──────────────────────────────────────────────
 @login_manager.user_loader
 def load_user(user_id):
     connection = connect_db()
@@ -59,15 +59,16 @@ def load_user(user_id):
         return None
     return User(result)
 
+# ── HELPERS ──────────────────────────────────────────────────
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
+# ── ERROR HANDLERS ───────────────────────────────────────────
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html.jinja"), 404
 
-
+# ── BOROUGHS ─────────────────────────────────────────────────
 BOROUGHS = [
     {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
     {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
@@ -76,7 +77,7 @@ BOROUGHS = [
     {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
 ]
 
-
+# ── ACHIEVEMENTS ─────────────────────────────────────────────
 ACHIEVEMENTS = [
     { "type": "first_post",   "image": "achievements/first_post.png",   "name": "First Gem",        "desc": "Posted your first location" },
     { "type": "post_50",      "image": "achievements/post_50.png",      "name": "Gem Appreciator",  "desc": "Posted 50 locations" },
@@ -132,7 +133,7 @@ def check_and_award(user_id, cursor):
 
     return new_achievements
 
-
+# ── ROUTES ───────────────────────────────────────────────────
 @app.route("/")
 def index():
     return render_template("homepage.html.jinja")
@@ -198,6 +199,9 @@ def borough_page(n):
         "Liked":       l["ID"] in liked_ids,
         "IsOwner":     l["UserID"] == current_user.id,
         "Hours":       (json.loads(l["Hours"]) if l.get("Hours") else []),
+        "Latitude":    float(l["Latitude"]) if l.get("Latitude") else None,
+        "Longitude":   float(l["Longitude"]) if l.get("Longitude") else None,
+        "Neighborhood": l.get("Neighborhood") or "",
     } for l in locations])
 
     return render_template(
@@ -284,20 +288,41 @@ def add_location(n):
     if not borough:
         abort(404)
 
-    loc_name    = request.form.get("name", "").strip()
-    address     = request.form.get("address", "").strip()
-    description = request.form.get("description", "").strip()
+    loc_name     = request.form.get("name", "").strip()
+    address      = request.form.get("address", "").strip()
+    description  = request.form.get("description", "").strip()
+    latitude     = request.form.get("latitude", "").strip() or None
+    longitude    = request.form.get("longitude", "").strip() or None
+    neighborhood = request.form.get("neighborhood", "").strip() or None
 
     if not loc_name or not address:
         flash("Please fill in the name and address")
         return redirect(f"/borough/{n}")
 
     image = request.files.get("image")
+    photo_url = request.form.get("photo_url", "").strip()
     filename = None
+
     if image and image.filename and allowed_file(image.filename):
+        # User uploaded their own image
         os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
         filename = str(uuid.uuid4()) + "_" + secure_filename(image.filename)
         image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+    elif photo_url and photo_url.startswith("http"):
+        # Download Google Places photo and save locally
+        try:
+            import requests as req_lib
+            resp = req_lib.get(photo_url, timeout=10)
+            if resp.status_code == 200:
+                os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+                ext = ".jpg"
+                ct = resp.headers.get("content-type", "")
+                if "png" in ct: ext = ".png"
+                filename = str(uuid.uuid4()) + "_google" + ext
+                with open(os.path.join(app.config["UPLOAD_FOLDER"], filename), "wb") as f:
+                    f.write(resp.content)
+        except Exception:
+            filename = None
 
     # Hours
     days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -312,9 +337,11 @@ def add_location(n):
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("""
-        INSERT INTO `Location` (UserID, Name, Address, Description, Borough, Image, Hours)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """, (current_user.id, loc_name, address, description, borough_name, filename, hours_json))
+        INSERT INTO `Location`
+        (UserID, Name, Address, Description, Borough, Image, Hours, Latitude, Longitude, Neighborhood)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """, (current_user.id, loc_name, address, description, borough_name, filename, hours_json,
+          latitude, longitude, neighborhood))
 
     check_and_award(current_user.id, cursor)
     connection.close()
@@ -491,6 +518,9 @@ def liked_page():
         "Liked":       True,
         "IsOwner":     l["UserID"] == current_user.id,
         "Hours":       (json.loads(l["Hours"]) if l.get("Hours") else []),
+        "Latitude":    float(l["Latitude"]) if l.get("Latitude") else None,
+        "Longitude":   float(l["Longitude"]) if l.get("Longitude") else None,
+        "Neighborhood": l.get("Neighborhood") or "",
     } for l in locations])
 
     return render_template("liked.html.jinja", locations=locations, locations_json=locations_json)
@@ -515,6 +545,58 @@ def chat_history(room):
         "text": m["Message"],
         "time": m["SentAt"].strftime("%I:%M %p") if m["SentAt"] else ""
     } for m in messages])
+
+
+@app.route("/api/address-suggest", methods=["POST"])
+@login_required
+def address_suggest():
+    from flask import jsonify
+    import anthropic
+    data = request.get_json()
+    query = data.get("query", "").strip()
+    if not query:
+        return jsonify([])
+    try:
+        client = anthropic.Anthropic(api_key=config.get("anthropic_api_key", ""))
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=600,
+            system="You are an address autocomplete API for New York City. Given partial input return 4 real NYC addresses as a JSON array. Each object: { label, sub, full, lat, lng }. Return ONLY the JSON array, no markdown.",
+            messages=[{"role": "user", "content": f'NYC address autocomplete: "{query}"'}]
+        )
+        import json as _json
+        text = message.content[0].text.strip()
+        parsed = _json.loads(text.replace("```json","").replace("```","").strip())
+        return jsonify(parsed if isinstance(parsed, list) else [])
+    except Exception as e:
+        return jsonify([])
+
+
+@app.route("/api/address-enrich", methods=["POST"])
+@login_required
+def address_enrich():
+    from flask import jsonify
+    import anthropic
+    data = request.get_json()
+    address = data.get("address", "").strip()
+    lat = data.get("lat")
+    lng = data.get("lng")
+    if not address:
+        return jsonify({})
+    try:
+        client = anthropic.Anthropic(api_key=config.get("anthropic_api_key", ""))
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=400,
+            system="You enrich NYC location data. Return JSON only: { type (residential|commercial|landmark|nature|government), description (1-2 sentences about this place), neighborhood, fun_fact }. No markdown.",
+            messages=[{"role": "user", "content": f"Enrich: {address}" + (f" (lat:{lat}, lng:{lng})" if lat else "")}]
+        )
+        import json as _json
+        text = message.content[0].text.strip()
+        parsed = _json.loads(text.replace("```json","").replace("```","").strip())
+        return jsonify(parsed if isinstance(parsed, dict) else {})
+    except Exception as e:
+        return jsonify({})
 
 
 @app.route("/logout")

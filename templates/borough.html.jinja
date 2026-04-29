@@ -6,6 +6,7 @@
   <title>{{ borough.name | capitalize }} — Hidden Gems</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
   {% include 'icon.html.jinja'%}
   <style>
     :root {
@@ -147,7 +148,12 @@
       <div id="feat-track" class="flex gap-4 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
         {% for loc in locations %}
         <div class="featured-card shrink-0 basis-1/3 h-[340px]" onclick="openDetail({{ loop.index0 }})">
-          {% if loc.Image %}<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+          {% if loc.Image %}
+            {% if loc.Image.startswith('http') %}
+              <img src="{{ loc.Image }}" alt="{{ loc.Name }}">
+            {% else %}
+              <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+            {% endif %}
           {% else %}<div class="no-img">No image</div>{% endif %}
           <div class="overlay"></div>
           <div class="info">
@@ -168,7 +174,12 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       {% for loc in locations[3:] %}
       <div class="gem-card" onclick="openDetail({{ loop.index0 + 3 }})">
-        {% if loc.Image %}<img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+        {% if loc.Image %}
+          {% if loc.Image.startswith('http') %}
+            <img src="{{ loc.Image }}" alt="{{ loc.Name }}">
+          {% else %}
+            <img src="{{ url_for('static', filename='uploads/' + loc.Image) }}" alt="{{ loc.Name }}">
+          {% endif %}
         {% else %}<div class="no-img"></div>{% endif %}
         <div class="gem-info" style="display:flex;align-items:flex-start;justify-content:space-between;">
           <div>
@@ -274,76 +285,256 @@
   <div id="lb-dots" style="display:flex;gap:8px;margin-top:28px;"></div>
 </div>
 
-<div id="add-modal" class="modal-backdrop fixed inset-0 z-[500] bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 hidden" onclick="closeAddBackdrop(event)">
-  <div class="w-full max-w-md flex flex-col rounded-2xl overflow-hidden border border-[#f5efe6]/10 shadow-2xl" style="background:#231a13;max-height:90vh;" onclick="event.stopPropagation()">
-    <div class="flex items-center justify-between px-5 py-4 border-b border-[#f5efe6]/8 flex-shrink-0">
-      <div>
-        <h2 class="serif text-xl font-light text-[#f5efe6]">Add a location</h2>
-        <p class="text-[10px] tracking-widest uppercase text-[#f5efe6]/30 mt-0.5">New York City</p>
-      </div>
-      <button onclick="closeAddModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-[#f5efe6]/40 hover:text-[#f5efe6]/80 hover:bg-[#f5efe6]/5 text-sm transition-all border border-[#f5efe6]/10">✕</button>
-    </div>
-    <div class="flex-1 overflow-y-auto">
-      <form id="add-location-form" method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add" enctype="multipart/form-data">
-        <div class="px-5 py-4 space-y-3 border-b border-[#f5efe6]/8">
-          <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Location name</label>
-            <input type="text" name="name" required placeholder="e.g. Domino Park" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all">
+<!-- ADD LOCATION MODAL -->
+<div id="add-modal" onclick="if(event.target===this)closeAddModal()" style="
+  display:none; position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(16px);
+  align-items:center; justify-content:center; padding:20px;
+">
+  <div style="
+    width:100%; max-width:520px; max-height:92vh;
+    background:linear-gradient(145deg,#1a1410 0%,#120e0a 100%);
+    border:1px solid rgba(232,222,208,0.12);
+    border-radius:24px; overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,222,208,0.05);
+  " onclick="event.stopPropagation()">
+
+    <!-- Header with accent bar -->
+    <div style="position:relative; overflow:hidden; flex-shrink:0;">
+      <div style="height:3px; background:linear-gradient(90deg, var(--accent), transparent);"></div>
+      <div style="padding:22px 26px 18px; display:flex; align-items:flex-start; justify-content:space-between;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
+            <p style="font-size:0.5rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.3);">{{ borough.name | capitalize }}</p>
           </div>
-          <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Address</label>
-            <input type="text" name="address" required placeholder="e.g. 15 River St, Brooklyn" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all">
-          </div>
-          <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Description</label>
-            <textarea name="description" placeholder="What makes this place special?" rows="3" class="w-full bg-[#f5efe6]/4 border border-[#f5efe6]/12 rounded-lg px-3 py-2.5 text-sm text-[#f5efe6] placeholder-[#f5efe6]/20 resize-none focus:outline-none focus:border-[#f5efe6]/30 focus:bg-[#f5efe6]/6 transition-all"></textarea>
-          </div>
-          <div>
-            <label class="block text-[10px] tracking-widest uppercase text-[#f5efe6]/35 mb-1.5">Photo</label>
-            <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer bg-[#f5efe6]/4 border border-dashed border-[#f5efe6]/15 hover:border-[#f5efe6]/30 hover:bg-[#f5efe6]/6 transition-all">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4.5 2.5 3 2-2.5L14 12H2z" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1.5" stroke="#f5efe6" stroke-opacity="0.4" stroke-width="1"/><rect x="1" y="1" width="14" height="14" rx="2" stroke="#f5efe6" stroke-opacity="0.2" stroke-width="1"/></svg>
-              <span class="text-xs text-[#f5efe6]/30" id="photo-label">Choose a photo…</span>
-              <input type="file" name="image" accept="image/*" class="hidden" onchange="document.getElementById('photo-label').textContent = this.files[0]?.name || 'Choose a photo…'">
-            </label>
-          </div>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;color:#e8ded0;line-height:1.1;">Add a Hidden Gem</h2>
         </div>
-        <div class="px-5 py-4">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-[10px] tracking-widest uppercase text-[#f5efe6]/35">Hours</span>
-            <div class="flex items-center gap-1.5">
-              <select id="hours-preset" class="bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[10px] tracking-wider text-[#f5efe6]/50 px-2 py-1 rounded-md focus:outline-none focus:border-[#f5efe6]/25">
-                <option value="">Preset…</option>
-                <option value="9-5">Weekdays 9–5</option>
-                <option value="24-7">Open 24/7</option>
-                <option value="closed">Closed all week</option>
-              </select>
-              <button type="button" onclick="applyPreset()" class="text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-md bg-[#f5efe6]/5 border border-[#f5efe6]/12 text-[#f5efe6]/50 hover:text-[#f5efe6]/80 hover:border-[#f5efe6]/25 transition-all">Apply</button>
+        <button onclick="closeAddModal()" style="
+          width:32px;height:32px;border-radius:50%;flex-shrink:0;margin-top:4px;
+          background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);
+          color:rgba(232,222,208,0.4);cursor:pointer;font-size:0.9rem;
+          display:flex;align-items:center;justify-content:center;
+          transition:all 0.2s;
+        " onmouseover="this.style.background='rgba(232,222,208,0.12)';this.style.color='#e8ded0'"
+           onmouseout="this.style.background='rgba(232,222,208,0.06)';this.style.color='rgba(232,222,208,0.4)'">✕</button>
+      </div>
+    </div>
+
+    <!-- Step indicator -->
+    <div style="padding:0 26px 16px; display:flex; gap:6px; flex-shrink:0;" id="step-indicators">
+      <div class="step-dot active" data-step="0" style="flex:1;height:2px;border-radius:999px;background:var(--accent);transition:background 0.3s;"></div>
+      <div class="step-dot" data-step="1" style="flex:1;height:2px;border-radius:999px;background:rgba(232,222,208,0.15);transition:background 0.3s;"></div>
+      <div class="step-dot" data-step="2" style="flex:1;height:2px;border-radius:999px;background:rgba(232,222,208,0.15);transition:background 0.3s;"></div>
+    </div>
+
+    <!-- Form -->
+    <form id="add-location-form" method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add" enctype="multipart/form-data" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+
+      <div style="flex:1;overflow-y:auto;padding:0 26px;">
+
+        <!-- STEP 1: Basic Info + Address Autocomplete -->
+        <div id="step-0" class="form-step">
+          <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);margin-bottom:18px;">Step 1 — Basic Info</p>
+
+          <!-- Location Name -->
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Location Name <span style="color:var(--accent);">*</span></label>
+            <input type="text" name="name" required placeholder="e.g. Domino Park" id="input-name" style="
+              width:100%;padding:12px 16px;border-radius:12px;
+              background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+              color:#e8ded0;font-size:0.9rem;font-family:inherit;outline:none;transition:all 0.2s;
+            " onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
+               onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
+          </div>
+
+          <!-- Address with autocomplete -->
+          <div style="margin-bottom:8px;">
+            <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Address <span style="color:var(--accent);">*</span></label>
+            <div style="position:relative;">
+              <input type="text" name="address" required placeholder="Start typing an address…" id="input-address"
+                autocomplete="off"
+                oninput="onAddressInput(this.value)"
+                onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)';showSuggestions()"
+                onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)';setTimeout(hideSuggestions,200)"
+                style="width:100%;padding:12px 40px 12px 16px;border-radius:12px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:#e8ded0;font-size:0.9rem;font-family:inherit;outline:none;transition:all 0.2s;">
+
+              <!-- Loading spinner -->
+              <div id="addr-spinner" style="display:none;position:absolute;right:14px;top:50%;transform:translateY(-50%);">
+                <div style="width:14px;height:14px;border:2px solid rgba(232,222,208,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;"></div>
+              </div>
+
+              <!-- Suggestions dropdown -->
+              <div id="addr-suggestions" style="
+                display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:999;
+                background:#1a1410;border:1px solid rgba(232,222,208,0.12);border-radius:14px;
+                overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.5);
+              "></div>
             </div>
           </div>
-          <div class="space-y-1">
+
+          <!-- AI enrichment card -->
+          <div id="addr-enrichment-card" style="display:none;margin-bottom:16px;border-radius:14px;overflow:hidden;border:1px solid rgba(232,222,208,0.1);">
+            <div id="addr-card-inner" style="padding:16px 18px;background:linear-gradient(135deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));position:relative;">
+              <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);"></div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                    <div id="addr-type-badge" style="font-size:0.45rem;letter-spacing:0.2em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--accent);color:#fff;opacity:0.85;"></div>
+                    <div style="font-size:0.45rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.3);display:flex;align-items:center;gap:3px;">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+                      AI enriched
+                    </div>
+                  </div>
+                  <p id="addr-street" style="font-size:0.9rem;font-weight:600;color:#e8ded0;margin-bottom:2px;"></p>
+                  <p id="addr-city" style="font-size:0.75rem;color:rgba(232,222,208,0.5);margin-bottom:10px;"></p>
+                  <p id="addr-description" style="font-size:0.72rem;color:rgba(232,222,208,0.55);line-height:1.5;font-style:italic;"></p>
+                  <div id="addr-fun-fact" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(232,222,208,0.04);border:1px solid rgba(232,222,208,0.08);border-radius:8px;font-size:0.65rem;color:rgba(232,222,208,0.45);line-height:1.5;"></div>
+                </div>
+                <div style="flex-shrink:0;text-align:right;">
+                  <p id="addr-coords" style="font-size:0.6rem;color:rgba(232,222,208,0.3);font-family:monospace;line-height:1.8;"></p>
+                  <a id="addr-map-link" href="#" target="_blank" style="font-size:0.55rem;color:var(--accent);text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;opacity:0.7;">Maps ↗</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Description</label>
+            <textarea name="description" id="input-description" placeholder="What makes this place special?" rows="3" style="
+              width:100%;padding:12px 16px;border-radius:12px;
+              background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+              color:#e8ded0;font-size:0.9rem;font-family:inherit;outline:none;resize:none;transition:all 0.2s;
+            " onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
+               onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'"></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 2: Photo -->
+        <div id="step-1" class="form-step" style="display:none;">
+          <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);margin-bottom:18px;">Step 2 — Photo</p>
+
+          <label id="photo-drop-zone" style="
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            gap:12px;padding:40px 20px;border-radius:16px;cursor:pointer;
+            border:2px dashed rgba(232,222,208,0.15);
+            background:rgba(232,222,208,0.03);
+            transition:all 0.2s;text-align:center;margin-bottom:16px;
+          " onmouseover="this.style.borderColor='rgba(232,222,208,0.3)';this.style.background='rgba(232,222,208,0.06)'"
+             onmouseout="this.style.borderColor='rgba(232,222,208,0.15)';this.style.background='rgba(232,222,208,0.03)'">
+            <div id="photo-preview-wrap" style="display:none;width:100%;border-radius:10px;overflow:hidden;max-height:180px;">
+              <img id="photo-preview-img" src="" style="width:100%;height:180px;object-fit:cover;display:block;">
+            </div>
+            <div id="photo-placeholder">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="margin:0 auto 8px;opacity:0.3;">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="#e8ded0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p style="font-size:0.8rem;color:rgba(232,222,208,0.5);">Click to upload a photo</p>
+              <p style="font-size:0.65rem;color:rgba(232,222,208,0.25);margin-top:4px;">PNG, JPG, GIF up to 10MB</p>
+            </div>
+            <input type="file" name="image" accept="image/*" class="hidden" id="photo-input"
+              onchange="previewPhoto(this)">
+          </label>
+
+          <p id="photo-filename" style="font-size:0.65rem;color:rgba(232,222,208,0.3);text-align:center;display:none;"></p>
+        </div>
+
+        <!-- STEP 3: Hours -->
+        <div id="step-2" class="form-step" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);">Step 3 — Hours</p>
+            <div id="hours-autofill-badge" style="display:none;font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(74,222,128,0.7);padding:3px 8px;border-radius:999px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15);">
+              ✓ Auto-filled from Google
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <select id="hours-preset" style="
+              flex:1;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+              color:rgba(232,222,208,0.5);padding:8px 12px;border-radius:10px;
+              font-size:0.75rem;font-family:inherit;outline:none;
+            ">
+              <option value="">Apply a preset…</option>
+              <option value="9-5">Weekdays 9am–5pm</option>
+              <option value="24-7">Open 24/7</option>
+              <option value="closed">Closed all week</option>
+            </select>
+            <button type="button" onclick="applyPreset()" style="
+              padding:8px 16px;border-radius:10px;
+              background:var(--accent);border:none;
+              color:white;font-size:0.7rem;font-family:inherit;
+              cursor:pointer;white-space:nowrap;
+              letter-spacing:0.1em;text-transform:uppercase;
+              transition:opacity 0.2s;
+            " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Apply</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:2px;border-radius:14px;overflow:hidden;border:1px solid rgba(232,222,208,0.08);">
             {% set days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
             {% for d in days %}
-            <div class="flex items-center gap-3 py-1.5 border-b border-[#f5efe6]/5 last:border-0">
-              <span class="w-7 text-[10px] tracking-widest uppercase text-[#f5efe6]/30 flex-shrink-0">{{ d }}</span>
-              <div id="hours-row-{{ d }}" class="flex items-center gap-1.5 flex-1">
-                <input type="time" name="hours_{{ d }}_open" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
-                <span class="text-[#f5efe6]/20 text-xs flex-shrink-0">–</span>
-                <input type="time" name="hours_{{ d }}_close" class="flex-1 bg-[#f5efe6]/4 border border-[#f5efe6]/10 rounded px-2 py-1 text-[11px] text-[#f5efe6]/70 focus:outline-none focus:border-[#f5efe6]/25 transition-all min-w-0">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(232,222,208,0.03);border-bottom:1px solid rgba(232,222,208,0.05);">
+              <span style="width:28px;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(232,222,208,0.35);flex-shrink:0;">{{ d }}</span>
+              <div id="hours-row-{{ d }}" style="display:flex;align-items:center;gap:6px;flex:1;">
+                <input type="time" name="hours_{{ d }}_open" style="
+                  flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.1);
+                  border-radius:8px;padding:6px 8px;color:rgba(232,222,208,0.7);
+                  font-size:0.75rem;font-family:inherit;outline:none;min-width:0;
+                  color-scheme:dark;
+                ">
+                <span style="color:rgba(232,222,208,0.2);font-size:0.7rem;">–</span>
+                <input type="time" name="hours_{{ d }}_close" style="
+                  flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.1);
+                  border-radius:8px;padding:6px 8px;color:rgba(232,222,208,0.7);
+                  font-size:0.75rem;font-family:inherit;outline:none;min-width:0;
+                  color-scheme:dark;
+                ">
               </div>
-              <label class="flex items-center gap-1.5 flex-shrink-0 cursor-pointer">
-                <input type="checkbox" name="hours_{{ d }}_closed" class="accent-[var(--accent)] w-3 h-3" onchange="toggleClosed('{{ d }}')">
-                <span class="text-[10px] text-[#f5efe6]/25 tracking-wide">Closed</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;">
+                <input type="checkbox" name="hours_{{ d }}_closed" style="accent-color:var(--accent);width:12px;height:12px;" onchange="toggleClosed('{{ d }}')">
+                <span style="font-size:0.6rem;color:rgba(232,222,208,0.25);">Closed</span>
               </label>
             </div>
             {% endfor %}
           </div>
         </div>
-      </form>
-    </div>
-    <div class="px-5 py-4 border-t border-[#f5efe6]/8 flex gap-2 flex-shrink-0">
-      <button type="submit" form="add-location-form" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold tracking-widest uppercase transition-all" style="background:var(--accent);color:#fff;">Post location</button>
-      <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 rounded-xl text-[11px] tracking-widest uppercase text-[#f5efe6]/40 bg-[#f5efe6]/4 border border-[#f5efe6]/10 hover:text-[#f5efe6]/70 hover:border-[#f5efe6]/20 transition-all">Cancel</button>
-    </div>
+
+      </div>
+
+      <!-- Footer navigation -->
+      <div style="padding:16px 26px;border-top:1px solid rgba(232,222,208,0.06);display:flex;gap:10px;flex-shrink:0;background:rgba(0,0,0,0.2);">
+        <button type="button" id="step-back-btn" onclick="modalStep(-1)" style="
+          display:none;padding:11px 20px;border-radius:12px;
+          background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);
+          color:rgba(232,222,208,0.5);font-size:0.7rem;font-family:inherit;
+          cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;
+          transition:all 0.2s;
+        " onmouseover="this.style.color='#e8ded0'" onmouseout="this.style.color='rgba(232,222,208,0.5)'">← Back</button>
+
+        <button type="button" id="step-next-btn" onclick="modalStep(1)" style="
+          flex:1;padding:12px;border-radius:12px;
+          background:var(--accent);border:none;
+          color:white;font-size:0.75rem;font-family:inherit;
+          cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;
+          transition:opacity 0.2s, transform 0.15s;
+        " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'"
+           onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+          Continue →
+        </button>
+
+        <button type="submit" form="add-location-form" id="step-submit-btn" style="
+          display:none;flex:1;padding:12px;border-radius:12px;
+          background:var(--accent);border:none;
+          color:white;font-size:0.75rem;font-family:inherit;
+          cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;
+          transition:opacity 0.2s, transform 0.15s;
+        " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+          Post Location ✦
+        </button>
+      </div>
+
+    </form>
   </div>
 </div>
 
@@ -380,11 +571,6 @@
     ] %}
     {% for b in all_boroughs %}
     <a href="/borough/{{ b.name | replace(' ', '-') }}"
-   onclick="event.preventDefault(); navigateWithTransition(
-     '/borough/{{ b.name | replace(' ', '-') }}',
-     '{{ b.color }}',
-     '{{ b.accent }}'
-   )"
        style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;transition:background 0.15s;color:{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }};background:{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }};"
        onmouseover="this.style.background='rgba(232,222,208,0.08)';this.style.color='#e8ded0'"
        onmouseout="this.style.background='{{ 'rgba(232,222,208,0.06)' if b.name == borough.name else 'transparent' }}';this.style.color='{{ 'rgba(232,222,208,0.9)' if b.name == borough.name else 'rgba(232,222,208,0.4)' }}'">
@@ -588,9 +774,69 @@
     else alert("Failed to delete location.");
   }
 
-  function openModal() { document.getElementById('add-modal').classList.add('open'); document.body.style.overflow='hidden'; }
-  function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); document.body.style.overflow=''; }
-  function closeAddBackdrop(e) { if(e.target.id==='add-modal')closeAddModal(); }
+
+
+  // Multi-step modal
+  let currentStep = 0;
+  const totalSteps = 3;
+
+  function openModal() {
+    currentStep = 0;
+    renderModalStep();
+    document.getElementById('add-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAddModal() {
+    document.getElementById('add-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function modalStep(dir) {
+    const nameVal = document.getElementById('input-name')?.value.trim();
+    const addrVal = document.getElementById('input-address')?.value.trim();
+    if (dir === 1 && currentStep === 0 && (!nameVal || !addrVal)) {
+      const missing = !nameVal ? document.getElementById('input-name') : document.getElementById('input-address');
+      missing.style.borderColor = 'rgba(239,68,68,0.6)';
+      missing.focus();
+      setTimeout(() => missing.style.borderColor = 'rgba(232,222,208,0.12)', 1500);
+      return;
+    }
+    currentStep = Math.max(0, Math.min(currentStep + dir, totalSteps - 1));
+    renderModalStep();
+  }
+
+  function renderModalStep() {
+    document.querySelectorAll('.form-step').forEach((el, i) => {
+      el.style.display = i === currentStep ? 'block' : 'none';
+    });
+    // Show auto-fill badge on hours step
+    const hoursBadge = document.getElementById('hours-autofill-badge');
+    if (hoursBadge) hoursBadge.style.display = (currentStep === 2 && window._hoursAutoFilled) ? 'block' : 'none';
+    document.querySelectorAll('.step-dot').forEach((dot, i) => {
+      dot.style.background = i <= currentStep ? 'var(--accent)' : 'rgba(232,222,208,0.15)';
+    });
+    const backBtn   = document.getElementById('step-back-btn');
+    const nextBtn   = document.getElementById('step-next-btn');
+    const submitBtn = document.getElementById('step-submit-btn');
+    backBtn.style.display   = currentStep > 0 ? 'block' : 'none';
+    nextBtn.style.display   = currentStep < totalSteps - 1 ? 'block' : 'none';
+    submitBtn.style.display = currentStep === totalSteps - 1 ? 'block' : 'none';
+  }
+
+  function previewPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('photo-preview-img').src = e.target.result;
+      document.getElementById('photo-preview-wrap').style.display = 'block';
+      document.getElementById('photo-placeholder').style.display = 'none';
+      document.getElementById('photo-filename').textContent = file.name;
+      document.getElementById('photo-filename').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
 
   function toggleClosed(day) { const row=document.getElementById(`hours-row-${day}`), cb=document.querySelector(`input[name="hours_${day}_closed"]`); row.style.display=cb.checked?'none':'flex'; }
   function applyPreset() {
@@ -646,6 +892,369 @@
 
   window.addEventListener('beforeunload',()=>socket.emit('leave',{room:CHAT_ROOM,username:USERNAME}));
 
+  // ── Address Autocomplete ──
+  const GOOGLE_API_KEY = 'AIzaSyCoSwmHI-saWpWQuwYxG0D16AVq7-4VrvE';
+  let addrDebounce = null;
+  let addrSelected = false;
+
+  // Define callback before loading script
+  window.initPlaces = function() {
+    window._placesReady = true;
+    window._placesService = new google.maps.places.AutocompleteService();
+    window._geocoder       = new google.maps.Geocoder();
+    window._sessionToken   = new google.maps.places.AutocompleteSessionToken();
+  };
+
+  // Load Google Maps JS API
+  if (GOOGLE_API_KEY && !window._gplacesLoaded) {
+    window._gplacesLoaded = true;
+    const s = document.createElement('script');
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places&callback=initPlaces`;
+    s.async = true;
+    s.onerror = () => console.warn('Google Places failed to load — using Claude fallback');
+    document.head.appendChild(s);
+  }
+
+  function onAddressInput(val) {
+    addrSelected = false;
+    hideEnrichmentCard();
+    clearTimeout(addrDebounce);
+    if (!val || val.length < 2) { hideSuggestions(); return; }
+    document.getElementById('addr-spinner').style.display = 'block';
+    addrDebounce = setTimeout(() => fetchSuggestions(val), 300);
+  }
+
+  async function fetchSuggestions(val) {
+    if (window._placesReady && window._placesService) {
+      window._placesService.getPlacePredictions(
+        { input: val + ' New York', sessionToken: window._sessionToken },
+        (preds, status) => {
+          document.getElementById('addr-spinner').style.display = 'none';
+          if (status === google.maps.places.PlacesServiceStatus.OK && preds) {
+            renderSuggestions(preds.map(p => ({
+              label: p.structured_formatting?.main_text || p.description,
+              sub: p.structured_formatting?.secondary_text || '',
+              full: p.description,
+              placeId: p.place_id,
+              source: 'google'
+            })));
+          } else {
+            claudeSuggestions(val);
+          }
+        }
+      );
+    } else {
+      claudeSuggestions(val);
+    }
+  }
+
+  async function claudeSuggestions(val) {
+    try {
+      const res = await fetch('/api/address-suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: val })
+      });
+      const parsed = await res.json();
+      document.getElementById('addr-spinner').style.display = 'none';
+      renderSuggestions((parsed||[]).map(p => ({ ...p, source: 'claude' })));
+    } catch {
+      document.getElementById('addr-spinner').style.display = 'none';
+      hideSuggestions();
+    }
+  }
+
+  function renderSuggestions(items) {
+    const box = document.getElementById('addr-suggestions');
+    if (!items.length) { hideSuggestions(); return; }
+    box.innerHTML = items.map((s, i) => `
+      <button type="button" onclick="selectAddress(${i})"
+        data-index="${i}"
+        style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;
+               background:none;border:none;border-bottom:1px solid rgba(232,222,208,0.06);
+               color:#e8ded0;cursor:pointer;text-align:left;transition:background 0.15s;"
+        onmouseover="this.style.background='rgba(232,222,208,0.05)'"
+        onmouseout="this.style.background='none'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(232,222,208,0.3)" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.label}</div>
+          <div style="font-size:0.65rem;color:rgba(232,222,208,0.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.sub||''}</div>
+        </div>
+        <span style="font-size:0.45rem;letter-spacing:0.15em;text-transform:uppercase;padding:2px 7px;border-radius:999px;flex-shrink:0;
+          background:${s.source==='google'?'rgba(66,133,244,0.12)':'rgba(232,222,208,0.06)'};
+          color:${s.source==='google'?'#4285f4':'rgba(232,222,208,0.3)'};">
+          ${s.source==='google'?'Google':'Claude'}
+        </span>
+      </button>
+    `).join('');
+    box.dataset.items = JSON.stringify(items);
+    showSuggestions();
+  }
+
+  function showSuggestions() {
+    const box = document.getElementById('addr-suggestions');
+    if (box.innerHTML) box.style.display = 'block';
+  }
+  function hideSuggestions() {
+    document.getElementById('addr-suggestions').style.display = 'none';
+  }
+
+  async function selectAddress(index) {
+    const items = JSON.parse(document.getElementById('addr-suggestions').dataset.items || '[]');
+    const item = items[index]; if (!item) return;
+    hideSuggestions();
+    addrSelected = true;
+
+    const input = document.getElementById('input-address');
+    input.value = item.full || item.label;
+
+    if (item.placeId && window._placesReady) {
+      document.getElementById('addr-spinner').style.display = 'block';
+
+      // Use Places Details to get everything
+      const service = new google.maps.places.PlacesService(document.createElement('div'));
+      service.getDetails({
+        placeId: item.placeId,
+        fields: [
+          'name', 'formatted_address', 'geometry',
+          'opening_hours', 'photos', 'rating',
+          'editorial_summary', 'types', 'vicinity',
+          'website', 'formatted_phone_number'
+        ],
+        sessionToken: window._sessionToken
+      }, (place, status) => {
+        document.getElementById('addr-spinner').style.display = 'none';
+        window._sessionToken = new google.maps.places.AutocompleteSessionToken();
+
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+          autoFillFromPlace(place);
+        }
+      });
+    } else if (item.lat) {
+      await enrichAndShow({ lat: item.lat, lng: item.lng, formatted: item.full });
+    } else {
+      await enrichAndShow({ lat: null, lng: null, formatted: item.full });
+    }
+  }
+
+  function autoFillFromPlace(place) {
+    // Fill address
+    document.getElementById('input-address').value = place.formatted_address || place.vicinity || '';
+
+    // Fill name if empty
+    const nameEl = document.getElementById('input-name');
+    if (nameEl && !nameEl.value && place.name) nameEl.value = place.name;
+
+    // Fill description
+    const descEl = document.getElementById('input-description');
+    if (descEl && !descEl.value) {
+      descEl.value = place.editorial_summary?.overview || '';
+    }
+
+    // Fill hidden lat/lng
+    if (place.geometry?.location) {
+      document.getElementById('hidden-lat').value = place.geometry.location.lat();
+      document.getElementById('hidden-lng').value = place.geometry.location.lng();
+    }
+
+    // Fill hours from Google — always show all rows, just fill the times
+    if (place.opening_hours?.periods) {
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+      // First reset all days to closed
+      ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => {
+        const cb = document.querySelector(`input[name="hours_${d}_closed"]`);
+        const row = document.getElementById(`hours-row-${d}`);
+        if (cb) cb.checked = true;
+        if (row) row.style.display = 'none';
+      });
+
+      // Fill covered days
+      const coveredDays = [];
+      place.opening_hours.periods.forEach(period => {
+        const dayName = days[period.open.day];
+        coveredDays.push(dayName);
+        const openInput  = document.querySelector(`input[name="hours_${dayName}_open"]`);
+        const closeInput = document.querySelector(`input[name="hours_${dayName}_close"]`);
+        const closedCb   = document.querySelector(`input[name="hours_${dayName}_closed"]`);
+        const row        = document.getElementById(`hours-row-${dayName}`);
+
+        // Show the row
+        if (closedCb)   { closedCb.checked = false; }
+        if (row)        { row.style.display = 'flex'; }
+
+        if (period.close) {
+          const openH  = String(period.open.hours).padStart(2,'0');
+          const openM  = String(period.open.minutes||0).padStart(2,'0');
+          const closeH = String(period.close.hours).padStart(2,'0');
+          const closeM = String(period.close.minutes||0).padStart(2,'0');
+          if (openInput)  openInput.value  = `${openH}:${openM}`;
+          if (closeInput) closeInput.value = `${closeH}:${closeM}`;
+        } else {
+          if (openInput)  openInput.value  = '00:00';
+          if (closeInput) closeInput.value = '23:59';
+        }
+      });
+
+      // Show a hours-filled badge on step 3
+      window._hoursAutoFilled = true;
+    }
+
+    // Store photo reference for preview
+    if (place.photos && place.photos.length > 0) {
+      const photoUrl = place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 });
+      window._googlePhotoUrl = photoUrl;
+      document.getElementById('hidden-photo-url').value = photoUrl;
+      showPlaceCard(place, photoUrl);
+    } else {
+      showPlaceCard(place, null);
+    }
+  }
+
+  function showPlaceCard(place, photoUrl) {
+    const card = document.getElementById('addr-enrichment-card');
+    const inner = document.getElementById('addr-card-inner');
+
+    // Build type label
+    const typeMap = { restaurant:'Restaurant', cafe:'Café', park:'Park', museum:'Museum',
+      bar:'Bar', store:'Shop', lodging:'Hotel', school:'School',
+      hospital:'Hospital', church:'Church', gym:'Gym' };
+    const placeType = place.types?.find(t => typeMap[t]) || place.types?.[0] || 'location';
+    const typeLabel = typeMap[placeType] || placeType.replace(/_/g,' ');
+
+    document.getElementById('addr-type-badge').textContent = typeLabel;
+    document.getElementById('addr-street').textContent = place.name || '';
+    document.getElementById('addr-city').textContent = place.formatted_address || place.vicinity || '';
+    document.getElementById('addr-description').textContent = place.editorial_summary?.overview || '';
+
+    // Rating
+    const factEl = document.getElementById('addr-fun-fact');
+    if (place.rating) {
+      factEl.textContent = `⭐ ${place.rating} Google rating`;
+      factEl.style.display = 'block';
+    } else factEl.style.display = 'none';
+
+    // Coords
+    if (place.geometry?.location) {
+      const lat = place.geometry.location.lat(), lng = place.geometry.location.lng();
+      document.getElementById('addr-coords').innerHTML = `${lat.toFixed(4)}°N<br>${lng.toFixed(4)}°W`;
+      document.getElementById('addr-map-link').href = `https://www.google.com/maps/@${lat},${lng},17z`;
+    }
+
+    // Photo preview in step 2
+    if (photoUrl) {
+      window._googlePhotoUrl = photoUrl;
+      // Show preview in photo step
+      const previewImg  = document.getElementById('photo-preview-img');
+      const previewWrap = document.getElementById('photo-preview-wrap');
+      const placeholder = document.getElementById('photo-placeholder');
+      if (previewImg) {
+        previewImg.src = photoUrl;
+        previewWrap.style.display = 'block';
+        placeholder.style.display = 'none';
+        document.getElementById('photo-filename').textContent = 'Photo from Google Places';
+        document.getElementById('photo-filename').style.display = 'block';
+      }
+      // Also show thumbnail in the card
+      inner.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.6)), url(${photoUrl})`;
+      inner.style.backgroundSize = 'cover';
+      inner.style.backgroundPosition = 'center';
+    }
+
+    // Show card with animation
+    card.style.display = 'block';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(8px)';
+    requestAnimationFrame(() => {
+      card.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    });
+
+    // Show a "✓ auto-filled" indicator
+    showAutoFillBadge();
+  }
+
+  function showAutoFillBadge() {
+    let badge = document.getElementById('autofill-badge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.id = 'autofill-badge';
+      badge.style.cssText = `
+        display:inline-flex;align-items:center;gap:5px;
+        font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;
+        color:rgba(74,222,128,0.8);margin-bottom:12px;
+        padding:4px 10px;border-radius:999px;
+        background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);
+      `;
+      badge.innerHTML = `<span style="width:5px;height:5px;border-radius:50%;background:rgb(74,222,128);"></span> Auto-filled from Google`;
+      const step = document.getElementById('step-0');
+      step.insertBefore(badge, step.firstChild);
+    }
+  }
+
+  async function enrichAndShow(geo) {
+    document.getElementById('addr-spinner').style.display = 'block';
+    try {
+      const res = await fetch('/api/address-enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: geo.formatted, lat: geo.lat, lng: geo.lng })
+      });
+      const info = await res.json();
+      showEnrichmentCard(geo, info);
+      const descEl = document.getElementById('input-description');
+      if (descEl && !descEl.value && info.description) {
+        descEl.value = info.description;
+        descEl.style.borderColor = 'rgba(232,222,208,0.25)';
+      }
+    } catch {
+      showEnrichmentCard(geo, {});
+    }
+    document.getElementById('addr-spinner').style.display = 'none';
+  }
+
+  function showEnrichmentCard(geo, info) {
+    const card = document.getElementById('addr-enrichment-card');
+    const parts = (geo.formatted||'').split(',');
+
+    document.getElementById('addr-street').textContent = parts[0]||geo.formatted;
+    document.getElementById('addr-city').textContent = parts.slice(1).join(',').trim();
+    document.getElementById('addr-type-badge').textContent = info.type || 'Location';
+    document.getElementById('addr-description').textContent = info.description || '';
+
+    const factEl = document.getElementById('addr-fun-fact');
+    if (info.fun_fact) { factEl.textContent = '✦ ' + info.fun_fact; factEl.style.display = 'block'; }
+    else factEl.style.display = 'none';
+
+    // Populate hidden form fields
+    if (geo.lat) {
+      document.getElementById('hidden-lat').value  = geo.lat;
+      document.getElementById('hidden-lng').value  = geo.lng;
+      document.getElementById('addr-coords').innerHTML = `${geo.lat.toFixed(4)}°N<br>${geo.lng.toFixed(4)}°W`;
+      const mapLink = document.getElementById('addr-map-link');
+      mapLink.href = `https://www.google.com/maps/@${geo.lat},${geo.lng},17z`;
+    } else {
+      document.getElementById('addr-coords').textContent = '';
+    }
+    if (info.neighborhood) {
+      document.getElementById('hidden-neighborhood').value = info.neighborhood;
+    }
+
+    card.style.display = 'block';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(8px)';
+    requestAnimationFrame(() => {
+      card.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    });
+  }
+
+  function hideEnrichmentCard() {
+    document.getElementById('addr-enrichment-card').style.display = 'none';
+  }
+
   let switcherOpen=false;
   function toggleSwitcher() {
     switcherOpen=!switcherOpen;
@@ -662,30 +1271,7 @@
     }
   });
 
-function navigateWithTransition(url, color, accent) {
-  if (document.body._transitioning) return;
-  document.body._transitioning = true;
 
-  // Slide out the page heading
-  const heading = document.querySelector('h1.serif');
-  if (heading) {
-    heading.style.transition = 'opacity 0.2s ease, transform 0.25s ease';
-    heading.style.opacity = '0';
-    heading.style.transform = 'translateY(8px)';
-  }
-
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed;inset:0;z-index:9999;background:${color};opacity:0;pointer-events:none;transition:opacity 0.45s cubic-bezier(0.4,0,0.2,1);`;
-  document.body.appendChild(overlay);
-
-  document.documentElement.style.setProperty('--accent', accent);
-  document.documentElement.style.setProperty('--borough-color', color);
-
-  requestAnimationFrame(() => {
-    overlay.style.opacity = '1';
-    setTimeout(() => { window.location.href = url; }, 420);
-  });
-}
 </script>
 
 </body>
