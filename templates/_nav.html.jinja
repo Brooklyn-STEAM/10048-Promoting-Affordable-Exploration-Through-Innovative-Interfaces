@@ -1,16 +1,22 @@
 {% if current_user.is_authenticated %}
 
+<!-- Liked Places Button -->
 <a href="/liked"
    title="Liked Places"
-   class="fixed top-5 right-20 z-50 w-10 h-10 rounded-full bg-[#8B0000] border-2 border-[#8B0000] shadow-[3px_3px_0px_#8B0000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 flex items-center justify-center">
+   class="fixed z-50 w-10 h-10 rounded-full bg-[#8B0000] border-2 border-[#8B0000] shadow-[3px_3px_0px_#8B0000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 flex items-center justify-center
+          top-4 right-20
+          sm:top-5 sm:right-20">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
   </svg>
 </a>
 
+<!-- Profile Button -->
 <a href="/profile"
    title="{{ current_user.name }}"
-   class="fixed top-5 right-6 z-50 w-10 h-10 rounded-full bg-[#5c6b5c] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 overflow-hidden flex items-center justify-center">
+   class="fixed z-50 w-10 h-10 rounded-full bg-[#5c6b5c] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 overflow-hidden flex items-center justify-center
+          top-4 right-4
+          sm:top-5 sm:right-6">
   {% if current_user.profile_picture %}
     <img src="{{ current_user.profile_picture }}"
          class="w-full h-full object-cover"
