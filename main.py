@@ -202,6 +202,8 @@ def borough_page(n):
         "Latitude":    float(l["Latitude"]) if l.get("Latitude") else None,
         "Longitude":   float(l["Longitude"]) if l.get("Longitude") else None,
         "Neighborhood": l.get("Neighborhood") or "",
+        "PriceTier":    l.get("PriceTier") or "",   # ADD
+        "PriceNote":    l.get("PriceNote") or "",   # ADD
     } for l in locations])
 
     return render_template(
@@ -294,6 +296,8 @@ def add_location(n):
     latitude     = request.form.get("latitude", "").strip() or None
     longitude    = request.form.get("longitude", "").strip() or None
     neighborhood = request.form.get("neighborhood", "").strip() or None
+    price_tier   = request.form.get("price_tier", "").strip() or None
+    price_note   = request.form.get("price_note", "").strip() or None
 
     if not loc_name or not address:
         flash("Please fill in the name and address")
@@ -337,11 +341,11 @@ def add_location(n):
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("""
-        INSERT INTO `Location`
-        (UserID, Name, Address, Description, Borough, Image, Hours, Latitude, Longitude, Neighborhood)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO `Location`
+    (UserID, Name, Address, Description, Borough, Image, Hours, Latitude, Longitude, Neighborhood, PriceTier, PriceNote)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (current_user.id, loc_name, address, description, borough_name, filename, hours_json,
-          latitude, longitude, neighborhood))
+      latitude, longitude, neighborhood, price_tier, price_note))
 
     check_and_award(current_user.id, cursor)
     connection.close()
@@ -521,6 +525,8 @@ def liked_page():
         "Latitude":    float(l["Latitude"]) if l.get("Latitude") else None,
         "Longitude":   float(l["Longitude"]) if l.get("Longitude") else None,
         "Neighborhood": l.get("Neighborhood") or "",
+        "PriceTier":    l.get("PriceTier") or "",   # ADD THIS
+        "PriceNote":    l.get("PriceNote") or "",   # ADD THIS
     } for l in locations])
 
     return render_template("liked.html.jinja", locations=locations, locations_json=locations_json)
