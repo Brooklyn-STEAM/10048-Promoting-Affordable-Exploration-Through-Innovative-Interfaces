@@ -350,6 +350,13 @@
     </div>
     <p id="no-results">No locations match your search</p>
   </div>
+  {% else %}
+  <!-- ── All Locations grid for <= 3 locations (hidden by default, shown during search) ── -->
+  <div class="mt-10 sm:mt-12 fade-up d2" id="all-locations-section" style="display:none;">
+    <p class="section-label mb-4">All Locations</p>
+    <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4" id="gem-grid"></div>
+    <p id="no-results">No locations match your search</p>
+  </div>
   {% endif %}
 
   {% else %}
@@ -879,40 +886,103 @@
   })();
 
   // ── Search ──
+  const featuredSection = document.querySelector('.fade-up.d1');
+
   function filterLocations(val) {
     const q = val.trim().toLowerCase();
-    const clearBtn = document.getElementById('loc-search-clear');
-    const countEl  = document.getElementById('loc-search-count');
+    const clearBtn  = document.getElementById('loc-search-clear');
+    const countEl   = document.getElementById('loc-search-count');
     const noResults = document.getElementById('no-results');
     clearBtn.style.display = val ? 'block' : 'none';
 
-    // Featured cards — fade out non-matches (keep layout intact)
-    document.querySelectorAll('#feat-track .featured-card').forEach(card => {
-      const idx = parseInt(card.dataset.index, 10);
-      const loc = locations[idx];
-      const match = !q || locMatches(loc, q);
-      card.style.opacity = match ? '1' : '0.12';
-      card.style.pointerEvents = match ? '' : 'none';
-    });
-
-    // Gem grid — hide non-matches
-    let gemVisible = 0;
-    document.querySelectorAll('#gem-grid .gem-card').forEach(card => {
-      const idx = parseInt(card.dataset.index, 10);
-      const loc = locations[idx];
-      const match = !q || locMatches(loc, q);
-      card.style.display = match ? '' : 'none';
-      if (match) gemVisible++;
-    });
-
-    // Count display
     if (q) {
-      const featVisible = locations.slice(0, Math.min(3, locations.length))
-        .filter(loc => locMatches(loc, q)).length;
-      const total = featVisible + gemVisible;
+      // Hide the featured carousel
+      if (featuredSection) {
+        featuredSection.style.transition = 'opacity 0.2s ease';
+        featuredSection.style.opacity = '0';
+        featuredSection.style.pointerEvents = 'none';
+        featuredSection.style.height = '0';
+        featuredSection.style.overflow = 'hidden';
+        featuredSection.style.marginBottom = '0';
+      }
+
+      // Always show the all-locations section during search
+      const allSection = document.getElementById('all-locations-section');
+      if (allSection) allSection.style.display = 'block';
+
+      const gemGrid = document.getElementById('gem-grid');
+
+      // Remove previously injected featured search cards
+      document.querySelectorAll('.search-injected-card').forEach(el => el.remove());
+
+      // Inject matching featured locations (index 0-2) into the gem grid
+      const featuredCount = Math.min(3, locations.length);
+      locations.slice(0, featuredCount).forEach((loc, i) => {
+        if (!locMatches(loc, q)) return;
+        const div = document.createElement('div');
+        div.className = 'gem-card search-injected-card';
+        div.dataset.index = i;
+        div.onclick = () => openDetail(i);
+        const imgSrc = loc.Image
+          ? (loc.Image.startsWith('http') ? loc.Image : `/static/uploads/${loc.Image}`)
+          : null;
+        const imgHtml = imgSrc
+          ? `<img src="${imgSrc}" alt="${loc.Name}">`
+          : `<div class="no-img"></div>`;
+        const tierLabels = { free: '○ Free', '$': '$ Budget', '$$': '$$ Mid-range', '$$$': '$$$ Upscale' };
+        const priceHtml = loc.PriceTier
+          ? `<p class="gem-meta" style="margin-top:3px;">${tierLabels[loc.PriceTier] || ''}</p>`
+          : '';
+        div.innerHTML = `
+          ${imgHtml}
+          <div class="gem-info" style="display:flex;align-items:flex-start;justify-content:space-between;">
+            <div style="min-width:0;flex:1;margin-right:8px;">
+              <p class="gem-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${loc.Name}</p>
+              <p class="gem-meta">${loc.DatePosted || ''}</p>
+              ${priceHtml}
+            </div>
+          </div>`;
+        if (gemGrid) gemGrid.prepend(div);
+      });
+
+      // Show/hide existing gem cards (index 3+)
+      let gemVisible = 0;
+      document.querySelectorAll('#gem-grid .gem-card:not(.search-injected-card)').forEach(card => {
+        const idx = parseInt(card.dataset.index, 10);
+        const loc = locations[idx];
+        const match = locMatches(loc, q);
+        card.style.display = match ? '' : 'none';
+        if (match) gemVisible++;
+      });
+
+      const injectedCount = document.querySelectorAll('#gem-grid .search-injected-card').length;
+      const total = injectedCount + gemVisible;
+
       countEl.textContent = `${total} result${total !== 1 ? 's' : ''} for "${val}"`;
-      if (noResults) noResults.style.display = gemVisible === 0 && locations.length > 3 ? 'block' : 'none';
+      if (noResults) noResults.style.display = total === 0 ? 'block' : 'none';
+
     } else {
+      // Restore featured section
+      if (featuredSection) {
+        featuredSection.style.height = '';
+        featuredSection.style.overflow = '';
+        featuredSection.style.marginBottom = '';
+        featuredSection.style.pointerEvents = '';
+        requestAnimationFrame(() => { featuredSection.style.opacity = '1'; });
+      }
+
+      // Remove injected cards
+      document.querySelectorAll('.search-injected-card').forEach(el => el.remove());
+
+      // Restore gem grid cards
+      document.querySelectorAll('#gem-grid .gem-card').forEach(card => {
+        card.style.display = '';
+      });
+
+      // Hide all-locations section again if it was hidden before (≤3 locations)
+      const allSection = document.getElementById('all-locations-section');
+      if (allSection && locations.length <= 3) allSection.style.display = 'none';
+
       countEl.textContent = '';
       if (noResults) noResults.style.display = 'none';
     }
