@@ -282,6 +282,63 @@ def delete_location(n, loc_id):
     return jsonify({"success": True})
 
 
+@app.route("/borough/<path:n>/edit/<int:loc_id>", methods=["POST"])
+@login_required
+def edit_location(n, loc_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM `Location` WHERE ID = %s AND UserID = %s", (loc_id, current_user.id))
+    loc = cursor.fetchone()
+    if not loc:
+        connection.close()
+        return jsonify({"success": False, "error": "Not found or not allowed"}), 403
+
+    loc_name    = request.form.get("name", "").strip()
+    address     = request.form.get("address", "").strip()
+    description = request.form.get("description", "").strip()
+    price_tier  = request.form.get("price_tier", "").strip() or None
+    price_note  = request.form.get("price_note", "").strip() or None
+
+    if not loc_name:
+        flash("Name cannot be empty")
+        connection.close()
+        return redirect(f"/borough/{n}")
+
+    # Handle image upload
+    image = request.files.get("image")
+    filename = loc.get("Image")  # keep existing by default
+
+    if image and image.filename and allowed_file(image.filename):
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+        filename = str(uuid.uuid4()) + "_" + secure_filename(image.filename)
+        image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+
+    # Build hours from form
+    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    hours_list = []
+    for d in days:
+        open_t  = request.form.get(f"edit_hours_{d}_open", "").strip()
+        close_t = request.form.get(f"edit_hours_{d}_close", "").strip()
+        closed  = request.form.get(f"edit_hours_{d}_closed")
+        if closed:
+            hours_str = "Closed"
+        else:
+            hours_str = f"{open_t} – {close_t}" if open_t and close_t else "Closed"
+        hours_list.append({"name": d, "hours": hours_str})
+    hours_json = json.dumps(hours_list)
+
+    cursor.execute("""
+        UPDATE `Location`
+        SET Name=%s, Address=%s, Description=%s, Image=%s, Hours=%s, PriceTier=%s, PriceNote=%s
+        WHERE ID=%s AND UserID=%s
+    """, (loc_name, address, description, filename, hours_json, price_tier, price_note, loc_id, current_user.id))
+
+    connection.close()
+    flash(f'"{loc_name}" updated!')
+    return redirect(f"/borough/{n}")
+
+
 @app.route("/borough/<path:n>/add", methods=["POST"])
 @login_required
 def add_location(n):
@@ -679,3 +736,59 @@ def on_message(data):
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
+
+
+
+@app.route("/posted")
+@login_required
+def posted_locations():
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT l.*, u.Username,
+               COALESCE(l.LikeCount, 0) as LikeCount
+        FROM `Location` l
+        JOIN `User` u ON l.UserID = u.ID
+        WHERE l.UserID = %s
+        ORDER BY l.DatePosted DESC
+    """, (current_user.id,))
+    locations = cursor.fetchall()
+
+    loc_ids = [l["ID"] for l in locations]
+    liked_ids = set()
+    if loc_ids:
+        fmt = ",".join(["%s"] * len(loc_ids))
+        cursor.execute(
+            f"SELECT LocationID FROM `Like` WHERE UserID = %s AND LocationID IN ({fmt})",
+            (current_user.id, *loc_ids)
+        )
+        liked_ids = {row["LocationID"] for row in cursor.fetchall()}
+
+    connection.close()
+
+    locations_json = json.dumps([{
+        "ID":           l["ID"],
+        "UserID":       l["UserID"],
+        "Name":         l["Name"],
+        "Borough":      l["Borough"],
+        "Address":      l.get("Address") or "",
+        "Description":  l.get("Description") or "",
+        "DatePosted":   (
+            l["DatePosted"].strftime("%b %d, %Y")
+            if isinstance(l["DatePosted"], datetime)
+            else str(l["DatePosted"])
+        ),
+        "Image":        l.get("Image") or "",
+        "LikeCount":    l.get("LikeCount") or 0,
+        "Liked":        l["ID"] in liked_ids,
+        "IsOwner":      True,
+        "Hours":        (json.loads(l["Hours"]) if l.get("Hours") else []),
+        "Latitude":     float(l["Latitude"]) if l.get("Latitude") else None,
+        "Longitude":    float(l["Longitude"]) if l.get("Longitude") else None,
+        "Neighborhood": l.get("Neighborhood") or "",
+        "PriceTier":    l.get("PriceTier") or "",
+        "PriceNote":    l.get("PriceNote") or "",
+    } for l in locations])
+
+    return render_template("postedloc.html.jinja", locations=locations, locations_json=locations_json, liked_ids=liked_ids)

@@ -128,15 +128,18 @@
     #lb-card.lb-animating-out { animation: lbCardOut 0.22s ease forwards; }
 
     /* ── Add modal dark inputs ── */
-    #add-modal input[type="text"], #add-modal input[type="time"], #add-modal textarea, #add-modal select {
+    #add-modal input[type="text"], #add-modal input[type="time"], #add-modal textarea, #add-modal select,
+    #edit-modal input[type="text"], #edit-modal input[type="time"], #edit-modal textarea, #edit-modal select {
       background-color: rgba(101,75,55,0.25) !important; color: #e8ded0 !important;
       border-color: rgba(232,222,208,0.15) !important; color-scheme: dark;
     }
-    #add-modal input::placeholder, #add-modal textarea::placeholder { color: rgba(232,222,208,0.25) !important; }
-    #add-modal input[type="text"]:focus, #add-modal input[type="time"]:focus, #add-modal textarea:focus, #add-modal select:focus {
+    #add-modal input::placeholder, #add-modal textarea::placeholder,
+    #edit-modal input::placeholder, #edit-modal textarea::placeholder { color: rgba(232,222,208,0.25) !important; }
+    #add-modal input[type="text"]:focus, #add-modal input[type="time"]:focus, #add-modal textarea:focus, #add-modal select:focus,
+    #edit-modal input[type="text"]:focus, #edit-modal input[type="time"]:focus, #edit-modal textarea:focus, #edit-modal select:focus {
       background-color: rgba(101,75,55,0.35) !important; border-color: rgba(232,222,208,0.35) !important; outline: none;
     }
-    #add-modal select option { background-color: #2a1f18; color: #e8ded0; }
+    #add-modal select option, #edit-modal select option { background-color: #2a1f18; color: #e8ded0; }
 
     /* ── Chat ── */
     #chat-messages { scrollbar-width: thin; }
@@ -179,12 +182,12 @@
         right: auto !important;
       }
 
-      #add-modal > div {
+      #add-modal > div, #edit-modal > div {
         max-height: 100vh !important;
         border-radius: 20px 20px 0 0 !important;
         margin-top: auto !important;
       }
-      #add-modal {
+      #add-modal, #edit-modal {
         align-items: flex-end !important;
         padding: 0 !important;
       }
@@ -202,7 +205,7 @@
         border-radius: 16px !important;
       }
 
-      #price-tier-grid {
+      #price-tier-grid, #edit-price-tier-grid {
         grid-template-columns: repeat(4, 1fr) !important;
       }
     }
@@ -420,13 +423,11 @@
           <span id="lb-open-status" class="inline-flex items-center gap-1 text-[9px] font-bold tracking-[.16em] uppercase text-green-400 bg-green-400/10 border border-green-400/20 rounded-sm px-2.5 py-0.5">
             <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>Open now
           </span>
-          <!-- ── Pricing badge in lightbox ── -->
           <span id="lb-price-badge" style="display:none;" class="inline-flex items-center gap-1 text-[9px] font-bold tracking-[.16em] uppercase rounded-sm px-2.5 py-0.5 border border-[#e8ded0]/15 text-[#e8ded0]/60 bg-[#e8ded0]/[.05]"></span>
         </div>
         <h2 id="lb-title" class="font-['Cormorant_Garamond'] font-light text-[1.6rem] sm:text-[2rem] leading-none text-[#e8ded0] mb-1"></h2>
         <p id="lb-meta" class="text-[10px] tracking-[.18em] uppercase text-[#e8ded0]/35 mb-3"></p>
         <p id="lb-desc" class="text-[13px] text-[#e8ded0]/60 leading-relaxed mb-4"></p>
-        <!-- ── Pricing note in lightbox ── -->
         <div id="lb-price-note-wrap" style="display:none;margin-bottom:16px;padding:10px 14px;border-radius:10px;background:rgba(232,222,208,0.04);border:1px solid rgba(232,222,208,0.08);">
           <p style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(232,222,208,0.3);margin-bottom:4px;">Pricing note</p>
           <p id="lb-price-note" style="font-size:0.8rem;color:rgba(232,222,208,0.55);line-height:1.5;"></p>
@@ -444,8 +445,10 @@
           <span class="text-[8px] opacity-50 tracking-[.15em]">likes</span>
         </button>
       </div>
-      <div class="px-4 sm:px-6 pb-4">
-        <button id="lb-delete-btn" onclick="openDeleteModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer hidden">Remove location</button>
+      <!-- ── Owner actions: Edit + Delete ── -->
+      <div class="px-4 sm:px-6 pb-4 flex flex-col gap-2">
+        <button id="lb-edit-btn" onclick="openEditModal()" style="display:none;" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-[#e8ded0]/20 bg-[#e8ded0]/[.06] text-[#e8ded0]/70 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-[#e8ded0]/10 transition-colors cursor-pointer">✎ Edit location</button>
+        <button id="lb-delete-btn" onclick="openDeleteModal()" style="display:none;" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-sm border border-red-400/20 bg-red-400/10 text-red-400 font-bold text-[11px] tracking-[.14em] uppercase hover:bg-red-400/20 transition-colors cursor-pointer">Remove location</button>
       </div>
     </div>
   </div>
@@ -468,12 +471,10 @@
     box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,222,208,0.05);
   " onclick="event.stopPropagation()" id="add-modal-inner">
 
-    <!-- Drag handle -->
     <div style="display:flex;justify-content:center;padding:10px 0 0;flex-shrink:0;">
       <div style="width:36px;height:3px;border-radius:999px;background:rgba(232,222,208,0.15);"></div>
     </div>
 
-    <!-- Header -->
     <div style="position:relative; overflow:hidden; flex-shrink:0;">
       <div style="height:3px; background:linear-gradient(90deg, var(--accent), transparent);"></div>
       <div style="padding:18px 22px 14px; display:flex; align-items:flex-start; justify-content:space-between;">
@@ -494,14 +495,12 @@
       </div>
     </div>
 
-    <!-- Step indicators -->
     <div style="padding:0 22px 14px; display:flex; gap:6px; flex-shrink:0;" id="step-indicators">
       <div class="step-dot active" data-step="0" style="flex:1;height:2px;border-radius:999px;background:var(--accent);transition:background 0.3s;"></div>
       <div class="step-dot" data-step="1" style="flex:1;height:2px;border-radius:999px;background:rgba(232,222,208,0.15);transition:background 0.3s;"></div>
       <div class="step-dot" data-step="2" style="flex:1;height:2px;border-radius:999px;background:rgba(232,222,208,0.15);transition:background 0.3s;"></div>
     </div>
 
-    <!-- Form -->
     <form id="add-location-form" method="POST" action="/borough/{{ borough.name | replace(' ', '-') }}/add" enctype="multipart/form-data" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
 
       <div style="flex:1;overflow-y:auto;padding:0 22px;-webkit-overflow-scrolling:touch;">
@@ -566,7 +565,6 @@
             </div>
           </div>
 
-          <!-- hidden fields -->
           <input type="hidden" name="latitude"     id="hidden-lat">
           <input type="hidden" name="longitude"    id="hidden-lng">
           <input type="hidden" name="photo_url"    id="hidden-photo-url">
@@ -582,7 +580,6 @@
                onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'"></textarea>
           </div>
 
-          <!-- ── PRICING ── -->
           <div style="margin-bottom:20px;">
             <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Pricing</label>
             <div id="price-tier-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
@@ -612,8 +609,6 @@
               onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
               onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
           </div>
-          <!-- ── END PRICING ── -->
-
         </div>
 
         <!-- STEP 2: Photo -->
@@ -702,7 +697,6 @@
 
       </div>
 
-      <!-- Footer navigation -->
       <div style="padding:14px 22px;border-top:1px solid rgba(232,222,208,0.06);display:flex;gap:10px;flex-shrink:0;background:rgba(0,0,0,0.2);">
         <button type="button" id="step-back-btn" onclick="modalStep(-1)" style="
           display:none;padding:12px 18px;border-radius:12px;
@@ -727,6 +721,219 @@
           cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;
           transition:opacity 0.2s, transform 0.15s;-webkit-tap-highlight-color:transparent;
         ">Post Location ✦</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ── EDIT LOCATION MODAL ── -->
+<div id="edit-modal" onclick="if(event.target===this)closeEditModal()" style="
+  display:none; position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(16px);
+  align-items:flex-end; justify-content:center; padding:0;
+">
+  <div style="
+    width:100%; max-width:520px; max-height:92vh;
+    background:linear-gradient(145deg,#1a1410 0%,#120e0a 100%);
+    border:1px solid rgba(232,222,208,0.12);
+    border-radius:24px 24px 0 0;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,222,208,0.05);
+  " onclick="event.stopPropagation()">
+
+    <div style="display:flex;justify-content:center;padding:10px 0 0;flex-shrink:0;">
+      <div style="width:36px;height:3px;border-radius:999px;background:rgba(232,222,208,0.15);"></div>
+    </div>
+
+    <!-- Header -->
+    <div style="position:relative; overflow:hidden; flex-shrink:0;">
+      <div style="height:3px; background:linear-gradient(90deg, var(--accent), transparent);"></div>
+      <div style="padding:18px 22px 14px; display:flex; align-items:flex-start; justify-content:space-between;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
+            <p style="font-size:0.5rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(232,222,208,0.3);">{{ borough.name | capitalize }}</p>
+          </div>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:#e8ded0;line-height:1.1;">Edit Location</h2>
+        </div>
+        <button onclick="closeEditModal()" style="
+          width:32px;height:32px;border-radius:50%;flex-shrink:0;margin-top:4px;
+          background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);
+          color:rgba(232,222,208,0.4);cursor:pointer;font-size:0.9rem;
+          display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+          -webkit-tap-highlight-color:transparent;
+        ">✕</button>
+      </div>
+    </div>
+
+    <!-- Edit form — single scrollable page, no steps needed -->
+    <form id="edit-location-form" method="POST" enctype="multipart/form-data" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      
+
+      <div style="flex:1;overflow-y:auto;padding:0 22px 22px;-webkit-overflow-scrolling:touch;">
+
+        <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);margin-bottom:18px;margin-top:4px;">Update the details below</p>
+
+        <!-- Name -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Location Name <span style="color:var(--accent);">*</span></label>
+          <input type="text" name="name" id="edit-name" required style="
+            width:100%;padding:12px 16px;border-radius:12px;
+            background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+            color:#e8ded0;font-size:0.9rem;font-family:inherit;outline:none;transition:all 0.2s;
+          " onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
+             onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
+        </div>
+
+        <!-- Address -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Address</label>
+          <input type="text" name="address" id="edit-address" style="
+            width:100%;padding:12px 16px;border-radius:12px;
+            background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+            color:#e8ded0;font-size:0.9rem;font-family:inherit;outline:none;transition:all 0.2s;
+          " onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
+             onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
+        </div>
+
+        <!-- Description -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Description</label>
+          <textarea name="description" id="edit-description" rows="3" style="
+            width:100%;padding:12px 16px;border-radius:12px;
+            background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+            color:#e8ded0;font-size:0.9rem;font-family:inherit;outline:none;resize:none;transition:all 0.2s;
+          " onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
+             onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'"></textarea>
+        </div>
+
+        <!-- Pricing -->
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Pricing</label>
+          <div id="edit-price-tier-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+            <button type="button" class="edit-price-tier-btn price-tier-btn" data-tier="free" onclick="selectEditPriceTier(this)">
+              <span class="tier-symbol">○</span>
+              <span class="tier-label">Free</span>
+            </button>
+            <button type="button" class="edit-price-tier-btn price-tier-btn" data-tier="$" onclick="selectEditPriceTier(this)">
+              <span class="tier-symbol">$</span>
+              <span class="tier-label">Budget</span>
+            </button>
+            <button type="button" class="edit-price-tier-btn price-tier-btn" data-tier="$$" onclick="selectEditPriceTier(this)">
+              <span class="tier-symbol">$$</span>
+              <span class="tier-label">Mid</span>
+            </button>
+            <button type="button" class="edit-price-tier-btn price-tier-btn" data-tier="$$$" onclick="selectEditPriceTier(this)">
+              <span class="tier-symbol">$$$</span>
+              <span class="tier-label">Upscale</span>
+            </button>
+          </div>
+          <input type="hidden" name="price_tier" id="edit-hidden-price-tier">
+          <input type="text" name="price_note" id="edit-price-note"
+            placeholder='Optional note, e.g. "Free entry on Tuesdays"'
+            style="width:100%;padding:10px 16px;border-radius:12px;
+              background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+              color:#e8ded0;font-size:0.85rem;font-family:inherit;outline:none;transition:all 0.2s;"
+            onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
+            onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
+        </div>
+
+        <!-- Photo -->
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Photo <span style="color:rgba(232,222,208,0.25);font-size:0.55rem;">(leave blank to keep existing)</span></label>
+          <label id="edit-photo-drop-zone" style="
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            gap:12px;padding:28px 20px;border-radius:16px;cursor:pointer;
+            border:2px dashed rgba(232,222,208,0.15);
+            background:rgba(232,222,208,0.03);
+            transition:all 0.2s;text-align:center;
+          ">
+            <div id="edit-photo-preview-wrap" style="display:none;width:100%;border-radius:10px;overflow:hidden;max-height:160px;">
+              <img id="edit-photo-preview-img" src="" style="width:100%;height:160px;object-fit:cover;display:block;">
+            </div>
+            <div id="edit-photo-placeholder">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="margin:0 auto 8px;opacity:0.3;">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="#e8ded0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p style="font-size:0.8rem;color:rgba(232,222,208,0.5);">Tap to upload a new photo</p>
+            </div>
+            <input type="file" name="image" accept="image/*" class="hidden" id="edit-photo-input" onchange="previewEditPhoto(this)">
+          </label>
+        </div>
+
+        <!-- Hours -->
+        <div style="margin-bottom:8px;">
+          <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:12px;">Hours</label>
+
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <select id="edit-hours-preset" style="
+              flex:1;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);
+              color:rgba(232,222,208,0.5);padding:8px 12px;border-radius:10px;
+              font-size:0.75rem;font-family:inherit;outline:none;min-width:0;
+            ">
+              <option value="">Apply a preset…</option>
+              <option value="9-5">Weekdays 9am–5pm</option>
+              <option value="24-7">Open 24/7</option>
+              <option value="closed">Closed all week</option>
+            </select>
+            <button type="button" onclick="applyEditPreset()" style="
+              padding:8px 14px;border-radius:10px;
+              background:var(--accent);border:none;
+              color:white;font-size:0.7rem;font-family:inherit;
+              cursor:pointer;white-space:nowrap;letter-spacing:0.1em;text-transform:uppercase;
+              transition:opacity 0.2s;flex-shrink:0;
+            ">Apply</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:2px;border-radius:14px;overflow:hidden;border:1px solid rgba(232,222,208,0.08);">
+            {% set days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
+            {% for d in days %}
+            <div style="padding:10px 12px;background:rgba(232,222,208,0.03);border-bottom:1px solid rgba(232,222,208,0.05);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(232,222,208,0.35);">{{ d }}</span>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+                  <input type="checkbox" name="edit_hours_{{ d }}_closed" id="edit-closed-{{ d }}" style="accent-color:var(--accent);width:14px;height:14px;" onchange="toggleEditClosed('{{ d }}')">
+                  <span style="font-size:0.6rem;color:rgba(232,222,208,0.25);">Closed</span>
+                </label>
+              </div>
+              <div id="edit-hours-row-{{ d }}" class="hours-row-inner" style="display:flex;align-items:center;gap:6px;">
+                <input type="time" name="edit_hours_{{ d }}_open" id="edit-open-{{ d }}" style="
+                  flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.1);
+                  border-radius:8px;padding:7px 8px;color:rgba(232,222,208,0.7);
+                  font-size:0.8rem;font-family:inherit;outline:none;min-width:0;color-scheme:dark;
+                ">
+                <span style="color:rgba(232,222,208,0.2);font-size:0.7rem;flex-shrink:0;">–</span>
+                <input type="time" name="edit_hours_{{ d }}_close" id="edit-close-{{ d }}" style="
+                  flex:1;background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.1);
+                  border-radius:8px;padding:7px 8px;color:rgba(232,222,208,0.7);
+                  font-size:0.8rem;font-family:inherit;outline:none;min-width:0;color-scheme:dark;
+                ">
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div style="padding:14px 22px;border-top:1px solid rgba(232,222,208,0.06);display:flex;gap:10px;flex-shrink:0;background:rgba(0,0,0,0.2);">
+        <button type="button" onclick="closeEditModal()" style="
+          padding:12px 18px;border-radius:12px;
+          background:rgba(232,222,208,0.06);border:1px solid rgba(232,222,208,0.12);
+          color:rgba(232,222,208,0.5);font-size:0.7rem;font-family:inherit;
+          cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;
+          transition:all 0.2s;-webkit-tap-highlight-color:transparent;
+        ">Cancel</button>
+        <button type="submit" form="edit-location-form" style="
+          flex:1;padding:14px;border-radius:12px;
+          background:var(--accent);border:none;
+          color:white;font-size:0.8rem;font-family:inherit;
+          cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;
+          transition:opacity 0.2s, transform 0.15s;-webkit-tap-highlight-color:transparent;
+        ">Save Changes ✦</button>
       </div>
 
     </form>
@@ -781,6 +988,7 @@
 
 <script>
   const locations = {{ locations_json | safe }};
+  const BOROUGH_SLUG = '{{ borough.name | replace(" ", "-") }}';
 
   // ── Responsive carousel config ──
   function getVisibleCount() {
@@ -810,8 +1018,7 @@
 
   async function toggleLikeById() {
     const loc = locations[lbIndex]; if (!loc) return;
-    const boroughSlug = '{{ borough.name | replace(" ", "-") }}';
-    const res = await fetch(`/borough/${boroughSlug}/like/${loc.ID}`, { method: 'POST' });
+    const res = await fetch(`/borough/${BOROUGH_SLUG}/like/${loc.ID}`, { method: 'POST' });
     const data = await res.json();
     loc.Liked = data.liked; loc.LikeCount = data.count;
     document.getElementById('lb-like-count').textContent = data.count;
@@ -896,7 +1103,6 @@
     clearBtn.style.display = val ? 'block' : 'none';
 
     if (q) {
-      // Hide the featured carousel
       if (featuredSection) {
         featuredSection.style.transition = 'opacity 0.2s ease';
         featuredSection.style.opacity = '0';
@@ -906,16 +1112,13 @@
         featuredSection.style.marginBottom = '0';
       }
 
-      // Always show the all-locations section during search
       const allSection = document.getElementById('all-locations-section');
       if (allSection) allSection.style.display = 'block';
 
       const gemGrid = document.getElementById('gem-grid');
 
-      // Remove previously injected featured search cards
       document.querySelectorAll('.search-injected-card').forEach(el => el.remove());
 
-      // Inject matching featured locations (index 0-2) into the gem grid
       const featuredCount = Math.min(3, locations.length);
       locations.slice(0, featuredCount).forEach((loc, i) => {
         if (!locMatches(loc, q)) return;
@@ -945,7 +1148,6 @@
         if (gemGrid) gemGrid.prepend(div);
       });
 
-      // Show/hide existing gem cards (index 3+)
       let gemVisible = 0;
       document.querySelectorAll('#gem-grid .gem-card:not(.search-injected-card)').forEach(card => {
         const idx = parseInt(card.dataset.index, 10);
@@ -962,7 +1164,6 @@
       if (noResults) noResults.style.display = total === 0 ? 'block' : 'none';
 
     } else {
-      // Restore featured section
       if (featuredSection) {
         featuredSection.style.height = '';
         featuredSection.style.overflow = '';
@@ -971,15 +1172,12 @@
         requestAnimationFrame(() => { featuredSection.style.opacity = '1'; });
       }
 
-      // Remove injected cards
       document.querySelectorAll('.search-injected-card').forEach(el => el.remove());
 
-      // Restore gem grid cards
       document.querySelectorAll('#gem-grid .gem-card').forEach(card => {
         card.style.display = '';
       });
 
-      // Hide all-locations section again if it was hidden before (≤3 locations)
       const allSection = document.getElementById('all-locations-section');
       if (allSection && locations.length <= 3) allSection.style.display = 'none';
 
@@ -1041,27 +1239,26 @@
       ? `<span style="width:6px;height:6px;border-radius:50%;background:rgb(74,222,128);flex-shrink:0;"></span>Open now`
       : `<span style="width:6px;height:6px;border-radius:50%;background:rgb(239,68,68);flex-shrink:0;"></span>Closed`;
 
-    // ── Pricing badge ──
     const priceBadge = document.getElementById('lb-price-badge');
     const priceNoteWrap = document.getElementById('lb-price-note-wrap');
     const priceNoteEl = document.getElementById('lb-price-note');
     if (loc.PriceTier) {
-  const tierLabels = { free: '○ Free', '$': '$ Budget', '$$': '$$ Mid-range', '$$$': '$$$ Upscale' };
-  const tierColors = { free: 'rgba(74,222,128,0.15)', '$': 'rgba(232,222,208,0.08)', '$$': 'rgba(255,183,77,0.12)', '$$$': 'rgba(180,130,255,0.12)' };
-  const tierBorder = { free: 'rgba(74,222,128,0.3)', '$': 'rgba(232,222,208,0.2)', '$$': 'rgba(255,183,77,0.3)', '$$$': 'rgba(180,130,255,0.3)' };
-  const tierText   = { free: 'rgb(74,222,128)', '$': 'rgba(232,222,208,0.7)', '$$': 'rgb(255,183,77)', '$$$': 'rgb(200,160,255)' };
-  priceBadge.textContent = tierLabels[loc.PriceTier] || loc.PriceTier;
-  priceBadge.style.display = 'inline-flex';
-  priceBadge.style.background = tierColors[loc.PriceTier] || 'rgba(232,222,208,0.06)';
-  priceBadge.style.borderColor = tierBorder[loc.PriceTier] || 'rgba(232,222,208,0.15)';
- priceBadge.style.color = tierText[loc.PriceTier] || 'rgba(232,222,208,0.6)';
-} else {
-  priceBadge.textContent = '? Price unknown';
-  priceBadge.style.display = 'inline-flex';
-  priceBadge.style.background = 'rgba(232,222,208,0.04)';
-  priceBadge.style.borderColor = 'rgba(232,222,208,0.1)';
-  priceBadge.style.color = 'rgba(232,222,208,0.25)';
-}
+      const tierLabels = { free: '○ Free', '$': '$ Budget', '$$': '$$ Mid-range', '$$$': '$$$ Upscale' };
+      const tierColors = { free: 'rgba(74,222,128,0.15)', '$': 'rgba(232,222,208,0.08)', '$$': 'rgba(255,183,77,0.12)', '$$$': 'rgba(180,130,255,0.12)' };
+      const tierBorder = { free: 'rgba(74,222,128,0.3)', '$': 'rgba(232,222,208,0.2)', '$$': 'rgba(255,183,77,0.3)', '$$$': 'rgba(180,130,255,0.3)' };
+      const tierText   = { free: 'rgb(74,222,128)', '$': 'rgba(232,222,208,0.7)', '$$': 'rgb(255,183,77)', '$$$': 'rgb(200,160,255)' };
+      priceBadge.textContent = tierLabels[loc.PriceTier] || loc.PriceTier;
+      priceBadge.style.display = 'inline-flex';
+      priceBadge.style.background = tierColors[loc.PriceTier] || 'rgba(232,222,208,0.06)';
+      priceBadge.style.borderColor = tierBorder[loc.PriceTier] || 'rgba(232,222,208,0.15)';
+      priceBadge.style.color = tierText[loc.PriceTier] || 'rgba(232,222,208,0.6)';
+    } else {
+      priceBadge.textContent = '? Price unknown';
+      priceBadge.style.display = 'inline-flex';
+      priceBadge.style.background = 'rgba(232,222,208,0.04)';
+      priceBadge.style.borderColor = 'rgba(232,222,208,0.1)';
+      priceBadge.style.color = 'rgba(232,222,208,0.25)';
+    }
 
     if (loc.PriceNote) {
       priceNoteEl.textContent = loc.PriceNote;
@@ -1100,7 +1297,11 @@
     document.getElementById('lb-like-count').textContent = loc.LikeCount||0;
     document.getElementById('lb-heart').textContent = loc.Liked?'♥':'♡';
     document.getElementById('lb-like-btn').style.color = loc.Liked?'var(--accent)':'#e8ded0';
-    document.getElementById('lb-delete-btn').style.display = loc.IsOwner?'flex':'none';
+
+    // Show edit + delete buttons only to owner
+    document.getElementById('lb-delete-btn').style.display = loc.IsOwner ? 'flex' : 'none';
+    document.getElementById('lb-edit-btn').style.display   = loc.IsOwner ? 'flex' : 'none';
+
     document.getElementById('lb-prev').style.visibility = lbIndex>0?'visible':'hidden';
     document.getElementById('lb-next').style.visibility = lbIndex<lbTotal-1?'visible':'hidden';
 
@@ -1153,13 +1354,127 @@
   function closeDeleteModal() { document.getElementById('delete-modal').style.display='none'; }
   async function confirmDelete() {
     const loc=locations[lbIndex]; if(!loc) return; closeDeleteModal();
-    const res=await fetch(`/borough/{{ borough.name | replace(" ", "-") }}/delete/${loc.ID}`,{method:'POST'});
+    const res=await fetch(`/borough/${BOROUGH_SLUG}/delete/${loc.ID}`,{method:'POST'});
     const data=await res.json();
     if(data.success){locations.splice(lbIndex,1);closeLightbox();location.reload();}
     else alert("Failed to delete location.");
   }
 
-  // ── Multi-step modal ──
+  // ── Edit Modal ──
+  function openEditModal() {
+    const loc = locations[lbIndex]; if (!loc) return;
+
+    // Point the form at the edit endpoint
+    document.getElementById('edit-location-form').action = `/borough/${BOROUGH_SLUG}/edit/${loc.ID}`;
+
+    // Pre-fill text fields
+    document.getElementById('edit-name').value        = loc.Name        || '';
+    document.getElementById('edit-address').value     = loc.Address     || '';
+    document.getElementById('edit-description').value = loc.Description || '';
+    document.getElementById('edit-price-note').value  = loc.PriceNote   || '';
+
+    // Pre-select price tier
+    document.querySelectorAll('.edit-price-tier-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('edit-hidden-price-tier').value = loc.PriceTier || '';
+    if (loc.PriceTier) {
+      const btn = document.querySelector(`.edit-price-tier-btn[data-tier="${loc.PriceTier}"]`);
+      if (btn) btn.classList.add('selected');
+    }
+
+    // Pre-fill hours
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    days.forEach(d => {
+      const cb  = document.getElementById(`edit-closed-${d}`);
+      const opI = document.getElementById(`edit-open-${d}`);
+      const clI = document.getElementById(`edit-close-${d}`);
+      const row = document.getElementById(`edit-hours-row-${d}`);
+      cb.checked = true; row.style.display = 'none'; opI.value = ''; clI.value = '';
+    });
+
+    if (loc.Hours && Array.isArray(loc.Hours)) {
+      loc.Hours.forEach(dayObj => {
+        const d = dayObj.name; // e.g. "Mon"
+        if (!days.includes(d)) return;
+        const cb  = document.getElementById(`edit-closed-${d}`);
+        const opI = document.getElementById(`edit-open-${d}`);
+        const clI = document.getElementById(`edit-close-${d}`);
+        const row = document.getElementById(`edit-hours-row-${d}`);
+        if (dayObj.hours && dayObj.hours !== 'Closed') {
+          cb.checked = false; row.style.display = 'flex';
+          const parts = dayObj.hours.split(' – ');
+          if (parts.length === 2) { opI.value = parts[0]; clI.value = parts[1]; }
+        } else {
+          cb.checked = true; row.style.display = 'none';
+        }
+      });
+    }
+
+    // Reset photo preview
+    document.getElementById('edit-photo-preview-wrap').style.display = 'none';
+    document.getElementById('edit-photo-placeholder').style.display  = 'flex';
+    document.getElementById('edit-photo-input').value = '';
+
+    // Show the modal
+    const modal = document.getElementById('edit-modal');
+    modal.style.display = 'flex';
+    if (window.innerWidth >= 640) {
+      modal.style.alignItems = 'center';
+      modal.style.padding = '20px';
+      modal.querySelector('div').style.borderRadius = '24px';
+    } else {
+      modal.style.alignItems = 'flex-end';
+      modal.style.padding = '0';
+      modal.querySelector('div').style.borderRadius = '20px 20px 0 0';
+    }
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function selectEditPriceTier(btn) {
+    document.querySelectorAll('.edit-price-tier-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('edit-hidden-price-tier').value = btn.dataset.tier;
+  }
+
+  function previewEditPhoto(input) {
+    const file = input.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('edit-photo-preview-img').src = e.target.result;
+      document.getElementById('edit-photo-preview-wrap').style.display = 'block';
+      document.getElementById('edit-photo-placeholder').style.display  = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function toggleEditClosed(day) {
+    const row = document.getElementById(`edit-hours-row-${day}`);
+    const cb  = document.getElementById(`edit-closed-${day}`);
+    row.style.display = cb.checked ? 'none' : 'flex';
+  }
+
+  function applyEditPreset() {
+    const preset = document.getElementById('edit-hours-preset').value;
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    days.forEach(d => {
+      const cb  = document.getElementById(`edit-closed-${d}`);
+      const opI = document.getElementById(`edit-open-${d}`);
+      const clI = document.getElementById(`edit-close-${d}`);
+      const row = document.getElementById(`edit-hours-row-${d}`);
+      if (preset === '9-5') {
+        if (['Sat','Sun'].includes(d)) { cb.checked=true;  row.style.display='none'; }
+        else { cb.checked=false; row.style.display='flex'; opI.value='09:00'; clI.value='17:00'; }
+      }
+      if (preset === '24-7')  { cb.checked=false; row.style.display='flex'; opI.value='00:00'; clI.value='23:59'; }
+      if (preset === 'closed'){ cb.checked=true;  row.style.display='none'; }
+    });
+  }
+
+  // ── Multi-step ADD modal ──
   let currentStep = 0;
   const totalSteps = 3;
 
@@ -1216,9 +1531,9 @@
     submitBtn.style.display = currentStep === totalSteps - 1 ? 'block' : 'none';
   }
 
-  // ── Pricing tier selector ──
+  // ── Pricing tier selector (add modal) ──
   function selectPriceTier(btn) {
-    document.querySelectorAll('.price-tier-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.price-tier-btn:not(.edit-price-tier-btn)').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     document.getElementById('hidden-price-tier').value = btn.dataset.tier;
   }
@@ -1406,7 +1721,6 @@
     if(descEl&&!descEl.value) descEl.value=place.editorial_summary?.overview||'';
     if(place.geometry?.location) { document.getElementById('hidden-lat').value=place.geometry.location.lat(); document.getElementById('hidden-lng').value=place.geometry.location.lng(); }
 
-    // ── Auto-suggest price tier from Google place type ──
     if (place.types) {
       const freePlaceTypes = ['park','natural_feature','tourist_attraction','point_of_interest'];
       const budgetTypes    = ['cafe','bakery','fast_food','convenience_store','grocery_or_supermarket'];
@@ -1418,7 +1732,7 @@
       else if (place.types.some(t => upscaleTypes.includes(t)))suggestedTier = '$$$';
       else if (place.types.some(t => midTypes.includes(t)))    suggestedTier = '$$';
       if (suggestedTier && !document.getElementById('hidden-price-tier').value) {
-        const tierBtn = document.querySelector(`.price-tier-btn[data-tier="${suggestedTier}"]`);
+        const tierBtn = document.querySelector(`.price-tier-btn:not(.edit-price-tier-btn)[data-tier="${suggestedTier}"]`);
         if (tierBtn) selectPriceTier(tierBtn);
       }
     }
