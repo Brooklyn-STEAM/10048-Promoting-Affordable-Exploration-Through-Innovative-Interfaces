@@ -1846,6 +1846,200 @@
     }
   });
 </script>
+<!-- ── Cross-Borough Location Suggestion Popup ── -->
+<div id="loc-popup" style="
+  position: fixed; bottom: 80px; right: 20px; z-index: 200;
+  width: 260px;
+  background: linear-gradient(145deg, #1a1410 0%, #120e0a 100%);
+  border: 1px solid rgba(232,222,208,0.15);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(232,222,208,0.05);
+  display: none;
+  animation: popupIn 0.4s cubic-bezier(0.23,1,0.32,1) forwards;
+">
+  <button onclick="dismissPopup()" style="
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,0,0,0.5); border: 1px solid rgba(232,222,208,0.15);
+    color: rgba(232,222,208,0.5); font-size: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1; -webkit-tap-highlight-color: transparent;
+  ">✕</button>
 
+  <div id="popup-img-wrap" style="width:100%; height:110px; position:relative; overflow:hidden;">
+    <img id="popup-img" src="" alt="" style="width:100%;height:110px;object-fit:cover;display:none;">
+    <div id="popup-img-placeholder" style="width:100%;height:110px;background:linear-gradient(135deg,rgba(232,222,208,0.06),rgba(232,222,208,0.02));display:flex;align-items:center;justify-content:center;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(232,222,208,0.15)" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%);"></div>
+  </div>
+
+  <div style="padding: 12px 14px 12px;">
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+      <span style="width:5px;height:5px;border-radius:50%;background:var(--popup-accent, #888);flex-shrink:0;"></span>
+      <span id="popup-borough-label" style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--popup-accent, #888);opacity:0.9;"></span>
+    </div>
+    <p id="popup-title" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#e8ded0;line-height:1.2;margin-bottom:5px;"></p>
+    <p id="popup-desc" style="font-size:11px;color:rgba(232,222,208,0.45);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"></p>
+    <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(232,222,208,0.07);padding-top:9px;">
+      <span id="popup-price" style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.35);"></span>
+      <div style="display:flex;gap:6px;">
+        <button onclick="cyclePopup()" style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:5px 11px;border-radius:999px;border:1px solid rgba(232,222,208,0.18);background:transparent;color:rgba(232,222,208,0.5);cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">Next</button>
+        <button id="popup-view-btn" onclick="goToBorough()" style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:5px 11px;border-radius:999px;border:none;background:var(--popup-accent, #888);color:#fff;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">Explore →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes popupIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes popupOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(10px) scale(0.95); }
+  }
+  @media (max-width: 480px) {
+    #loc-popup { right: 12px; bottom: 70px; width: calc(100vw - 80px); max-width: 260px; }
+  }
+</style>
+
+<script>
+  (function() {
+    const BOROUGH_META = {
+      'manhattan':     { accent: '#2e6da4', slug: 'manhattan' },
+      'brooklyn':      { accent: '#a4642e', slug: 'brooklyn' },
+      'queens':        { accent: '#2ea464', slug: 'queens' },
+      'bronx':         { accent: '#555555', slug: 'bronx' },
+      'staten island': { accent: '#7a6a50', slug: 'staten-island' },
+    };
+
+    const CURRENT_BOROUGH = '{{ borough.name }}';
+    const tierLabels = { free: '○ Free', '$': '$ Budget', '$$': '$$ Mid', '$$$': '$$$ Upscale' };
+
+    let crossBoroughLocs = [];
+    let popupIndex = -1;
+    let popupTimer = null;
+    let currentLoc = null;
+
+    // ── FIX 3: On page load, check for ?open=ID and auto-open that location ──
+    (function checkAutoOpen() {
+      const params = new URLSearchParams(window.location.search);
+      const openId = params.get('open');
+      if (!openId) return;
+      // Remove the query param from the URL cleanly
+      window.history.replaceState({}, '', window.location.pathname);
+      // Wait for locations array to be ready, then find and open the matching one
+      const idx = locations.findIndex(l => String(l.ID) === String(openId));
+      if (idx !== -1) {
+        // Small delay to let the page finish rendering
+        setTimeout(() => openDetail(idx), 400);
+      }
+    })();
+
+    async function loadCrossBorough() {
+      const others = Object.keys(BOROUGH_META).filter(b => b !== CURRENT_BOROUGH);
+      const results = await Promise.allSettled(
+        others.map(b =>
+          fetch(`/borough/${BOROUGH_META[b].slug}`, { credentials: 'same-origin' })
+            .then(r => r.text())
+            .then(html => {
+              const match = html.match(/const locations = (\[[\s\S]*?\]);/);
+              if (!match) return [];
+              const locs = JSON.parse(match[1]);
+              return locs.map(l => ({ ...l, _borough: b, _accent: BOROUGH_META[b].accent, _slug: BOROUGH_META[b].slug }));
+            })
+            .catch(() => [])
+        )
+      );
+      crossBoroughLocs = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+      if (crossBoroughLocs.length > 0) {
+        setTimeout(() => showPopup(getRandomIndex(-1)), 6000);
+      }
+    }
+
+    function getRandomIndex(exclude) {
+      if (crossBoroughLocs.length === 0) return -1;
+      if (crossBoroughLocs.length === 1) return 0;
+      let idx;
+      do { idx = Math.floor(Math.random() * crossBoroughLocs.length); } while (idx === exclude);
+      return idx;
+    }
+
+    function showPopup(index) {
+      if (index < 0 || !crossBoroughLocs[index]) return;
+      popupIndex = index;
+      currentLoc = crossBoroughLocs[index];
+
+      const popup = document.getElementById('loc-popup');
+      const img   = document.getElementById('popup-img');
+      const ph    = document.getElementById('popup-img-placeholder');
+
+      // ── FIX 1: Always reset display before re-animating ──
+      popup.style.animation = 'none';
+      popup.style.opacity   = '0';
+      popup.style.display   = 'block';
+      // Force reflow so the browser registers the reset before starting the animation
+      popup.getBoundingClientRect();
+      popup.style.animation = 'popupIn 0.4s cubic-bezier(0.23,1,0.32,1) forwards';
+
+      // ── FIX 2: Set accent color and update the dot directly by ID instead of fragile selector ──
+      popup.style.setProperty('--popup-accent', currentLoc._accent);
+      const dot = document.getElementById('popup-accent-dot');
+      if (dot) dot.style.background = currentLoc._accent;
+
+      document.getElementById('popup-borough-label').textContent = `Gem in ${currentLoc._borough}`;
+      document.getElementById('popup-borough-label').style.color = currentLoc._accent;
+      document.getElementById('popup-title').textContent = currentLoc.Name;
+      document.getElementById('popup-desc').textContent  = currentLoc.Description || 'A hidden gem worth discovering.';
+      document.getElementById('popup-price').textContent = tierLabels[currentLoc.PriceTier] || '';
+
+      if (currentLoc.Image) {
+        const src = currentLoc.Image.startsWith('http')
+          ? currentLoc.Image
+          : `/static/uploads/${currentLoc.Image}`;
+        img.onload  = () => { img.style.display = 'block'; ph.style.display = 'none'; };
+        img.onerror = () => { img.style.display = 'none';  ph.style.display = 'flex'; };
+        img.src = src;
+      } else {
+        img.style.display = 'none';
+        ph.style.display  = 'flex';
+      }
+
+      clearTimeout(popupTimer);
+      popupTimer = setTimeout(() => dismissPopup(true), 12000);
+    }
+
+    window.cyclePopup = function() {
+      // ── FIX 2: Clear the timer before cycling so the old auto-dismiss doesn't fire mid-cycle ──
+      clearTimeout(popupTimer);
+      showPopup(getRandomIndex(popupIndex));
+    };
+
+    window.goToBorough = function() {
+      if (!currentLoc) return;
+      // ── FIX 3: Pass the location ID so the destination page can auto-open it ──
+      const url = `/borough/${currentLoc._slug}?open=${currentLoc.ID}`;
+      dismissPopup(false);
+      window.location.href = url;
+    };
+
+    window.dismissPopup = function(auto) {
+      const popup = document.getElementById('loc-popup');
+      clearTimeout(popupTimer);
+      popup.style.animation = 'popupOut 0.3s ease forwards';
+      setTimeout(() => {
+        popup.style.display = 'none';
+        // ── FIX 1: Always reschedule — use a longer delay after manual dismiss ──
+        const delay = auto ? 20000 : 45000;
+        popupTimer = setTimeout(() => showPopup(getRandomIndex(popupIndex)), delay);
+      }, 300);
+    };
+
+    loadCrossBorough();
+  })();
+</script>
 </body>
 </html>
