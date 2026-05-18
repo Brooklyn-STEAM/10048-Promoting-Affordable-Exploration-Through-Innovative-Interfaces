@@ -13,29 +13,28 @@
   </style>
 </head>
 
-<body class="w-screen h-screen flex overflow-hidden">
+<body class="min-h-screen flex flex-col overflow-x-hidden md:flex-row md:h-screen md:overflow-hidden">
 
 {% include '_nav.html.jinja' %}
 
+<!-- Sidebar / Hero panel -->
+<div class="w-full md:w-1/3 md:h-full bg-[#3a3328] flex flex-col items-center justify-center relative overflow-hidden flex-shrink-0 py-12 md:py-0">
+  <!-- rings — hidden on mobile to reduce clutter -->
+  <div class="hidden md:block absolute w-[400px] h-[400px] rounded-full border border-white/5"></div>
+  <div class="hidden md:block absolute w-[280px] h-[280px] rounded-full border border-white/5"></div>
+  <div class="hidden md:block absolute w-[160px] h-[160px] rounded-full border border-white/5"></div>
 
-<div class="w-1/3 h-full bg-[#3a3328] flex flex-col items-center justify-center relative overflow-hidden flex-shrink-0">
-  <!-- rings -->
-  <div class="absolute w-[400px] h-[400px] rounded-full border border-white/5"></div>
-  <div class="absolute w-[280px] h-[280px] rounded-full border border-white/5"></div>
-  <div class="absolute w-[160px] h-[160px] rounded-full border border-white/5"></div>
-
-
-  <div class="z-10 flex flex-col items-center gap-2">
+  <div class="z-10 flex flex-col items-center gap-2 px-6 text-center">
     {% if current_user.profile_picture %}
       <img src="{{ current_user.profile_picture }}"
            class="w-16 h-16 rounded-full object-cover border-2 border-white/20"
            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-      <div class="w-24 h-24 rounded-full bg-[#5c6b5c] items-center justify-center border-2 border-white/20" style="display:none;">
-        <span class="text-white text-4xl font-light">{{ current_user.name[0] | upper }}</span>
+      <div class="w-16 h-16 rounded-full bg-[#5c6b5c] items-center justify-center border-2 border-white/20" style="display:none;">
+        <span class="text-white text-2xl font-light">{{ current_user.name[0] | upper }}</span>
       </div>
     {% else %}
-      class="w-16 h-16 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-white/20">
-  <span class="text-white text-2xl font-light">{{ current_user.name[0] | upper }}</span>
+      <div class="w-16 h-16 rounded-full bg-[#5c6b5c] flex items-center justify-center border-2 border-white/20">
+        <span class="text-white text-2xl font-light">{{ current_user.name[0] | upper }}</span>
       </div>
     {% endif %}
 
@@ -44,57 +43,56 @@
       <p class="text-[#e8ded0]/30 text-xs tracking-widest mt-1">{{ current_user.email }}</p>
     </div>
 
-    <a href="/browse" style="
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 20px; border-radius:999px;
-      border:1px solid rgba(232,222,208,0.2);
-      color:rgba(232,222,208,0.5); font-size:0.6rem;
-      letter-spacing:0.2em; text-transform:uppercase;
-      text-decoration:none; transition:all 0.2s;
-      margin-top:8px;
-    " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
-       onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
-      ← Browse Boroughs
-    </a>
-    <a href="/liked" style="
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 20px; border-radius:999px;
-      border:1px solid rgba(232,222,208,0.2);
-      color:rgba(232,222,208,0.5); font-size:0.6rem;
-      letter-spacing:0.2em; text-transform:uppercase;
-      text-decoration:none; transition:all 0.2s;
-      margin-top:8px;
-    " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
-       onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
-      ♥ Liked Places
-    </a>
-    <a href="/posted" style="
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 20px; border-radius:999px;
-      border:1px solid rgba(232,222,208,0.2);
-      color:rgba(232,222,208,0.5); font-size:0.6rem;
-      letter-spacing:0.2em; text-transform:uppercase;
-      text-decoration:none; transition:all 0.2s;
-      margin-top:8px;
-    " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
-       onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
-      My posted locations
-    </a>
+    <!-- Nav links — wrap on mobile -->
+    <div class="flex flex-wrap justify-center gap-2 mt-2">
+      <a href="/browse" style="
+        display:inline-flex; align-items:center; gap:6px;
+        padding:8px 20px; border-radius:999px;
+        border:1px solid rgba(232,222,208,0.2);
+        color:rgba(232,222,208,0.5); font-size:0.6rem;
+        letter-spacing:0.2em; text-transform:uppercase;
+        text-decoration:none; transition:all 0.2s;
+      " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
+         onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
+        ← Browse Boroughs
+      </a>
+      <a href="/liked" style="
+        display:inline-flex; align-items:center; gap:6px;
+        padding:8px 20px; border-radius:999px;
+        border:1px solid rgba(232,222,208,0.2);
+        color:rgba(232,222,208,0.5); font-size:0.6rem;
+        letter-spacing:0.2em; text-transform:uppercase;
+        text-decoration:none; transition:all 0.2s;
+      " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
+         onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
+        ♥ Liked Places
+      </a>
+      <a href="/posted" style="
+        display:inline-flex; align-items:center; gap:6px;
+        padding:8px 20px; border-radius:999px;
+        border:1px solid rgba(232,222,208,0.2);
+        color:rgba(232,222,208,0.5); font-size:0.6rem;
+        letter-spacing:0.2em; text-transform:uppercase;
+        text-decoration:none; transition:all 0.2s;
+      " onmouseover="this.style.color='#e8ded0';this.style.borderColor='rgba(232,222,208,0.4)'"
+         onmouseout="this.style.color='rgba(232,222,208,0.5)';this.style.borderColor='rgba(232,222,208,0.2)'">
+        My posted locations
+      </a>
+    </div>
   </div>
 </div>
 
-
-<div class="flex-1 h-full bg-[#ece4d8] overflow-y-auto p-10">
+<!-- Main content -->
+<div class="flex-1 bg-[#ece4d8] overflow-y-auto p-6 md:p-10">
   <div class="w-full max-w-sm mx-auto">
 
-  
-    <div class="mb-4">
+    <div class="mb-6">
       <p class="text-xs tracking-[0.25em] uppercase text-[#7a6a55] mb-2">Account</p>
-      <h2 class="serif text-4xl font-light text-[#2b2b2b]">Your Profile</h2>
+      <h2 class="serif text-3xl md:text-4xl font-light text-[#2b2b2b]">Your Profile</h2>
       <div class="w-8 h-px bg-[#7a6a55] mt-4 opacity-60"></div>
     </div>
 
-    <!-- flash messages -->
+    <!-- Flash messages -->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
@@ -103,53 +101,52 @@
       {% endif %}
     {% endwith %}
 
-
+    <!-- Username form -->
     <form method="POST" action="/profile/update-username" class="mb-4">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Username</label>
       <div class="flex gap-2">
         <input type="text" name="username" value="{{ current_user.name }}" required
-          class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all">
+          class="flex-1 min-w-0 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all text-sm">
         <button type="submit"
-          class="px-5 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+          class="px-4 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm whitespace-nowrap">
           Save
         </button>
       </div>
     </form>
 
-  
+    <!-- Password form -->
     <form method="POST" action="/profile/update-password" class="mb-4">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">New Password</label>
       <div class="flex gap-2">
         <input type="password" name="password" placeholder="••••••••" required minlength="8"
-          class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all">
+          class="flex-1 min-w-0 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all text-sm">
         <button type="submit"
-          class="px-5 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+          class="px-4 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm whitespace-nowrap">
           Save
         </button>
       </div>
     </form>
 
-  
-    <form method="POST" action="/profile/update-picture" class="mb-4">
+    <!-- Profile picture form -->
+    <form method="POST" action="/profile/update-picture" class="mb-6">
       <label class="block text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-2">Profile Picture URL</label>
       <div class="flex gap-2">
         <input type="url" name="picture_url" placeholder="https://example.com/photo.jpg"
                value="{{ current_user.profile_picture or '' }}"
-          class="flex-1 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all">
+          class="flex-1 min-w-0 px-4 py-3 rounded-xl bg-[#f5efe6] border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] focus:outline-none text-[#2b2b2b] transition-all text-sm">
         <button type="submit"
-          class="px-5 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+          class="px-4 py-3 rounded-xl bg-[#3a3328] text-[#e8ded0] font-semibold border-2 border-[#1f1f1f] shadow-[3px_3px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm whitespace-nowrap">
           Save
         </button>
       </div>
     </form>
 
-  
     <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
 
     <!-- Achievements -->
-    <div class="mb-4">
+    <div class="mb-6">
       <p class="text-xs font-medium text-[#4a4a4a] uppercase tracking-widest mb-4">Achievements</p>
-      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+      <div class="grid grid-cols-3 gap-3">
         {% for a in achievements %}
         <div style="
           background: {{ '#f5efe6' if a.earned else 'rgba(0,0,0,0.04)' }};
@@ -172,7 +169,7 @@
           {% endif %}
           <img src="/static/images/{{ a.image }}"
                alt="{{ a.name }}"
-               style="width:48px; height:48px; object-fit:contain; margin:0 auto 8px; display:block;
+               style="width:40px; height:40px; object-fit:contain; margin:0 auto 8px; display:block;
                {{ 'filter: grayscale(1); opacity:0.35;' if not a.earned else '' }}">
           <p style="font-size:0.6rem; font-weight:600; color:#2b2b2b; line-height:1.3;">{{ a.name }}</p>
           <p style="font-size:0.5rem; color:#6a6a6a; margin-top:3px; line-height:1.4;">{{ a.desc }}</p>
@@ -186,12 +183,11 @@
       </div>
     </div>
 
-    
     <div class="border-t border-[#1f1f1f]/15 mb-6"></div>
 
-
+    <!-- Logout -->
     <a href="/logout"
-      class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm">
+      class="block text-center w-full py-3 rounded-xl bg-[#7a6a55] text-white font-semibold border-2 border-[#1f1f1f] shadow-[4px_4px_0px_#1f1f1f] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 text-sm mb-8">
       Log Out
     </a>
 
