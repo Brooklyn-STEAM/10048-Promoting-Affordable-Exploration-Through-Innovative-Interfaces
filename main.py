@@ -70,11 +70,11 @@ def page_not_found(e):
 
 # ── BOROUGHS ─────────────────────────────────────────────────
 BOROUGHS = [
-    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4"},
-    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e"},
-    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464"},
-    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555"},
-    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50"},
+    {"name": "manhattan",     "color": "#1a3a5c", "accent": "#2e6da4", "accent_rgb": "46, 109, 164"},
+    {"name": "brooklyn",      "color": "#5c3a1a", "accent": "#a4642e", "accent_rgb": "164, 100, 46"},
+    {"name": "queens",        "color": "#1a5c3a", "accent": "#2ea464", "accent_rgb": "46, 164, 100"},
+    {"name": "bronx",         "color": "#2a2a2a", "accent": "#555555", "accent_rgb": "85, 85, 85"},
+    {"name": "staten island", "color": "#3a3328", "accent": "#7a6a50", "accent_rgb": "122, 106, 80"},
 ]
 
 # ── ACHIEVEMENTS ─────────────────────────────────────────────
@@ -202,8 +202,9 @@ def borough_page(n):
         "Latitude":    float(l["Latitude"]) if l.get("Latitude") else None,
         "Longitude":   float(l["Longitude"]) if l.get("Longitude") else None,
         "Neighborhood": l.get("Neighborhood") or "",
-        "PriceTier":    l.get("PriceTier") or "",   # ADD
-        "PriceNote":    l.get("PriceNote") or "",   # ADD
+        "PriceTier":    l.get("PriceTier") or "",
+        "PriceNote":    l.get("PriceNote") or "",
+        "Category":     l.get("Category") or "",  # ADDED CATEGORY
     } for l in locations])
 
     return render_template(
@@ -299,6 +300,7 @@ def edit_location(n, loc_id):
     description = request.form.get("description", "").strip()
     price_tier  = request.form.get("price_tier", "").strip() or None
     price_note  = request.form.get("price_note", "").strip() or None
+    category    = request.form.get("category", "").strip() or None  # ADDED CATEGORY
 
     if not loc_name:
         flash("Name cannot be empty")
@@ -330,9 +332,9 @@ def edit_location(n, loc_id):
 
     cursor.execute("""
         UPDATE `Location`
-        SET Name=%s, Address=%s, Description=%s, Image=%s, Hours=%s, PriceTier=%s, PriceNote=%s
+        SET Name=%s, Address=%s, Description=%s, Image=%s, Hours=%s, PriceTier=%s, PriceNote=%s, Category=%s
         WHERE ID=%s AND UserID=%s
-    """, (loc_name, address, description, filename, hours_json, price_tier, price_note, loc_id, current_user.id))
+    """, (loc_name, address, description, filename, hours_json, price_tier, price_note, category, loc_id, current_user.id))
 
     connection.close()
     flash(f'"{loc_name}" updated!')
@@ -355,6 +357,7 @@ def add_location(n):
     neighborhood = request.form.get("neighborhood", "").strip() or None
     price_tier   = request.form.get("price_tier", "").strip() or None
     price_note   = request.form.get("price_note", "").strip() or None
+    category     = request.form.get("category", "").strip() or None  # ADDED CATEGORY
 
     if not loc_name or not address:
         flash("Please fill in the name and address")
@@ -399,10 +402,10 @@ def add_location(n):
     cursor = connection.cursor()
     cursor.execute("""
     INSERT INTO `Location`
-    (UserID, Name, Address, Description, Borough, Image, Hours, Latitude, Longitude, Neighborhood, PriceTier, PriceNote)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    (UserID, Name, Address, Description, Borough, Image, Hours, Latitude, Longitude, Neighborhood, PriceTier, PriceNote, Category)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (current_user.id, loc_name, address, description, borough_name, filename, hours_json,
-      latitude, longitude, neighborhood, price_tier, price_note))
+      latitude, longitude, neighborhood, price_tier, price_note, category))
 
     check_and_award(current_user.id, cursor)
     connection.close()
@@ -582,11 +585,68 @@ def liked_page():
         "Latitude":    float(l["Latitude"]) if l.get("Latitude") else None,
         "Longitude":   float(l["Longitude"]) if l.get("Longitude") else None,
         "Neighborhood": l.get("Neighborhood") or "",
-        "PriceTier":    l.get("PriceTier") or "",   # ADD THIS
-        "PriceNote":    l.get("PriceNote") or "",   # ADD THIS
+        "PriceTier":    l.get("PriceTier") or "",
+        "PriceNote":    l.get("PriceNote") or "",
+        "Category":     l.get("Category") or "",  # ADDED CATEGORY
     } for l in locations])
 
     return render_template("liked.html.jinja", locations=locations, locations_json=locations_json)
+
+
+@app.route("/posted")
+@login_required
+def posted_locations():
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT l.*, u.Username,
+               COALESCE(l.LikeCount, 0) as LikeCount
+        FROM `Location` l
+        JOIN `User` u ON l.UserID = u.ID
+        WHERE l.UserID = %s
+        ORDER BY l.DatePosted DESC
+    """, (current_user.id,))
+    locations = cursor.fetchall()
+
+    loc_ids = [l["ID"] for l in locations]
+    liked_ids = set()
+    if loc_ids:
+        fmt = ",".join(["%s"] * len(loc_ids))
+        cursor.execute(
+            f"SELECT LocationID FROM `Like` WHERE UserID = %s AND LocationID IN ({fmt})",
+            (current_user.id, *loc_ids)
+        )
+        liked_ids = {row["LocationID"] for row in cursor.fetchall()}
+
+    connection.close()
+
+    locations_json = json.dumps([{
+        "ID":           l["ID"],
+        "UserID":       l["UserID"],
+        "Name":         l["Name"],
+        "Borough":      l["Borough"],
+        "Address":      l.get("Address") or "",
+        "Description":  l.get("Description") or "",
+        "DatePosted":   (
+            l["DatePosted"].strftime("%b %d, %Y")
+            if isinstance(l["DatePosted"], datetime)
+            else str(l["DatePosted"])
+        ),
+        "Image":        l.get("Image") or "",
+        "LikeCount":    l.get("LikeCount") or 0,
+        "Liked":        l["ID"] in liked_ids,
+        "IsOwner":      True,
+        "Hours":        (json.loads(l["Hours"]) if l.get("Hours") else []),
+        "Latitude":     float(l["Latitude"]) if l.get("Latitude") else None,
+        "Longitude":    float(l["Longitude"]) if l.get("Longitude") else None,
+        "Neighborhood": l.get("Neighborhood") or "",
+        "PriceTier":    l.get("PriceTier") or "",
+        "PriceNote":    l.get("PriceNote") or "",
+        "Category":     l.get("Category") or "",  # ADDED CATEGORY
+    } for l in locations])
+
+    return render_template("postedloc.html.jinja", locations=locations, locations_json=locations_json, liked_ids=liked_ids)
 
 
 @app.route("/chat/<room>/history")
@@ -736,59 +796,3 @@ def on_message(data):
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
-
-
-
-@app.route("/posted")
-@login_required
-def posted_locations():
-    connection = connect_db()
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        SELECT l.*, u.Username,
-               COALESCE(l.LikeCount, 0) as LikeCount
-        FROM `Location` l
-        JOIN `User` u ON l.UserID = u.ID
-        WHERE l.UserID = %s
-        ORDER BY l.DatePosted DESC
-    """, (current_user.id,))
-    locations = cursor.fetchall()
-
-    loc_ids = [l["ID"] for l in locations]
-    liked_ids = set()
-    if loc_ids:
-        fmt = ",".join(["%s"] * len(loc_ids))
-        cursor.execute(
-            f"SELECT LocationID FROM `Like` WHERE UserID = %s AND LocationID IN ({fmt})",
-            (current_user.id, *loc_ids)
-        )
-        liked_ids = {row["LocationID"] for row in cursor.fetchall()}
-
-    connection.close()
-
-    locations_json = json.dumps([{
-        "ID":           l["ID"],
-        "UserID":       l["UserID"],
-        "Name":         l["Name"],
-        "Borough":      l["Borough"],
-        "Address":      l.get("Address") or "",
-        "Description":  l.get("Description") or "",
-        "DatePosted":   (
-            l["DatePosted"].strftime("%b %d, %Y")
-            if isinstance(l["DatePosted"], datetime)
-            else str(l["DatePosted"])
-        ),
-        "Image":        l.get("Image") or "",
-        "LikeCount":    l.get("LikeCount") or 0,
-        "Liked":        l["ID"] in liked_ids,
-        "IsOwner":      True,
-        "Hours":        (json.loads(l["Hours"]) if l.get("Hours") else []),
-        "Latitude":     float(l["Latitude"]) if l.get("Latitude") else None,
-        "Longitude":    float(l["Longitude"]) if l.get("Longitude") else None,
-        "Neighborhood": l.get("Neighborhood") or "",
-        "PriceTier":    l.get("PriceTier") or "",
-        "PriceNote":    l.get("PriceNote") or "",
-    } for l in locations])
-
-    return render_template("postedloc.html.jinja", locations=locations, locations_json=locations_json, liked_ids=liked_ids)

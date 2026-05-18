@@ -11,6 +11,7 @@
   <style>
     :root {
       --accent: {{ borough.accent }};
+      --accent-rgb: {{ borough.accent_rgb | default('46, 109, 164') }};
       --borough-color: {{ borough.color }};
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -52,6 +53,13 @@
     .gem-card .gem-title { font-size: 0.85rem; font-weight: 500; }
     .gem-card .gem-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 3px; letter-spacing: 0.08em; }
     .gem-card .no-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0.2; }
+
+    /* ── Category buttons ── */
+    .category-btn.selected {
+      background: rgba(var(--accent-rgb), 0.15) !important;
+      border-color: var(--accent) !important;
+      color: #e8ded0 !important;
+    }
 
     /* ── Buttons ── */
     .add-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: 999px; border: 1px solid rgba(232,222,208,0.35); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; background: transparent; color: #e8ded0; transition: background 0.2s; white-space: nowrap; }
@@ -609,6 +617,23 @@
               onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
               onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
           </div>
+
+          <!-- ── CATEGORY SELECTOR (ADDED RIGHT HERE) ── -->
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Category</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;" id="category-buttons">
+              <button type="button" class="category-btn" data-cat="food" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🍔 Food</button>
+              <button type="button" class="category-btn" data-cat="entertainment" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🎭 Entertainment</button>
+              <button type="button" class="category-btn" data-cat="arts" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🎨 Arts</button>
+              <button type="button" class="category-btn" data-cat="outdoors" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🌿 Outdoors</button>
+              <button type="button" class="category-btn" data-cat="shopping" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🛍️ Shopping</button>
+              <button type="button" class="category-btn" data-cat="nightlife" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🌙 Nightlife</button>
+              <button type="button" class="category-btn" data-cat="cafe" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">☕ Café</button>
+              <button type="button" class="category-btn" data-cat="wellness" onclick="selectCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🧘 Wellness</button>
+            </div>
+            <input type="hidden" name="category" id="hidden-category" value="">
+          </div>
+          <!-- ── END CATEGORY SELECTOR ── -->
         </div>
 
         <!-- STEP 2: Photo -->
@@ -727,7 +752,7 @@
   </div>
 </div>
 
-<!-- ── EDIT LOCATION MODAL ── -->
+<!-- ── EDIT LOCATION MODAL (includes category field) ── -->
 <div id="edit-modal" onclick="if(event.target===this)closeEditModal()" style="
   display:none; position:fixed; inset:0; z-index:500;
   background:rgba(0,0,0,0.7); backdrop-filter:blur(16px);
@@ -768,10 +793,8 @@
       </div>
     </div>
 
-    <!-- Edit form — single scrollable page, no steps needed -->
+    <!-- Edit form — single scrollable page -->
     <form id="edit-location-form" method="POST" enctype="multipart/form-data" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
-      
-
       <div style="flex:1;overflow-y:auto;padding:0 22px 22px;-webkit-overflow-scrolling:touch;">
 
         <p style="font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,222,208,0.3);margin-bottom:18px;margin-top:4px;">Update the details below</p>
@@ -838,6 +861,22 @@
               color:#e8ded0;font-size:0.85rem;font-family:inherit;outline:none;transition:all 0.2s;"
             onfocus="this.style.borderColor='rgba(232,222,208,0.35)';this.style.background='rgba(232,222,208,0.08)'"
             onblur="this.style.borderColor='rgba(232,222,208,0.12)';this.style.background='rgba(232,222,208,0.05)'">
+        </div>
+
+        <!-- Category (Edit modal) -->
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,222,208,0.4);margin-bottom:8px;">Category</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;" id="edit-category-buttons">
+            <button type="button" class="edit-category-btn category-btn" data-cat="food" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🍔 Food</button>
+            <button type="button" class="edit-category-btn category-btn" data-cat="entertainment" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🎭 Entertainment</button>
+            <button type="button" class="edit-category-btn category-btn" data-cat="arts" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🎨 Arts</button>
+            <button type="button" class="edit-category-btn category-btn" data-cat="outdoors" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🌿 Outdoors</button>
+            <button type="button" class="edit-category-btn category-btn" data-cat="shopping" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🛍️ Shopping</button>
+            <button type="button" class="edit-category-btn category-btn" data-cat="nightlife" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🌙 Nightlife</button>
+            <button type="button" class="edit-category-btn category-btn" data-cat="cafe" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">☕ Café</button>
+            <button type="button" class="edit-category-btn category-btn" data-cat="wellness" onclick="selectEditCategory(this)" style="padding:7px 14px;border-radius:999px;background:rgba(232,222,208,0.05);border:1px solid rgba(232,222,208,0.12);color:rgba(232,222,208,0.6);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;cursor:pointer;">🧘 Wellness</button>
+          </div>
+          <input type="hidden" name="category" id="edit-hidden-category" value="">
         </div>
 
         <!-- Photo -->
@@ -1026,6 +1065,36 @@
     document.getElementById('lb-like-btn').style.color = data.liked ? 'var(--accent)' : '#e8ded0';
     const btn = document.querySelector(`.like-btn[data-id="${loc.ID}"]`);
     if (btn) { btn.dataset.liked = data.liked ? 'true' : 'false'; btn.querySelector('.like-heart').textContent = data.liked ? '♥' : '♡'; btn.querySelector('.like-count').textContent = data.count; btn.style.color = data.liked ? 'var(--accent)' : 'rgba(232,222,208,0.3)'; }
+  }
+
+  // ── Category selection (add modal) ──
+  function selectCategory(btn) {
+    document.querySelectorAll('#category-buttons .category-btn').forEach(b => {
+      b.classList.remove('selected');
+      b.style.background = 'rgba(232,222,208,0.05)';
+      b.style.borderColor = 'rgba(232,222,208,0.12)';
+      b.style.color = 'rgba(232,222,208,0.6)';
+    });
+    btn.classList.add('selected');
+    btn.style.background = 'rgba(var(--accent-rgb), 0.15)';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = '#e8ded0';
+    document.getElementById('hidden-category').value = btn.dataset.cat;
+  }
+
+  // ── Category selection (edit modal) ──
+  function selectEditCategory(btn) {
+    document.querySelectorAll('#edit-category-buttons .edit-category-btn').forEach(b => {
+      b.classList.remove('selected');
+      b.style.background = 'rgba(232,222,208,0.05)';
+      b.style.borderColor = 'rgba(232,222,208,0.12)';
+      b.style.color = 'rgba(232,222,208,0.6)';
+    });
+    btn.classList.add('selected');
+    btn.style.background = 'rgba(var(--accent-rgb), 0.15)';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = '#e8ded0';
+    document.getElementById('edit-hidden-category').value = btn.dataset.cat;
   }
 
   // ── Featured carousel ──
@@ -1269,9 +1338,15 @@
 
     document.getElementById('lb-counter').textContent = `${lbIndex+1} / ${lbTotal}`;
     document.getElementById('lb-badge').textContent = loc.Type || ['Featured','Hidden gem','Local pick'][lbIndex] || 'Gem';
-    document.getElementById('lb-type').textContent  = loc.Category || 'Location';
-    document.getElementById('lb-coords').textContent = (loc.Latitude && loc.Longitude) ? `${loc.Latitude}° N · ${loc.Longitude}° W` : '';
-
+    
+    // Show category with icon
+    const categoryIcon = {
+      'food': '🍔', 'entertainment': '🎭', 'arts': '🎨',
+      'outdoors': '🌿', 'shopping': '🛍️', 'nightlife': '🌙',
+      'cafe': '☕', 'wellness': '🧘'
+    }[loc.Category] || '📍';
+    document.getElementById('lb-type').innerHTML = `${categoryIcon} ${loc.Category || 'Location'}`;
+    
     const addrText = document.getElementById('lb-addr-text'), mapLink = document.getElementById('lb-map-link');
     if (loc.Address) {
       addrText.textContent = loc.Address;
@@ -1310,7 +1385,7 @@
   }
 
   function formatHours(s) {
-    if (!s||s==="Closed") return "Closed";
+    if(!s||s==="Closed") return "Closed";
     const p=s.split(" – "); return p.length!==2?s:`${to12Hour(p[0])} – ${to12Hour(p[1])}`;
   }
   function to12Hour(t) {
@@ -1379,6 +1454,24 @@
     if (loc.PriceTier) {
       const btn = document.querySelector(`.edit-price-tier-btn[data-tier="${loc.PriceTier}"]`);
       if (btn) btn.classList.add('selected');
+    }
+
+    // Pre-select category
+    document.querySelectorAll('#edit-category-buttons .edit-category-btn').forEach(b => {
+      b.classList.remove('selected');
+      b.style.background = 'rgba(232,222,208,0.05)';
+      b.style.borderColor = 'rgba(232,222,208,0.12)';
+      b.style.color = 'rgba(232,222,208,0.6)';
+    });
+    document.getElementById('edit-hidden-category').value = loc.Category || '';
+    if (loc.Category) {
+      const catBtn = document.querySelector(`#edit-category-buttons .edit-category-btn[data-cat="${loc.Category}"]`);
+      if (catBtn) {
+        catBtn.classList.add('selected');
+        catBtn.style.background = 'rgba(var(--accent-rgb), 0.15)';
+        catBtn.style.borderColor = 'var(--accent)';
+        catBtn.style.color = '#e8ded0';
+      }
     }
 
     // Pre-fill hours
@@ -1842,10 +1935,9 @@
 
   document.addEventListener('click', e => {
     if(switcherOpen&&!document.getElementById('borough-switcher').contains(e.target)){
-      switcherOpen=true; toggleSwitcher();
+      switcherOpen=false; toggleSwitcher();
     }
   });
 </script>
-
 </body>
 </html>
